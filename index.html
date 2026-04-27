@@ -390,6 +390,54 @@ input[type=color]{
   font-size:.88rem;font-weight:600;cursor:pointer;font-family:inherit;
 }
 
+/* ─── AI COPY CARD ──────────────────────────── */
+.ai-copy-card{
+  background:linear-gradient(135deg,rgba(29,158,117,.14),rgba(29,158,117,.05));
+  border:1.5px solid rgba(29,158,117,.35);border-radius:var(--r);
+  padding:1.5rem;margin-bottom:1.25rem;
+}
+.ai-copy-title{font-size:1.1rem;font-weight:800;margin-bottom:.3rem;display:flex;align-items:center;gap:.5rem}
+.ai-copy-desc{color:var(--tm);font-size:.85rem;margin-bottom:1.1rem;line-height:1.55}
+.ai-copy-btn{
+  width:100%;padding:.85rem;background:var(--p);color:#fff;border:none;
+  border-radius:10px;font-size:.95rem;font-weight:700;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:.55rem;
+  font-family:inherit;transition:background .18s;
+}
+.ai-copy-btn:hover{background:var(--pd)}
+.ai-copy-btn:disabled{opacity:.55;cursor:not-allowed;pointer-events:none}
+.ai-copy-sep{
+  text-align:center;color:var(--td);font-size:.8rem;margin:.75rem 0 0;
+  display:flex;align-items:center;gap:.6rem;
+}
+.ai-copy-sep::before,.ai-copy-sep::after{content:'';flex:1;height:1px;background:var(--bd)}
+.ai-copy-status{
+  margin-top:.75rem;padding:.6rem .9rem;border-radius:8px;
+  font-size:.82rem;font-weight:600;text-align:center;display:none;
+}
+.ai-copy-status.ok{display:block;background:rgba(29,158,117,.12);color:var(--p);border:1px solid rgba(29,158,117,.3)}
+.ai-copy-status.err{display:block;background:rgba(239,68,68,.08);color:#f87171;border:1px solid rgba(239,68,68,.25)}
+
+/* spinner inside button */
+.spin{
+  display:inline-block;width:16px;height:16px;
+  border:2px solid rgba(255,255,255,.4);border-top-color:#fff;
+  border-radius:50%;animation:_spin .65s linear infinite;flex-shrink:0;
+}
+@keyframes _spin{to{transform:rotate(360deg)}}
+
+/* per-section regen (small, inline) */
+.regen-sm{
+  display:inline-flex;align-items:center;gap:.3rem;
+  padding:.28rem .65rem;border-radius:6px;
+  background:transparent;border:1.5px solid var(--bd2);
+  color:var(--tm);font-size:.74rem;font-weight:600;cursor:pointer;
+  transition:all .18s;flex-shrink:0;
+}
+.regen-sm:hover{border-color:var(--p);color:var(--p);background:var(--pl)}
+.regen-sm.loading{opacity:.6;pointer-events:none}
+.csec-hd-row{display:flex;align-items:center;justify-content:space-between;width:100%}
+
 /* ─── MISC ──────────────────────────────────── */
 .divider{border:none;border-top:1px solid var(--bd);margin:1.25rem 0}
 .badge{
@@ -657,10 +705,19 @@ input[type=color]{
 <!-- STEP 5 ─ COPY EDITOR -->
 <div class="step" id="s5">
   <h2 class="pg-title">Editor de copy</h2>
-  <p class="pg-sub">Revisa y edita el contenido antes de generar. Deja vacío y la IA lo completará.</p>
-  <div style="display:flex;justify-content:flex-end;margin-bottom:.9rem">
-    <button class="regen" onclick="regenAll()" style="margin-top:0">🔄 Regenerar todo con IA</button>
+  <p class="pg-sub">La IA puede completar todo automáticamente, o edita los campos manualmente.</p>
+
+  <!-- AI COPY GENERATION CARD -->
+  <div class="ai-copy-card">
+    <div class="ai-copy-title">✨ Generar copy con IA</div>
+    <p class="ai-copy-desc">La IA analizará tu producto y completará todos los campos automáticamente con copy optimizado para ventas. Luego puedes editar lo que no te guste.</p>
+    <button class="ai-copy-btn" id="genCopyBtn" onclick="generateCopy()">
+      ✨ Generar copy con IA
+    </button>
+    <div class="ai-copy-sep">o completa los campos manualmente</div>
+    <div class="ai-copy-status" id="copyStatus"></div>
   </div>
+
   <div id="copyEd"></div>
 </div>
 
@@ -1050,12 +1107,15 @@ function buildCopyEditor(){
 function csec(id,ico,title,body){
   return `<div class="csec open" id="cs-${id}">
     <div class="csec-hd" onclick="toggleCS('${id}')">
-      <span class="csec-ttl">${ico} ${title}</span>
-      <span class="chev">▼</span>
+      <div class="csec-hd-row">
+        <span class="csec-ttl">${ico} ${title}</span>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <button class="regen-sm" id="rsm-${id}" onclick="event.stopPropagation();regenSec('${id}')">↻ Regenerar</button>
+          <span class="chev">▼</span>
+        </div>
+      </div>
     </div>
-    <div class="csec-bd">${body}
-      <button class="regen" onclick="regenSec('${id}')">🔄 Regenerar con IA</button>
-    </div>
+    <div class="csec-bd">${body}</div>
   </div>`;
 }
 function toggleCS(id){document.getElementById(`cs-${id}`).classList.toggle('open');}
@@ -1120,8 +1180,114 @@ function buildFaq(){
 function addFaq(){st.copy.faq.push({q:'',a:''});buildCopyEditor();}
 function rmFaq(i){st.copy.faq.splice(i,1);buildCopyEditor();}
 
-function regenSec(id){toast(`Regenerando "${id}" con IA…`);}
-function regenAll(){toast('Regenerando todo el copy con IA…');}
+const PROXY_COPY = 'https://generador.duallegacyideas.com/proxy-copy.php';
+
+function copyPayload(accion, seccion){
+  return {
+    accion,
+    seccion: seccion||null,
+    nombre_producto: st.prod.name,
+    precio: st.prod.price,
+    precio_antes: st.prod.oldprice,
+    descripcion: st.prod.desc,
+    whatsapp: st.prod.wa,
+    nicho: st.prod.nicho,
+    mercado: st.prod.mercado,
+    instrucciones: st.prod.extra,
+    cities: CITIES[st.prod.mercado]||CITIES.Ecuador,
+    secciones_activas: SEC_DEFS.filter(s=>st.secs[s.id].active).map(s=>({id:s.id,...st.secs[s.id]}))
+  };
+}
+
+function applyCopyResponse(data){
+  const c=st.copy, cs=CITIES[st.prod.mercado]||CITIES.Ecuador;
+  if(data.urgencia!==undefined) c.urgencia=data.urgencia;
+  if(data.hero) Object.assign(c.hero,data.hero);
+  if(data.problema) Object.assign(c.problema,data.problema);
+  if(Array.isArray(data.beneficios)&&data.beneficios.length) c.beneficios=data.beneficios;
+  if(Array.isArray(data.reviews)&&data.reviews.length){
+    c.reviews=data.reviews.map((r,i)=>({
+      name:r.name||'',
+      city:r.city||cs[i%cs.length],
+      stars:r.stars||5,
+      comment:r.comment||''
+    }));
+  }
+  if(data.garantia) Object.assign(c.garantia,data.garantia);
+  if(Array.isArray(data.faq)&&data.faq.length) c.faq=data.faq;
+  if(data.cta_final) Object.assign(c.cta_final,data.cta_final);
+}
+
+async function generateCopy(){
+  const btn=document.getElementById('genCopyBtn');
+  const statusEl=document.getElementById('copyStatus');
+  btn.disabled=true;
+  btn.innerHTML='<span class="spin"></span> Generando copy…';
+  statusEl.className='ai-copy-status';statusEl.style.display='none';
+
+  try{
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),60000);
+    const res=await fetch(PROXY_COPY,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(copyPayload('generar_copy')),
+      signal:ctrl.signal
+    });
+    clearTimeout(tid);
+    const data=await res.json();
+    if(data.error) throw new Error(data.message||'Error del servidor');
+    applyCopyResponse(data);
+    buildCopyEditor();
+    statusEl.textContent='✅ Copy generado. Revisa y edita lo que necesites.';
+    statusEl.className='ai-copy-status ok';
+  }catch(e){
+    const msg=e.name==='AbortError'?'Tiempo de espera agotado (60s).':e.message;
+    statusEl.textContent='⚠️ Error al generar. Completa los campos manualmente. ('+msg+')';
+    statusEl.className='ai-copy-status err';
+  }finally{
+    btn.disabled=false;
+    btn.innerHTML='✨ Generar copy con IA';
+  }
+}
+
+async function regenSec(id){
+  const btn=document.getElementById(`rsm-${id}`);
+  if(!btn)return;
+  btn.classList.add('loading');
+  btn.textContent='…';
+
+  const SEC_COPY_MAP={
+    urgencia:'urgencia',hero:'hero',problema:'problema',
+    bens:'beneficios',revs:'reviews',garantia:'garantia',
+    faq:'faq',cta:'cta_final'
+  };
+  const seccion=SEC_COPY_MAP[id]||id;
+
+  try{
+    const ctrl=new AbortController();
+    const tid=setTimeout(()=>ctrl.abort(),60000);
+    const res=await fetch(PROXY_COPY,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(copyPayload('regenerar_seccion',seccion)),
+      signal:ctrl.signal
+    });
+    clearTimeout(tid);
+    const data=await res.json();
+    if(data.error) throw new Error(data.message||'Error');
+    applyCopyResponse(data);
+    buildCopyEditor();
+    toast(`✅ Sección regenerada`);
+  }catch(e){
+    toast(`⚠️ Error al regenerar: ${e.name==='AbortError'?'timeout':e.message}`);
+  }finally{
+    const b=document.getElementById(`rsm-${id}`);
+    if(b){b.classList.remove('loading');b.textContent='↻ Regenerar';}
+  }
+}
+
+function regenAll(){generateCopy();}
 function esc(v){return String(v||'').replace(/"/g,'&quot;');}
 
 /* ─── GENERATE ────────────────────────────────────── */
