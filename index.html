@@ -1200,54 +1200,104 @@ function copyPayload(accion, seccion){
 }
 
 function applyCopyResponse(data){
-  const c=st.copy, cs=CITIES[st.prod.mercado]||CITIES.Ecuador;
-  if(data.urgencia!==undefined) c.urgencia=data.urgencia;
-  if(data.hero) Object.assign(c.hero,data.hero);
-  if(data.problema) Object.assign(c.problema,data.problema);
-  if(Array.isArray(data.beneficios)&&data.beneficios.length) c.beneficios=data.beneficios;
-  if(Array.isArray(data.reviews)&&data.reviews.length){
-    c.reviews=data.reviews.map((r,i)=>({
-      name:r.name||'',
-      city:r.city||cs[i%cs.length],
-      stars:r.stars||5,
-      comment:r.comment||''
+  /* La respuesta puede venir envuelta en { copy: {...} } o directamente */
+  const d = (data.copy && typeof data.copy === 'object') ? data.copy : data;
+  const c = st.copy;
+  const cs = CITIES[st.prod.mercado] || CITIES.Ecuador;
+
+  if(d.urgencia !== undefined) c.urgencia = d.urgencia;
+
+  if(d.hero){
+    const h = d.hero;
+    if(h.titulo     !== undefined) c.hero.titulo      = h.titulo;
+    if(h.subtitulo  !== undefined) c.hero.sub         = h.subtitulo;  /* nombre del campo del API */
+    if(h.sub        !== undefined) c.hero.sub         = h.sub;
+    if(h.badge      !== undefined) c.hero.badge       = h.badge;
+    if(h.cta        !== undefined) c.hero.cta         = h.cta;
+    if(h.precio_actual !== undefined) c.hero.precio   = h.precio_actual;
+    if(h.precio     !== undefined) c.hero.precio      = h.precio;
+    if(h.precio_antes !== undefined) c.hero.precio_antes = h.precio_antes;
+  }
+
+  if(d.problema){
+    if(d.problema.titulo !== undefined) c.problema.titulo = d.problema.titulo;
+    if(d.problema.desc   !== undefined) c.problema.desc   = d.problema.desc;
+  }
+
+  if(Array.isArray(d.beneficios) && d.beneficios.length){
+    c.beneficios = d.beneficios.map(b=>({
+      e: b.e || b.emoji || '✅',
+      t: b.t || b.titulo || b.title || '',
+      d: b.d || b.desc   || b.description || ''
     }));
   }
-  if(data.garantia) Object.assign(c.garantia,data.garantia);
-  if(Array.isArray(data.faq)&&data.faq.length) c.faq=data.faq;
-  if(data.cta_final) Object.assign(c.cta_final,data.cta_final);
+
+  if(Array.isArray(d.reviews) && d.reviews.length){
+    c.reviews = d.reviews.map((r,i)=>({
+      name:    r.name    || '',
+      city:    r.city    || cs[i % cs.length],
+      stars:   r.stars   || 5,
+      comment: r.comment || ''
+    }));
+  }
+
+  if(d.garantia){
+    if(d.garantia.titulo !== undefined) c.garantia.titulo = d.garantia.titulo;
+    if(d.garantia.desc   !== undefined) c.garantia.desc   = d.garantia.desc;
+  }
+
+  if(Array.isArray(d.faq) && d.faq.length){
+    c.faq = d.faq.map(f=>({ q: f.q||f.pregunta||'', a: f.a||f.respuesta||'' }));
+  }
+
+  if(d.cta_final){
+    const cf = d.cta_final;
+    if(cf.titulo   !== undefined) c.cta_final.titulo   = cf.titulo;
+    if(cf.sub      !== undefined) c.cta_final.sub      = cf.sub;
+    if(cf.btn      !== undefined) c.cta_final.btn      = cf.btn;
+    if(cf.escasez  !== undefined) c.cta_final.escasez  = cf.escasez;
+  }
 }
 
 async function generateCopy(){
-  const btn=document.getElementById('genCopyBtn');
-  const statusEl=document.getElementById('copyStatus');
-  btn.disabled=true;
-  btn.innerHTML='<span class="spin"></span> Generando copy…';
-  statusEl.className='ai-copy-status';statusEl.style.display='none';
+  const btn = document.getElementById('genCopyBtn');
+  const statusEl = document.getElementById('copyStatus');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spin"></span> Generando copy…';
+  statusEl.className = 'ai-copy-status';
+  statusEl.style.display = 'none';
 
   try{
-    const ctrl=new AbortController();
-    const tid=setTimeout(()=>ctrl.abort(),60000);
-    const res=await fetch(PROXY_COPY,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(copyPayload('generar_copy')),
-      signal:ctrl.signal
+    const ctrl = new AbortController();
+    const tid  = setTimeout(()=>ctrl.abort(), 90000);
+    const res  = await fetch(PROXY_COPY, {
+      method:  'POST',
+      headers: {'Content-Type':'application/json'},
+      body:    JSON.stringify(copyPayload('generar_copy')),
+      signal:  ctrl.signal
     });
     clearTimeout(tid);
-    const data=await res.json();
-    if(data.error) throw new Error(data.message||'Error del servidor');
+
+    let data;
+    try{ data = await res.json(); }
+    catch(e){ throw new Error('Respuesta inválida del servidor (no es JSON).'); }
+
+    if(data.error) throw new Error(data.message || 'Error del servidor');
+
     applyCopyResponse(data);
     buildCopyEditor();
-    statusEl.textContent='✅ Copy generado. Revisa y edita lo que necesites.';
-    statusEl.className='ai-copy-status ok';
+
+    statusEl.textContent = '✅ Copy generado por IA. Revisa y edita.';
+    statusEl.className   = 'ai-copy-status ok';
+    toast('✅ Copy generado por IA. Revisa y edita.');
+
   }catch(e){
-    const msg=e.name==='AbortError'?'Tiempo de espera agotado (60s).':e.message;
-    statusEl.textContent='⚠️ Error al generar. Completa los campos manualmente. ('+msg+')';
-    statusEl.className='ai-copy-status err';
+    const msg = e.name === 'AbortError' ? 'Tiempo de espera agotado (90s).' : e.message;
+    statusEl.textContent = '⚠️ Error al generar. Completa los campos manualmente. (' + msg + ')';
+    statusEl.className   = 'ai-copy-status err';
   }finally{
-    btn.disabled=false;
-    btn.innerHTML='✨ Generar copy con IA';
+    btn.disabled  = false;
+    btn.innerHTML = '✨ Generar copy con IA';
   }
 }
 
