@@ -707,15 +707,12 @@ input[type=color]{
   <h2 class="pg-title">Editor de copy</h2>
   <p class="pg-sub">La IA puede completar todo automáticamente, o edita los campos manualmente.</p>
 
-  <!-- AI COPY GENERATION CARD -->
-  <div class="ai-copy-card">
-    <div class="ai-copy-title">✨ Generar copy con IA</div>
-    <p class="ai-copy-desc">La IA analizará tu producto y completará todos los campos automáticamente con copy optimizado para ventas. Luego puedes editar lo que no te guste.</p>
-    <button class="ai-copy-btn" id="genCopyBtn" onclick="generateCopy()">
-      ✨ Generar copy con IA
-    </button>
-    <div class="ai-copy-sep">o completa los campos manualmente</div>
-    <div class="ai-copy-status" id="copyStatus"></div>
+  <div class="card" style="text-align:center;padding:2rem">
+    <div style="font-size:2rem;margin-bottom:0.5rem">✨</div>
+    <div style="font-size:1.1rem;font-weight:700;margin-bottom:0.4rem">Generar copy con IA</div>
+    <div style="font-size:0.85rem;color:var(--tm);margin-bottom:1.2rem">La IA analizará tu producto y completará todos los campos automáticamente.</div>
+    <button id="genCopyBtn" class="btn btn-p" onclick="generateCopy()" style="min-width:220px">✨ Generar copy con IA</button>
+    <div id="copyStatus" class="ai-copy-status" style="display:none;margin-top:0.8rem"></div>
   </div>
 
   <div id="copyEd"></div>
@@ -726,8 +723,9 @@ input[type=color]{
   <h2 class="pg-title">Resultado</h2>
   <p class="pg-sub">Tu landing page está lista para publicar</p>
 
-  <div id="res-pending" style="text-align:center;padding:2.5rem 1rem;color:var(--tm)">
-    <p style="font-size:.9rem">Presiona <strong style="color:var(--tx)">⚡ Generar Landing</strong> para iniciar.</p>
+  <div id="res-pending" style="text-align:center;padding:2.5rem 1rem">
+    <p style="font-size:.9rem;color:var(--tm);margin-bottom:1.5rem">Revisa tu copy y configuración, luego genera tu landing page.</p>
+    <button class="btn btn-p btn-lg" onclick="generate()" style="min-width:240px;font-size:1.05rem">⚡ Generar Landing</button>
   </div>
 
   <div id="res-ok" style="display:none">
@@ -883,8 +881,7 @@ function nav(to){
   const ind=document.getElementById('stepInd');
   p.style.display=to>1?'flex':'none';
   ind.textContent=`Paso ${to} de 6`;
-  if(to===5){nx.textContent='⚡ Generar Landing';}
-  else if(to===6){nx.style.display='none';p.style.display='flex';}
+  if(to===6){nx.style.display='none';p.style.display='flex';}
   else{nx.textContent='Continuar →';nx.style.display='flex';}
   window.scrollTo({top:0,behavior:'smooth'});
 }
@@ -903,7 +900,6 @@ function next(){
     if(!st.prod.price){alert('Por favor ingresa el precio de venta.');return;}
     if(!st.prod.desc){alert('Por favor ingresa la descripción del producto.');return;}
   }
-  if(st.step===5){generate();return;}
   if(st.step===4){buildCopyEditor();}
   if(st.step<6)nav(st.step+1);
 }
@@ -1180,22 +1176,40 @@ function buildFaq(){
 function addFaq(){st.copy.faq.push({q:'',a:''});buildCopyEditor();}
 function rmFaq(i){st.copy.faq.splice(i,1);buildCopyEditor();}
 
-const PROXY_COPY = 'https://generador.duallegacyideas.com/proxy-copy.php';
+const PROXY_COPY = 'https://generador.duallegacyideas.com/proxy.php';
 
 function copyPayload(accion, seccion){
+  /* Sincroniza st.prod con los inputs del DOM en caso de que el usuario
+     haya llegado al paso 5 sin pasar por el botón "Continuar" del paso 1 */
+  const nameEl = document.getElementById('f-name');
+  if(nameEl && nameEl.value.trim()) st.prod.name     = nameEl.value.trim();
+  const priceEl = document.getElementById('f-price');
+  if(priceEl && priceEl.value.trim()) st.prod.price  = priceEl.value.trim();
+  const oldEl = document.getElementById('f-oldprice');
+  if(oldEl) st.prod.oldprice = oldEl.value.trim();
+  const descEl = document.getElementById('f-desc');
+  if(descEl && descEl.value.trim()) st.prod.desc     = descEl.value.trim();
+  const waEl = document.getElementById('f-wa');
+  if(waEl) st.prod.wa = waEl.value.trim();
+  const extraEl = document.getElementById('f-extra');
+  if(extraEl) st.prod.extra = extraEl.value.trim();
+
   return {
     accion,
-    seccion: seccion||null,
+    seccion:         seccion || null,
     nombre_producto: st.prod.name,
-    precio: st.prod.price,
-    precio_antes: st.prod.oldprice,
-    descripcion: st.prod.desc,
-    whatsapp: st.prod.wa,
-    nicho: st.prod.nicho,
-    mercado: st.prod.mercado,
-    instrucciones: st.prod.extra,
-    cities: CITIES[st.prod.mercado]||CITIES.Ecuador,
-    secciones_activas: SEC_DEFS.filter(s=>st.secs[s.id].active).map(s=>({id:s.id,...st.secs[s.id]}))
+    precio:          st.prod.price,
+    precio_antes:    st.prod.oldprice,
+    descripcion:     st.prod.desc,
+    whatsapp:        st.prod.wa,
+    nicho:           st.prod.nicho,
+    mercado:         st.prod.mercado,
+    instrucciones:   st.prod.extra,
+    tono:            st.prod.extra ? 'personalizado' : 'profesional',
+    cities:          CITIES[st.prod.mercado] || CITIES.Ecuador,
+    secciones_activas: SEC_DEFS
+      .filter(s => st.secs[s.id].active)
+      .map(s => ({ id: s.id, ...st.secs[s.id] }))
   };
 }
 
