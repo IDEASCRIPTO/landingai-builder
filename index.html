@@ -1466,6 +1466,7 @@ async function generate(){
   document.getElementById('res-ok').style.display='none';
   document.getElementById('res-err').style.display='none';
   showOverlay();
+  console.log('overlay mostrado, iniciando fetch...');
 
   const payload = {
     nombre_producto: st.prod.name,
@@ -1535,6 +1536,7 @@ async function generate(){
     if(e.name==='AbortError') showErr('Tiempo de espera agotado (180s). Por favor intenta de nuevo.');
     else showErr('Error de conexión: '+e.message);
   }
+  console.log('generate() terminó');
 }
 
 function showErr(msg){
