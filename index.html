@@ -484,9 +484,17 @@ input[type=color]{
       <textarea id="f-desc" rows="4" placeholder="Describe el producto, qué problema resuelve, para quién es, características principales, materiales, tamaño, etc."></textarea>
     </div>
     <div class="fg">
-      <label class="fl">WhatsApp para pedidos</label>
-      <input type="tel" id="f-wa" placeholder="Ej: +593987654321 (con código de país)" />
-      <p class="hint">Se usará en todos los botones de pedido de la landing.</p>
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.5rem">
+        <label class="fl" style="margin-bottom:0">Activar botón WhatsApp</label>
+        <label class="tog">
+          <input type="checkbox" id="wa-toggle" checked onchange="toggleWA(this.checked)">
+          <div class="tog-track"></div>
+        </label>
+      </div>
+      <div id="wa-field">
+        <input type="tel" id="f-wa" placeholder="Ej: +593987654321 (con código de país)" />
+        <p class="hint">Se usará en todos los botones de pedido de la landing.</p>
+      </div>
     </div>
   </div>
 
@@ -546,18 +554,14 @@ input[type=color]{
       <div class="itab" onclick="setImgTab('hero','none',this)">🚫 Sin imagen</div>
     </div>
     <div class="ipanel on" id="hero-upload">
-      <div class="fg"><label class="fl">URL imagen 1</label>
-        <input type="url" id="img-hero-0" placeholder="https://cdn.shopify.com/s/files/…" oninput="setImgUrl('hero',0,this.value)"></div>
-      <div class="fg"><label class="fl">URL imagen 2 <span style="font-weight:400;opacity:.6">(opcional)</span></label>
-        <input type="url" id="img-hero-1" placeholder="https://cdn.shopify.com/s/files/…" oninput="setImgUrl('hero',1,this.value)"></div>
-      <div class="fg"><label class="fl">URL imagen 3 <span style="font-weight:400;opacity:.6">(opcional)</span></label>
-        <input type="url" id="img-hero-2" placeholder="https://cdn.shopify.com/s/files/…" oninput="setImgUrl('hero',2,this.value)"></div>
+      <div id="url-list-hero"></div>
+      <button class="add-btn" id="add-hero-url" onclick="addImgUrl('hero')">＋ Agregar URL</button>
     </div>
     <div class="ipanel" id="hero-ai">
       <div class="mdl-btns" id="mbt-hero">
-        <div class="mbtn on" onclick="setMdl('hero','dalle3',this)">DALL·E 3</div>
-        <div class="mbtn" onclick="setMdl('hero','sd',this)">Stable Diffusion</div>
-        <div class="mbtn" onclick="setMdl('hero','flux',this)">Flux</div>
+        <div class="mbtn on" onclick="setMdl('hero','dalle3',this)" title="Alta calidad fotorrealista">DALL·E 3</div>
+        <div class="mbtn" onclick="setMdl('hero','gemini',this)" title="Google AI, gran contexto">Gemini</div>
+        <div class="mbtn" onclick="setMdl('hero','flux',this)" title="Replicate, rápido y eficiente">Flux Schnell</div>
       </div>
       <label class="fl">Prompt de imagen</label>
       <textarea id="pr-hero" rows="3" placeholder="Se sugerirá automáticamente…"></textarea>
@@ -577,14 +581,13 @@ input[type=color]{
       <div class="itab" onclick="setImgTab('prob','none',this)">🚫 Sin imagen</div>
     </div>
     <div class="ipanel on" id="prob-upload">
-      <div class="fg"><label class="fl">URL de la imagen del problema</label>
-        <input type="url" id="img-prob-0" placeholder="https://cdn.shopify.com/s/files/…" oninput="setImgUrl('prob',0,this.value)"></div>
+      <div id="url-list-prob"></div>
     </div>
     <div class="ipanel" id="prob-ai">
       <div class="mdl-btns" id="mbt-prob">
-        <div class="mbtn on" onclick="setMdl('prob','dalle3',this)">DALL·E 3</div>
-        <div class="mbtn" onclick="setMdl('prob','sd',this)">Stable Diffusion</div>
-        <div class="mbtn" onclick="setMdl('prob','flux',this)">Flux</div>
+        <div class="mbtn on" onclick="setMdl('prob','dalle3',this)" title="Alta calidad fotorrealista">DALL·E 3</div>
+        <div class="mbtn" onclick="setMdl('prob','gemini',this)" title="Google AI, gran contexto">Gemini</div>
+        <div class="mbtn" onclick="setMdl('prob','flux',this)" title="Replicate, rápido y eficiente">Flux Schnell</div>
       </div>
       <label class="fl">Prompt de imagen</label>
       <textarea id="pr-prob" rows="3" placeholder="Se sugerirá automáticamente…"></textarea>
@@ -604,20 +607,14 @@ input[type=color]{
       <div class="itab" onclick="setImgTab('revs','none',this)">👤 Sin foto</div>
     </div>
     <div class="ipanel on" id="revs-upload">
-      <div class="fg"><label class="fl">URL foto cliente 1</label>
-        <input type="url" id="img-revs-0" placeholder="https://…" oninput="setImgUrl('revs',0,this.value)"></div>
-      <div class="fg"><label class="fl">URL foto cliente 2 <span style="font-weight:400;opacity:.6">(opcional)</span></label>
-        <input type="url" id="img-revs-1" placeholder="https://…" oninput="setImgUrl('revs',1,this.value)"></div>
-      <div class="fg"><label class="fl">URL foto cliente 3 <span style="font-weight:400;opacity:.6">(opcional)</span></label>
-        <input type="url" id="img-revs-2" placeholder="https://…" oninput="setImgUrl('revs',2,this.value)"></div>
-      <div class="fg"><label class="fl">URL foto cliente 4 <span style="font-weight:400;opacity:.6">(opcional)</span></label>
-        <input type="url" id="img-revs-3" placeholder="https://…" oninput="setImgUrl('revs',3,this.value)"></div>
+      <div id="url-list-revs"></div>
+      <button class="add-btn" id="add-revs-url" onclick="addImgUrl('revs')">＋ Agregar URL</button>
     </div>
     <div class="ipanel" id="revs-ai">
       <div class="mdl-btns" id="mbt-revs">
-        <div class="mbtn on" onclick="setMdl('revs','dalle3',this)">DALL·E 3</div>
-        <div class="mbtn" onclick="setMdl('revs','sd',this)">Stable Diffusion</div>
-        <div class="mbtn" onclick="setMdl('revs','flux',this)">Flux</div>
+        <div class="mbtn on" onclick="setMdl('revs','dalle3',this)" title="Alta calidad fotorrealista">DALL·E 3</div>
+        <div class="mbtn" onclick="setMdl('revs','gemini',this)" title="Google AI, gran contexto">Gemini</div>
+        <div class="mbtn" onclick="setMdl('revs','flux',this)" title="Replicate, rápido y eficiente">Flux Schnell</div>
       </div>
       <label class="fl">Prompt de imagen</label>
       <textarea id="pr-revs" rows="3" placeholder="Se sugerirá automáticamente…"></textarea>
@@ -631,19 +628,32 @@ input[type=color]{
   <!-- Video -->
   <div class="card">
     <div class="card-title">🎬 Video del producto <span style="font-weight:400;font-style:italic;text-transform:none">(opcional)</span></div>
-    <div class="plat-tabs" id="platTabs">
-      <div class="ptab on" onclick="setPlat('youtube',this)">▶ YouTube</div>
-      <div class="ptab" onclick="setPlat('tiktok',this)">♪ TikTok</div>
-      <div class="ptab" onclick="setPlat('vimeo',this)">🎥 Vimeo</div>
-      <div class="ptab" onclick="setPlat('mp4',this)">📹 MP4</div>
-    </div>
     <div class="fg">
-      <label class="fl" id="vid-lbl">URL del video de YouTube</label>
-      <input type="url" id="f-vid" placeholder="https://www.youtube.com/watch?v=…" oninput="st.vid_url=this.value" />
+      <label class="fl">URL del video</label>
+      <input type="url" id="f-vid" placeholder="YouTube, TikTok, Vimeo o URL de MP4…" oninput="onVidUrl(this.value)" />
+      <p class="hint" id="vid-detect-hint" style="display:none;color:var(--p)"></p>
     </div>
+    <div id="vid-preview" style="display:none;margin:.65rem 0;text-align:center"></div>
+    <div id="vid-carousel-urls" style="display:none"></div>
     <div class="fg">
       <label class="fl">Texto debajo del video <span style="font-weight:400;font-style:italic">(opcional)</span></label>
       <input type="text" id="f-vidcap" placeholder="Ej: Mira cómo funciona en 60 segundos" oninput="st.vid_caption=this.value" />
+    </div>
+    <div class="fg">
+      <div class="opts-label" style="margin-top:.1rem">Tamaño</div>
+      <div class="opt-btns" id="vidSizeOpts">
+        <div class="obtn" onclick="setVidOpt('size','400px',this,'vidSizeOpts')">Pequeño (400px)</div>
+        <div class="obtn" onclick="setVidOpt('size','600px',this,'vidSizeOpts')">Mediano (600px)</div>
+        <div class="obtn on" onclick="setVidOpt('size','100%',this,'vidSizeOpts')">Ancho completo</div>
+      </div>
+    </div>
+    <div class="fg">
+      <div class="opts-label">Diseño</div>
+      <div class="opt-btns" id="vidLayoutOpts">
+        <div class="obtn on" onclick="setVidOpt('layout','card',this,'vidLayoutOpts')">Card</div>
+        <div class="obtn" onclick="setVidOpt('layout','carousel',this,'vidLayoutOpts')">Carrusel</div>
+        <div class="obtn" onclick="setVidOpt('layout','grid',this,'vidLayoutOpts')">Grid</div>
+      </div>
     </div>
   </div>
 </div>
@@ -817,14 +827,14 @@ const SEC_DEFS = [
 
 const st = {
   step:1,
-  prod:{name:'',price:'',oldprice:'',desc:'',wa:'',nicho:[],mercado:'Ecuador',extra:''},
+  prod:{name:'',price:'',oldprice:'',desc:'',wa:'',wa_active:true,nicho:[],mercado:'Ecuador',extra:''},
   secs:{},  /* {id:{active,opts}} */
   imgs:{
     hero:{tab:'upload',urls:[],model:'dalle3',prompt:''},
     prob:{tab:'upload',urls:[],model:'dalle3',prompt:''},
     revs:{tab:'upload',urls:[],model:'dalle3',prompt:''}
   },
-  vid_platform:'youtube', vid_url:'', vid_caption:'',
+  vid_platform:'youtube', vid_url:'', vid_urls:['','',''], vid_caption:'', vid_size:'100%', vid_layout:'card',
   style:{color:'#1D9E75',font:'system',corner:'rounded'},
   copy:{
     urgencia:'',
@@ -845,6 +855,9 @@ SEC_DEFS.forEach(s=>{
   const opt = s.opts ? {[s.opts.key]:s.opts.choices[0].v} : {};
   st.secs[s.id] = {active:s.def, ...opt};
 });
+st.secs.testimonios.aspecto = '1/1';
+st.secs.testimonios.rating = true;
+st.secs.testimonios.verificado = true;
 
 /* ─── STEP BAR ────────────────────────────────────── */
 const STEP_LABELS = ['Producto','Secciones','Imágenes','Estilo','Copy','Resultado'];
@@ -891,7 +904,8 @@ function next(){
     st.prod.price=document.getElementById('f-price').value.trim();
     st.prod.oldprice=document.getElementById('f-oldprice').value.trim();
     st.prod.desc=document.getElementById('f-desc').value.trim();
-    st.prod.wa=document.getElementById('f-wa').value.trim();
+    st.prod.wa_active=document.getElementById('wa-toggle').checked;
+    st.prod.wa=st.prod.wa_active ? document.getElementById('f-wa').value.trim() : '';
     st.prod.extra=document.getElementById('f-extra').value.trim();
     if(!st.prod.name){alert('Por favor ingresa el nombre del producto.');return;}
     if(!st.prod.price){alert('Por favor ingresa el precio de venta.');return;}
@@ -980,18 +994,99 @@ function setMdl(type,mdl,el){
   el.closest('.mdl-btns').querySelectorAll('.mbtn').forEach(b=>b.classList.remove('on'));
   el.classList.add('on');
 }
-function setPlat(p,el){
-  st.vid_platform=p;
-  document.querySelectorAll('.ptab').forEach(t=>t.classList.remove('on'));
-  el.classList.add('on');
-  const lbMap={youtube:'YouTube',tiktok:'TikTok',vimeo:'Vimeo',mp4:'MP4 directo'};
-  const phMap={youtube:'https://www.youtube.com/watch?v=…',tiktok:'https://www.tiktok.com/@user/video/…',vimeo:'https://vimeo.com/…',mp4:'https://example.com/video.mp4'};
-  document.getElementById('vid-lbl').textContent=`URL del video de ${lbMap[p]}`;
-  document.getElementById('f-vid').placeholder=phMap[p];
+/* ─── VIDEO AUTO-DETECT ───────────────────────────── */
+function detectVidPlatform(url){
+  if(!url) return null;
+  if(/youtube\.com|youtu\.be/.test(url)) return 'youtube';
+  if(/tiktok\.com/.test(url)) return 'tiktok';
+  if(/vimeo\.com/.test(url)) return 'vimeo';
+  if(/\.mp4(\?|$)|\.webm(\?|$)/.test(url)) return 'mp4';
+  return null;
 }
-function setImgUrl(type,idx,val){
-  if(!st.imgs[type].urls) st.imgs[type].urls=[];
-  st.imgs[type].urls[idx]=val.trim();
+function getYtId(url){
+  const m=url.match(/[?&]v=([^&]+)/)||url.match(/youtu\.be\/([^?/]+)/)||url.match(/shorts\/([^?/]+)/);
+  return m?m[1]:null;
+}
+function onVidUrl(val){
+  st.vid_url=val.trim();
+  if(!st.vid_urls) st.vid_urls=['','',''];
+  st.vid_urls[0]=val.trim();
+  const plat=detectVidPlatform(val);
+  if(plat) st.vid_platform=plat;
+  const hint=document.getElementById('vid-detect-hint');
+  const preview=document.getElementById('vid-preview');
+  const names={youtube:'YouTube ▶',tiktok:'TikTok ♪',vimeo:'Vimeo 🎥',mp4:'MP4 📹'};
+  if(plat){hint.textContent='Detectado: '+names[plat];hint.style.display='';}
+  else{hint.style.display='none';}
+  if(plat==='youtube'){
+    const ytid=getYtId(val);
+    if(ytid){
+      preview.innerHTML=`<img src="https://img.youtube.com/vi/${ytid}/mqdefault.jpg" style="width:100%;max-width:320px;border-radius:8px;border:1.5px solid var(--bd)">`;
+      preview.style.display='';
+    }else{preview.style.display='none';}
+  }else{preview.style.display='none';}
+  renderCarouselUrls();
+}
+function setVidOpt(key,val,el,grpId){
+  if(key==='size') st.vid_size=val; else st.vid_layout=val;
+  document.getElementById(grpId).querySelectorAll('.obtn').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+  if(key==='layout') renderCarouselUrls();
+}
+function renderCarouselUrls(){
+  const c=document.getElementById('vid-carousel-urls');
+  if(!c) return;
+  if(st.vid_layout!=='carousel'){c.style.display='none';return;}
+  c.style.display='';
+  if(!st.vid_urls) st.vid_urls=['','',''];
+  c.innerHTML=[1,2].map(i=>`
+    <div class="fg">
+      <label class="fl">URL video ${i+1} <span style="font-weight:400;opacity:.6">(opcional)</span></label>
+      <input type="url" value="${esc(st.vid_urls[i]||'')}" placeholder="URL del video ${i+1}…"
+        oninput="st.vid_urls[${i}]=this.value.trim()">
+    </div>`).join('');
+}
+
+/* ─── DYNAMIC IMAGE URL LISTS ─────────────────────── */
+const IMG_MAX={hero:5,prob:1,revs:8};
+function renderUrlList(type){
+  const urls=st.imgs[type].urls;
+  const max=IMG_MAX[type];
+  const list=document.getElementById(`url-list-${type}`);
+  if(!list) return;
+  list.innerHTML=urls.map((u,i)=>`
+    <div style="display:flex;align-items:center;gap:.5rem;margin-bottom:.55rem">
+      <input type="url" value="${esc(u)}" placeholder="https://cdn.shopify.com/s/files/…"
+        oninput="st.imgs['${type}'].urls[${i}]=this.value.trim()" style="flex:1">
+      ${(type!=='prob'||urls.length>1)?`<button class="rm-btn" style="padding:.5rem .65rem;flex-shrink:0" onclick="rmImgUrl('${type}',${i})">✕</button>`:''}
+    </div>`).join('');
+  if(type!=='prob'){
+    const addBtn=document.getElementById(`add-${type}-url`);
+    if(addBtn) addBtn.style.display=urls.length<max?'flex':'none';
+  }
+}
+function addImgUrl(type){
+  if(st.imgs[type].urls.length>=IMG_MAX[type]) return;
+  st.imgs[type].urls.push('');
+  renderUrlList(type);
+}
+function rmImgUrl(type,idx){
+  if(st.imgs[type].urls.length<=1){st.imgs[type].urls[0]='';renderUrlList(type);return;}
+  st.imgs[type].urls.splice(idx,1);
+  renderUrlList(type);
+}
+
+/* ─── WA TOGGLE ───────────────────────────────────── */
+function toggleWA(on){
+  st.prod.wa_active=on;
+  document.getElementById('wa-field').style.display=on?'':'none';
+}
+
+/* ─── REVIEW OPTIONS ──────────────────────────────── */
+function setRevOpt(key,val,el){
+  st.secs.testimonios[key]=val;
+  el.closest('.pills').querySelectorAll('.pill').forEach(p=>p.classList.remove('on'));
+  el.classList.add('on');
 }
 function suggestPrompt(type){
   const name=st.prod.name||'producto';
@@ -1071,10 +1166,11 @@ function buildCopyEditor(){
   if(s.cta_final.active) html+=csec('cta','📣','CTA Final',`
     <div class="fg"><label class="fl">Título</label><input type="text" value="${esc(c.cta_final.titulo)}" placeholder="¡No lo pienses más, tu solución está aquí!" oninput="st.copy.cta_final.titulo=this.value"></div>
     <div class="fg"><label class="fl">Subtítulo</label><input type="text" value="${esc(c.cta_final.sub)}" placeholder="Envío rápido a todo el país" oninput="st.copy.cta_final.sub=this.value"></div>
-    <div class="r2">
-      <div class="fg"><label class="fl">Texto botón</label><input type="text" value="${esc(c.cta_final.btn)}" placeholder="Pedir ahora por WhatsApp" oninput="st.copy.cta_final.btn=this.value"></div>
-      <div class="fg"><label class="fl">Texto escasez</label><input type="text" value="${esc(c.cta_final.escasez)}" placeholder="¡Solo quedan 5 unidades!" oninput="st.copy.cta_final.escasez=this.value"></div>
-    </div>`);
+    <div class="fg" style="background:var(--pl);border:1.5px solid rgba(29,158,117,.3);border-radius:9px;padding:.75rem .9rem">
+      <label class="fl" style="color:var(--p);font-size:.85rem">⚡ Texto del botón principal</label>
+      <input type="text" value="${esc(c.cta_final.btn)}" placeholder="Pedir ahora por WhatsApp" oninput="st.copy.cta_final.btn=this.value" style="background:var(--s1);font-weight:600">
+    </div>
+    <div class="fg"><label class="fl">Texto escasez</label><input type="text" value="${esc(c.cta_final.escasez)}" placeholder="¡Solo quedan 5 unidades!" oninput="st.copy.cta_final.escasez=this.value"></div>`);
 
   document.getElementById('copyEd').innerHTML=html;
 }
@@ -1116,7 +1212,34 @@ function rmBen(i){st.copy.beneficios.splice(i,1);buildCopyEditor();}
 function buildRevs(){
   const cs=CITIES[st.prod.mercado]||CITIES.Ecuador;
   const c=st.copy.reviews;
-  let h='<div id="revs-list">';
+  const ts=st.secs.testimonios;
+  let h=`<div style="background:var(--s2);border:1px solid var(--bd);border-radius:9px;padding:.75rem .9rem;margin-bottom:1rem">
+    <div class="opts-label" style="margin-top:0">Diseño del carrusel</div>
+    <div class="pills" style="margin-bottom:.7rem">
+      ${[{v:'carousel',l:'Auto-carrusel'},{v:'grid',l:'Grid'},{v:'list',l:'Lista'}].map(x=>
+        `<div class="pill${ts.estilo===x.v?' on':''}" onclick="setRevOpt('estilo','${x.v}',this)">${x.l}</div>`).join('')}
+    </div>
+    <div class="opts-label">Aspecto de foto</div>
+    <div class="pills" style="margin-bottom:.7rem">
+      ${[{v:'3/4',l:'3:4 portrait'},{v:'1/1',l:'1:1 cuadrado'},{v:'4/3',l:'4:3 landscape'}].map(x=>
+        `<div class="pill${ts.aspecto===x.v?' on':''}" onclick="setRevOpt('aspecto','${x.v}',this)">${x.l}</div>`).join('')}
+    </div>
+    <div style="display:flex;flex-wrap:wrap;gap:1rem">
+      <label style="display:flex;align-items:center;gap:.45rem;font-size:.82rem;cursor:pointer;user-select:none">
+        <label class="tog" style="transform:scale(.85);flex-shrink:0">
+          <input type="checkbox" ${ts.rating?'checked':''} onchange="st.secs.testimonios.rating=this.checked">
+          <div class="tog-track"></div>
+        </label>Mostrar rating promedio
+      </label>
+      <label style="display:flex;align-items:center;gap:.45rem;font-size:.82rem;cursor:pointer;user-select:none">
+        <label class="tog" style="transform:scale(.85);flex-shrink:0">
+          <input type="checkbox" ${ts.verificado?'checked':''} onchange="st.secs.testimonios.verificado=this.checked">
+          <div class="tog-track"></div>
+        </label>Badge verificado
+      </label>
+    </div>
+  </div>`;
+  h+='<div id="revs-list">';
   c.forEach((r,i)=>{
     const opts=cs.map(city=>`<option value="${city}"${r.city===city?' selected':''}>${city}</option>`).join('');
     const stars=[1,2,3,4,5].map(n=>`<span class="star${n<=r.stars?' on':''}" onclick="setStars(${i},${n})">★</span>`).join('');
@@ -1168,8 +1291,10 @@ function copyPayload(accion, seccion){
   if(oldEl) st.prod.oldprice = oldEl.value.trim();
   const descEl = document.getElementById('f-desc');
   if(descEl && descEl.value.trim()) st.prod.desc     = descEl.value.trim();
+  const waToggleEl = document.getElementById('wa-toggle');
+  if(waToggleEl) st.prod.wa_active = waToggleEl.checked;
   const waEl = document.getElementById('f-wa');
-  if(waEl) st.prod.wa = waEl.value.trim();
+  if(waEl) st.prod.wa = st.prod.wa_active ? waEl.value.trim() : '';
   const extraEl = document.getElementById('f-extra');
   if(extraEl) st.prod.extra = extraEl.value.trim();
 
@@ -1348,7 +1473,7 @@ async function generate(){
     precio: st.prod.price,
     precio_antes: st.prod.oldprice,
     descripcion: st.prod.desc,
-    whatsapp: st.prod.wa,
+    whatsapp: st.prod.wa_active !== false ? st.prod.wa : '',
     nicho: st.prod.nicho,
     mercado: st.prod.mercado,
     instrucciones: st.prod.extra,
@@ -1380,7 +1505,13 @@ async function generate(){
     fuente: st.style.font,
     esquinas: st.style.corner,
     cities: CITIES[st.prod.mercado]||CITIES.Ecuador,
-    copy_editado: st.copy
+    copy_editado: st.copy,
+    video_size: st.vid_size || '100%',
+    video_layout: st.vid_layout || 'card',
+    video_urls: (st.vid_urls||[]).filter(u=>u),
+    rev_aspecto: st.secs.testimonios ? (st.secs.testimonios.aspecto || '1/1') : '1/1',
+    rev_rating: st.secs.testimonios ? !!st.secs.testimonios.rating : true,
+    rev_verificado: st.secs.testimonios ? !!st.secs.testimonios.verificado : true
   };
 
   try{
@@ -1530,6 +1661,10 @@ function toast(msg){
 /* ─── INIT ────────────────────────────────────────── */
 renderStepBar();
 buildSecGrid();
+if(!st.imgs.hero.urls.length) st.imgs.hero.urls=[''];
+if(!st.imgs.prob.urls.length) st.imgs.prob.urls=[''];
+if(!st.imgs.revs.urls.length) st.imgs.revs.urls=[''];
+renderUrlList('hero');renderUrlList('prob');renderUrlList('revs');
 </script>
 </body>
 </html>
