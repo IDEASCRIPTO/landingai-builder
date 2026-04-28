@@ -1532,9 +1532,12 @@ async function generate(){
     if(!st.html){showErr('La respuesta no contiene HTML. Intenta de nuevo.');return;}
     document.getElementById('res-ok').style.display='block';
   }catch(e){
+    console.log('ERROR COMPLETO:', e);
+    console.log('ERROR NAME:', e.name);
+    console.log('ERROR MESSAGE:', e.message);
     hideOverlay();
-    if(e.name==='AbortError') showErr('Tiempo de espera agotado (180s). Por favor intenta de nuevo.');
-    else showErr('Error de conexión: '+e.message);
+    document.getElementById('res-err').style.display='block';
+    document.getElementById('err-msg').textContent = 'Error: ' + e.name + ' - ' + e.message;
   }
   console.log('generate() terminó');
 }
