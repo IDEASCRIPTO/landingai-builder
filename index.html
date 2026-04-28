@@ -1388,7 +1388,7 @@ async function generateCopy(){
   try{
     const ctrl = new AbortController();
     const tid  = setTimeout(()=>ctrl.abort(), 90000);
-    const res  = await fetch(PROXY_COPY, {
+    const res  = await fetch(PROXY, {
       method:  'POST',
       headers: {'Content-Type':'application/json'},
       body:    JSON.stringify(copyPayload('generar_copy')),
@@ -1437,7 +1437,7 @@ async function regenSec(id){
   try{
     const ctrl=new AbortController();
     const tid=setTimeout(()=>ctrl.abort(),60000);
-    const res=await fetch(PROXY_COPY,{
+    const res=await fetch(PROXY,{
       method:'POST',
       headers:{'Content-Type':'application/json'},
       body:JSON.stringify(copyPayload('regenerar_seccion',seccion)),
@@ -1466,80 +1466,61 @@ async function generate(){
   document.getElementById('res-ok').style.display='none';
   document.getElementById('res-err').style.display='none';
   showOverlay();
-  console.log('overlay mostrado, iniciando fetch...');
-
-  const payload = {
-    nombre_producto: st.prod.name,
-    precio: st.prod.price,
-    precio_antes: st.prod.oldprice,
-    descripcion: st.prod.desc,
-    whatsapp: st.prod.wa_active !== false ? st.prod.wa : '',
-    nicho: st.prod.nicho,
-    mercado: st.prod.mercado,
-    instrucciones: st.prod.extra,
-    secciones_activas: SEC_DEFS
-      .filter(s=>st.secs[s.id].active)
-      .map(s=>({id:s.id, ...st.secs[s.id]})),
-    imagenes_hero: {
-      tipo: st.imgs.hero.tab,
-      fotos_urls: (st.imgs.hero.urls||[]).filter(u=>u),
-      prompt: st.imgs.hero.prompt,
-      modelo: st.imgs.hero.model
-    },
-    imagen_problema: {
-      tipo: st.imgs.prob.tab,
-      foto_url: (st.imgs.prob.urls||[])[0]||null,
-      prompt: st.imgs.prob.prompt,
-      modelo: st.imgs.prob.model
-    },
-    imagenes_reviews: {
-      tipo: st.imgs.revs.tab,
-      fotos_urls: (st.imgs.revs.urls||[]).filter(u=>u),
-      prompt: st.imgs.revs.prompt,
-      modelo: st.imgs.revs.model
-    },
-    video_url: st.vid_url,
-    video_plataforma: st.vid_platform,
-    video_caption: st.vid_caption,
-    color_principal: st.style.color,
-    fuente: st.style.font,
-    esquinas: st.style.corner,
-    cities: CITIES[st.prod.mercado]||CITIES.Ecuador,
-    copy_editado: st.copy,
-    video_size: st.vid_size || '100%',
-    video_layout: st.vid_layout || 'card',
-    video_urls: (st.vid_urls||[]).filter(u=>u),
-    rev_aspecto: st.secs.testimonios ? (st.secs.testimonios.aspecto || '1/1') : '1/1',
-    rev_rating: st.secs.testimonios ? !!st.secs.testimonios.rating : true,
-    rev_verificado: st.secs.testimonios ? !!st.secs.testimonios.verificado : true
-  };
 
   try{
-    const ctrl=new AbortController();
-    const tid=setTimeout(()=>ctrl.abort(),180000);
-    const res=await fetch(PROXY,{
-      method:'POST',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify(payload),
-      signal:ctrl.signal
+    const payload = {};
+    payload.nombre_producto = document.getElementById('f-name').value.trim();
+    payload.precio = document.getElementById('f-price').value.trim();
+    payload.precio_antes = document.getElementById('f-oldprice').value.trim();
+    payload.descripcion = document.getElementById('f-desc').value.trim();
+    payload.whatsapp = document.getElementById('wa-toggle').checked ? document.getElementById('f-wa').value.trim() : '';
+    payload.mercado = st.prod.mercado;
+    payload.nicho = st.prod.nicho;
+    payload.instrucciones = document.getElementById('f-extra').value.trim();
+    payload.color_principal = st.style.color;
+    payload.fuente = st.style.font;
+    payload.esquinas = st.style.corner;
+    payload.secciones_activas = SEC_DEFS.filter(s=>st.secs[s.id].active).map(s=>({id:s.id}));
+    payload.copy_editado = st.copy;
+    payload.cities = CITIES[st.prod.mercado] || CITIES.Ecuador;
+    payload.video_url = document.getElementById('f-vid').value.trim();
+    payload.imagenes_hero = {tipo: st.imgs.hero.tab, fotos_urls: st.imgs.hero.urls.filter(u=>u), prompt: st.imgs.hero.prompt, modelo: st.imgs.hero.model};
+    payload.imagen_problema = {tipo: st.imgs.prob.tab, foto_url: st.imgs.prob.urls[0]||null, prompt: st.imgs.prob.prompt, modelo: st.imgs.prob.model};
+    payload.imagenes_reviews = {tipo: st.imgs.revs.tab, fotos_urls: st.imgs.revs.urls.filter(u=>u), prompt: st.imgs.revs.prompt, modelo: st.imgs.revs.model};
+
+    console.log('Enviando payload, nombre:', payload.nombre_producto);
+
+    const ctrl = new AbortController();
+    const tid = setTimeout(()=>ctrl.abort(), 180000);
+
+    const res = await fetch('https://generador.duallegacyideas.com/proxy.php', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify(payload),
+      signal: ctrl.signal
     });
+
     clearTimeout(tid);
-    const data=await res.json();
+    console.log('Respuesta recibida, status:', res.status);
+
+    const data = await res.json();
+    console.log('Data recibida:', Object.keys(data));
+
     hideOverlay();
-    if(data.error){showErr(data.message||'Error del servidor.');return;}
-    st.html=data.html||data.content||data.result||'';
-    st.liquid=data.liquid||'';
-    if(!st.html){showErr('La respuesta no contiene HTML. Intenta de nuevo.');return;}
-    document.getElementById('res-ok').style.display='block';
-  }catch(e){
-    console.log('ERROR COMPLETO:', e);
-    console.log('ERROR NAME:', e.name);
-    console.log('ERROR MESSAGE:', e.message);
+
+    if(data.html){
+      st.html = data.html;
+      st.liquid = data.liquid || '';
+      document.getElementById('res-ok').style.display = 'block';
+    } else {
+      showErr(data.message || 'No se recibió HTML');
+    }
+
+  } catch(e){
     hideOverlay();
-    document.getElementById('res-err').style.display='block';
-    document.getElementById('err-msg').textContent = 'Error: ' + e.name + ' - ' + e.message;
+    console.log('ERROR:', e.name, e.message);
+    showErr('Error: ' + e.name + ' - ' + e.message);
   }
-  console.log('generate() terminó');
 }
 
 function showErr(msg){
@@ -1573,7 +1554,7 @@ function updOvStep(i){
     if(j===i)el.classList.add('cur');
     else if(j<i)el.classList.add('done');
   });
-  document.getElementById('ovBar').style.width=Math.round(((i+1)/OV_STEPS.length)*100)+'%';
+  const ovBar=document.getElementById('ovBar'); if(ovBar) ovBar.style.width=Math.round(((i+1)/OV_STEPS.length)*100)+'%';
 }
 function hideOverlay(){
   document.getElementById('overlay').classList.remove('show');
