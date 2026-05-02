@@ -729,8 +729,9 @@ input[type=color]{
   <p class="pg-sub">Tu landing page está lista para publicar</p>
 
   <div id="res-pending" style="text-align:center;padding:2.5rem 1rem">
-    <p style="font-size:.9rem;color:var(--tm);margin-bottom:1.5rem">Revisa tu copy y configuración, luego genera tu landing page.</p>
-    <button id="btnGenerarLanding" style="width:100%;padding:16px;background:#1D9E75;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:12px" onclick="console.log('clic detectado'); generate();">⚡ Generar Landing</button>
+    <p style="font-size:.9rem;color:var(--tm);margin-bottom:1.5rem">Elige qué quieres generar:</p>
+    <button style="width:100%;padding:16px;background:#1D9E75;color:#fff;border:none;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;margin-bottom:10px" onclick="generate()">⚡ Generar Landing HTML</button>
+    <button style="width:100%;padding:14px;background:var(--s2);color:var(--tx);border:1.5px solid var(--bd);border-radius:12px;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:10px" onclick="exportLiquid()">📄 Exportar Liquid</button>
   </div>
 
   <div id="res-ok" style="display:none">
