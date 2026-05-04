@@ -1,0 +1,990 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>LandingAI Builder v2</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --p:#1D9E75;--pd:#158a63;--pl:rgba(29,158,117,.13);
+  --bg:#0d0d12;--s1:#15151e;--s2:#1c1c28;--s3:#232332;
+  --bd:#272737;--bd2:#32324a;
+  --tx:#f0f0f6;--tm:#9898b0;--td:#55556a;
+  --r:12px;--r2:8px;
+  --sh:0 2px 16px rgba(0,0,0,.35);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding-bottom:80px;-webkit-font-smoothing:antialiased}
+
+/* ─── STEP BAR ─────────────────────────────── */
+#stepBar{
+  position:sticky;top:0;z-index:90;
+  background:rgba(13,13,18,.96);backdrop-filter:blur(14px);
+  border-bottom:1px solid var(--bd);padding:0 1rem;
+}
+.sb-inner{
+  max-width:860px;margin:0 auto;display:flex;align-items:center;
+  padding:.9rem 0;overflow-x:auto;scrollbar-width:none;
+}
+.sb-inner::-webkit-scrollbar{display:none}
+.sb-step{
+  display:flex;align-items:center;gap:.5rem;
+  font-size:.78rem;font-weight:600;color:var(--td);
+  white-space:nowrap;cursor:default;transition:color .2s;
+}
+.sb-step.active{color:var(--p)}
+.sb-step.done{color:var(--tm);cursor:pointer}
+.sb-step.done:hover{color:var(--tx)}
+.sb-num{
+  width:26px;height:26px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:.72rem;font-weight:700;
+  background:var(--s3);color:var(--td);border:2px solid var(--bd2);
+  transition:all .2s;flex-shrink:0;
+}
+.sb-step.active .sb-num{background:var(--p);color:#fff;border-color:var(--p);box-shadow:0 0 12px rgba(29,158,117,.4)}
+.sb-step.done .sb-num{background:var(--pl);color:var(--p);border-color:var(--p)}
+.sb-div{flex:1;min-width:20px;max-width:60px;height:2px;background:var(--bd2);margin:0 .4rem;border-radius:2px}
+.sb-div.done{background:var(--p)}
+.sb-logo{font-size:.9rem;font-weight:800;margin-right:auto;padding-right:1rem;
+  background:linear-gradient(135deg,#1D9E75,#4fd1c5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
+
+/* ─── MAIN / STEPS ─────────────────────────── */
+#main{max-width:860px;margin:0 auto;padding:1.5rem 1rem}
+.step-panel{display:none}
+.step-panel.active{display:block}
+
+/* ─── SECTION TITLE ─────────────────────────── */
+.sec-title{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--tm);margin-bottom:.75rem;display:flex;align-items:center;gap:.4rem}
+.sec-title::after{content:'';flex:1;height:1px;background:var(--bd)}
+
+/* ─── CARD ──────────────────────────────────── */
+.card{background:var(--s1);border:1px solid var(--bd);border-radius:var(--r);
+  padding:1.25rem;margin-bottom:1rem}
+
+/* ─── FORM ELEMENTS ─────────────────────────── */
+label.lbl{display:block;font-size:.76rem;font-weight:600;color:var(--tm);margin-bottom:.35rem;margin-top:.9rem}
+label.lbl:first-child{margin-top:0}
+input[type=text],input[type=url],input[type=number],select,textarea{
+  width:100%;background:var(--s2);border:1px solid var(--bd2);border-radius:var(--r2);
+  padding:.6rem .8rem;color:var(--tx);font-family:inherit;font-size:.85rem;outline:none;
+  transition:border-color .2s;resize:vertical;
+}
+input[type=text]:focus,input[type=url]:focus,input[type=number]:focus,select:focus,textarea:focus{
+  border-color:var(--p);box-shadow:0 0 0 3px var(--pl)}
+textarea{min-height:80px}
+select{appearance:none;cursor:pointer}
+.row2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+.row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem}
+@media(max-width:540px){.row2,.row3{grid-template-columns:1fr}}
+
+/* ─── TOGGLE ────────────────────────────────── */
+.tog-row{display:flex;align-items:center;justify-content:space-between;
+  background:var(--s2);border:1px solid var(--bd2);border-radius:var(--r2);
+  padding:.6rem .8rem;margin-top:.9rem}
+.tog-row label{font-size:.84rem;color:var(--tm)}
+.tog{position:relative;width:40px;height:22px;flex-shrink:0}
+.tog input{opacity:0;width:0;height:0}
+.tog-sl{position:absolute;inset:0;background:var(--bd2);border-radius:22px;cursor:pointer;transition:.25s}
+.tog-sl:before{content:'';position:absolute;width:16px;height:16px;left:3px;top:3px;
+  background:#fff;border-radius:50%;transition:.25s}
+.tog input:checked+.tog-sl{background:var(--p)}
+.tog input:checked+.tog-sl:before{transform:translateX(18px)}
+
+/* ─── SECTIONS GRID ─────────────────────────── */
+.sec-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.5rem;margin-top:.5rem}
+.sec-chip{
+  display:flex;align-items:center;gap:.4rem;
+  background:var(--s2);border:1.5px solid var(--bd2);border-radius:var(--r2);
+  padding:.45rem .7rem;cursor:pointer;user-select:none;
+  font-size:.78rem;font-weight:500;color:var(--tm);
+  transition:all .18s;
+}
+.sec-chip:hover{border-color:var(--p);color:var(--tx)}
+.sec-chip.on{background:var(--pl);border-color:var(--p);color:var(--p);font-weight:600}
+.sec-chip.always{opacity:.6;cursor:not-allowed}
+.sec-chip .ico{font-size:.95rem}
+.sec-chip .chk{margin-left:auto;font-size:.8rem;opacity:0;transition:opacity .15s}
+.sec-chip.on .chk{opacity:1}
+
+/* ─── URL LIST ──────────────────────────────── */
+.url-list{display:flex;flex-direction:column;gap:.4rem;margin-top:.5rem}
+.url-item{display:flex;gap:.4rem;align-items:center}
+.url-item input{flex:1;min-width:0}
+.url-btn{
+  flex-shrink:0;width:30px;height:30px;border:none;border-radius:6px;
+  font-size:.9rem;cursor:pointer;transition:all .15s;
+  display:flex;align-items:center;justify-content:center;
+}
+.url-btn.add{background:var(--pl);color:var(--p)}
+.url-btn.add:hover{background:var(--p);color:#fff}
+.url-btn.rem{background:rgba(239,68,68,.12);color:#f87171}
+.url-btn.rem:hover{background:#ef4444;color:#fff}
+
+/* ─── COPY EDITOR ───────────────────────────── */
+.csec{border:1px solid var(--bd2);border-radius:var(--r2);overflow:hidden;margin-bottom:.5rem}
+.csec-head{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:.65rem .9rem;background:var(--s2);cursor:pointer;
+  font-size:.82rem;font-weight:600;color:var(--tx);user-select:none;
+  transition:background .15s;
+}
+.csec-head:hover{background:var(--s3)}
+.csec-head .csec-title{display:flex;align-items:center;gap:.5rem}
+.csec-head .arrow{font-size:.65rem;color:var(--tm);transition:transform .2s}
+.csec-head .regen-btn{
+  background:var(--pl);color:var(--p);border:none;border-radius:6px;
+  padding:.25rem .55rem;font-size:.72rem;font-weight:600;cursor:pointer;
+  transition:all .15s;white-space:nowrap;
+}
+.csec-head .regen-btn:hover{background:var(--p);color:#fff}
+.csec-body{display:none;padding:.75rem .9rem;background:var(--s1);border-top:1px solid var(--bd2)}
+.csec.open .csec-body{display:block}
+.csec.open .arrow{transform:rotate(90deg)}
+.csec-body textarea{min-height:100px;font-size:.82rem}
+
+/* ─── COLOR SWATCHES ────────────────────────── */
+.swatch-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
+.swatch{
+  width:32px;height:32px;border-radius:50%;border:3px solid transparent;
+  cursor:pointer;transition:transform .15s,border-color .15s;
+}
+.swatch:hover{transform:scale(1.15)}
+.swatch.active{border-color:#fff;box-shadow:0 0 0 2px var(--p)}
+.color-custom{display:flex;align-items:center;gap:.5rem;margin-top:.6rem}
+.color-custom input[type=color]{width:36px;height:36px;border:none;border-radius:8px;cursor:pointer;padding:2px;background:var(--s2)}
+.color-custom input[type=text]{flex:1}
+
+/* ─── FONT SELECTOR ─────────────────────────── */
+.font-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:.4rem;margin-top:.5rem}
+.font-chip{
+  padding:.45rem .7rem;border:1.5px solid var(--bd2);border-radius:var(--r2);
+  cursor:pointer;font-size:.82rem;color:var(--tm);transition:all .18s;text-align:center;
+}
+.font-chip:hover{border-color:var(--p);color:var(--tx)}
+.font-chip.active{background:var(--pl);border-color:var(--p);color:var(--p);font-weight:600}
+
+/* ─── VIDEO CARD ────────────────────────────── */
+#videoCard{display:none}
+
+/* ─── BUTTONS ───────────────────────────────── */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:.4rem;
+  padding:.65rem 1.25rem;border:none;border-radius:var(--r2);
+  font-family:inherit;font-size:.88rem;font-weight:700;cursor:pointer;
+  transition:all .18s;text-decoration:none;
+}
+.btn-primary{background:var(--p);color:#fff}
+.btn-primary:hover:not(:disabled){background:var(--pd);transform:translateY(-1px);box-shadow:0 4px 16px rgba(29,158,117,.35)}
+.btn-secondary{background:var(--s3);color:var(--tx);border:1px solid var(--bd2)}
+.btn-secondary:hover:not(:disabled){background:var(--s2);border-color:var(--p)}
+.btn-ghost{background:transparent;color:var(--tm);border:1px solid var(--bd2)}
+.btn-ghost:hover:not(:disabled){color:var(--tx);border-color:var(--bd)}
+.btn:disabled{opacity:.45;cursor:not-allowed;transform:none!important}
+.btn-full{width:100%}
+.btn-lg{padding:.8rem 1.5rem;font-size:.95rem}
+.action-row{display:flex;gap:.6rem;flex-wrap:wrap;margin-top:1rem}
+.action-row .btn{flex:1;min-width:140px}
+
+/* ─── RESULT PANEL ──────────────────────────── */
+#resBox{
+  background:var(--s1);border:1.5px solid var(--p);border-radius:var(--r);
+  padding:1.5rem;text-align:center;margin-bottom:1rem;
+}
+#resBox .res-icon{font-size:2.5rem;margin-bottom:.5rem}
+#resBox h2{font-size:1.1rem;font-weight:700;margin-bottom:.3rem}
+#resBox p{font-size:.82rem;color:var(--tm)}
+.dl-card{
+  background:var(--s2);border:1px solid var(--bd2);border-radius:var(--r2);
+  padding:1rem;display:flex;align-items:center;justify-content:space-between;
+  gap:1rem;margin-bottom:.6rem;
+}
+.dl-card-info{text-align:left}
+.dl-card-info .dl-title{font-size:.88rem;font-weight:600}
+.dl-card-info .dl-sub{font-size:.75rem;color:var(--tm);margin-top:.15rem}
+
+/* ─── OVERLAY ───────────────────────────────── */
+#overlay{
+  display:none;position:fixed;inset:0;z-index:999;
+  background:rgba(13,13,18,.95);backdrop-filter:blur(8px);
+  flex-direction:column;align-items:center;justify-content:center;gap:1.2rem;
+}
+#overlay.show{display:flex}
+.ov-spinner{
+  width:56px;height:56px;border:4px solid var(--bd2);border-top-color:var(--p);
+  border-radius:50%;animation:spin 1s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg)}}
+.ov-title{font-size:1rem;font-weight:700;color:var(--tx)}
+.ov-sub{font-size:.8rem;color:var(--tm);text-align:center;max-width:300px}
+.ov-steps{display:flex;flex-direction:column;gap:.5rem;min-width:240px}
+.ov-step{
+  display:flex;align-items:center;gap:.6rem;
+  padding:.5rem .75rem;border-radius:8px;
+  font-size:.78rem;font-weight:500;color:var(--td);background:var(--s2);
+  transition:all .3s;
+}
+.ov-step.active{color:var(--tx);background:var(--s3);border-left:2px solid var(--p)}
+.ov-step.done{color:var(--p)}
+.ov-step .dot{width:8px;height:8px;border-radius:50%;background:var(--bd2);transition:all .3s;flex-shrink:0}
+.ov-step.active .dot{background:var(--p);box-shadow:0 0 8px rgba(29,158,117,.6);animation:pulse 1s ease-in-out infinite}
+.ov-step.done .dot{background:var(--p)}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ─── PREVIEW MODAL ─────────────────────────── */
+#previewModal{
+  display:none;position:fixed;inset:0;z-index:998;
+  background:rgba(0,0,0,.8);
+}
+#previewModal.show{display:flex;align-items:stretch}
+#previewModal iframe{flex:1;border:none;width:100%;height:100%}
+#previewClose{
+  position:fixed;top:12px;right:16px;z-index:999;
+  background:rgba(30,30,40,.9);border:1px solid var(--bd2);color:var(--tx);
+  border-radius:8px;padding:.4rem .8rem;font-size:.82rem;font-weight:600;
+  cursor:pointer;backdrop-filter:blur(8px);
+}
+#previewClose:hover{background:var(--s3)}
+
+/* ─── TOAST ─────────────────────────────────── */
+#toast{
+  position:fixed;bottom:24px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--s3);border:1px solid var(--bd2);border-radius:8px;
+  padding:.6rem 1.1rem;font-size:.82rem;color:var(--tx);
+  opacity:0;transition:all .25s;pointer-events:none;z-index:1000;white-space:nowrap;
+}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ─── MISC ──────────────────────────────────── */
+.badge{
+  display:inline-block;padding:.15rem .45rem;border-radius:4px;
+  font-size:.65rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;
+  background:var(--pl);color:var(--p);
+}
+.hint{font-size:.74rem;color:var(--td);margin-top:.3rem}
+.mt1{margin-top:.75rem}
+.gap-actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem}
+</style>
+</head>
+<body>
+
+<!-- STEP BAR -->
+<div id="stepBar">
+  <div class="sb-inner">
+    <span class="sb-logo">⚡ LandingAI</span>
+    <div class="sb-step active" id="sbStep1" onclick="goStep(1)">
+      <div class="sb-num">1</div><span>Producto</span>
+    </div>
+    <div class="sb-div" id="sbDiv1"></div>
+    <div class="sb-step" id="sbStep2" onclick="goStep(2)">
+      <div class="sb-num">2</div><span>Copy &amp; Estilo</span>
+    </div>
+    <div class="sb-div" id="sbDiv2"></div>
+    <div class="sb-step" id="sbStep3" onclick="goStep(3)">
+      <div class="sb-num">3</div><span>Resultado</span>
+    </div>
+  </div>
+</div>
+
+<!-- MAIN -->
+<div id="main">
+
+  <!-- ══════════════════════════════════════════
+       STEP 1 — PRODUCTO
+  ═════════════════════════════════════════════ -->
+  <div class="step-panel active" id="step1">
+
+    <div class="card">
+      <div class="sec-title">📦 Información del producto</div>
+
+      <label class="lbl">Nombre del producto *</label>
+      <input type="text" id="s1_nombre" placeholder="Ej: Crema Hidratante Orgánica" autocomplete="off"/>
+
+      <label class="lbl">Descripción *</label>
+      <textarea id="s1_desc" placeholder="Describe el producto, qué hace, qué lo hace especial..."></textarea>
+
+      <label class="lbl">Beneficios principales</label>
+      <textarea id="s1_bens" placeholder="Uno por línea:&#10;- Hidrata en 30 segundos&#10;- Sin parabenos&#10;- Apto para piel sensible"></textarea>
+
+      <div class="row2">
+        <div>
+          <label class="lbl">Público objetivo</label>
+          <input type="text" id="s1_pub" placeholder="Ej: Mujeres 25-45"/>
+        </div>
+        <div>
+          <label class="lbl">Tono de comunicación</label>
+          <select id="s1_tono">
+            <option value="profesional">Profesional</option>
+            <option value="amigable" selected>Amigable</option>
+            <option value="urgente">Urgente / Escasez</option>
+            <option value="lujo">Lujo / Premium</option>
+            <option value="divertido">Divertido</option>
+            <option value="emocional">Emocional</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title">💰 Precio &amp; contacto</div>
+
+      <div class="row3">
+        <div>
+          <label class="lbl">Precio actual</label>
+          <input type="text" id="s1_precio" placeholder="Ej: $29.99"/>
+        </div>
+        <div>
+          <label class="lbl">Precio anterior</label>
+          <input type="text" id="s1_precio_antes" placeholder="Ej: $49.99"/>
+        </div>
+        <div>
+          <label class="lbl">WhatsApp</label>
+          <input type="text" id="s1_wa" placeholder="5491112345678"/>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title">📋 Secciones de la landing</div>
+      <div class="sec-grid" id="secGrid"></div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title">📝 Instrucciones adicionales</div>
+      <textarea id="s1_instr" placeholder="Instrucciones extra para la IA: estilo de escritura, datos específicos, restricciones..."></textarea>
+    </div>
+
+    <button class="btn btn-primary btn-full btn-lg" onclick="generateCopy()" id="btnGenCopy">
+      ✨ Generar Copy con IA
+    </button>
+
+  </div><!-- /step1 -->
+
+
+  <!-- ══════════════════════════════════════════
+       STEP 2 — COPY & ESTILO
+  ═════════════════════════════════════════════ -->
+  <div class="step-panel" id="step2">
+
+    <!-- Copy Editor -->
+    <div class="card">
+      <div class="sec-title">✍️ Editor de copy</div>
+      <div id="copyEditor"></div>
+    </div>
+
+    <!-- Estilo -->
+    <div class="card">
+      <div class="sec-title">🎨 Estilo visual</div>
+
+      <label class="lbl">Color principal</label>
+      <div class="swatch-row" id="swatchRow"></div>
+      <div class="color-custom">
+        <input type="color" id="colorPicker" value="#1D9E75" oninput="pickColor(this.value)"/>
+        <input type="text" id="colorHex" value="#1D9E75" placeholder="#1D9E75" oninput="hexColor(this.value)" style="max-width:110px"/>
+      </div>
+
+      <label class="lbl" style="margin-top:1rem">Fuente</label>
+      <div class="font-grid" id="fontGrid"></div>
+    </div>
+
+    <!-- Imágenes -->
+    <div class="card">
+      <div class="sec-title">🖼️ Imágenes</div>
+
+      <label class="lbl">URLs imágenes Hero</label>
+      <div id="heroUrls" class="url-list"></div>
+      <button class="btn btn-ghost mt1" onclick="addUrl('hero')" style="font-size:.78rem;padding:.35rem .7rem">+ Agregar URL</button>
+
+      <label class="lbl">URL imagen Problema</label>
+      <div id="probUrl" class="url-list"></div>
+
+      <label class="lbl">URLs imágenes Reviews</label>
+      <div id="revsUrls" class="url-list"></div>
+      <button class="btn btn-ghost mt1" onclick="addUrl('revs')" style="font-size:.78rem;padding:.35rem .7rem">+ Agregar URL</button>
+    </div>
+
+    <!-- Video -->
+    <div class="card" id="videoCard">
+      <div class="sec-title">🎬 Video</div>
+      <label class="lbl">URL del video (YouTube / MP4)</label>
+      <input type="url" id="videoUrl" placeholder="https://youtube.com/watch?v=..."/>
+      <label class="lbl">Texto/caption del video</label>
+      <input type="text" id="videoCaption" placeholder="Mira cómo funciona en 60 segundos"/>
+    </div>
+
+    <div class="action-row">
+      <button class="btn btn-secondary" onclick="nav(1)">← Volver</button>
+      <button class="btn btn-primary btn-lg" onclick="generate('html')" id="btnHTML" style="flex:2">
+        ⚡ Generar HTML
+      </button>
+      <button class="btn btn-ghost" onclick="generate('shopify')" id="btnLiquid">
+        📄 Liquid
+      </button>
+    </div>
+
+  </div><!-- /step2 -->
+
+
+  <!-- ══════════════════════════════════════════
+       STEP 3 — RESULTADO
+  ═════════════════════════════════════════════ -->
+  <div class="step-panel" id="step3">
+
+    <div id="resBox">
+      <div class="res-icon" id="resIcon">✅</div>
+      <h2 id="resTitle">¡Landing generada!</h2>
+      <p id="resSub">Tu archivo está listo para descargar</p>
+    </div>
+
+    <div id="dlCards"></div>
+
+    <div class="card">
+      <div class="sec-title">🔄 Generar otra versión</div>
+      <div class="action-row">
+        <button class="btn btn-secondary" onclick="nav(2)">← Editar copy &amp; estilo</button>
+        <button class="btn btn-primary" onclick="generate(st.last_tipo)">
+          ↻ Regenerar <span id="regenTipoLabel">HTML</span>
+        </button>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="sec-title">🚀 Instrucciones de uso</div>
+      <div id="instrBox" style="font-size:.82rem;color:var(--tm);line-height:1.6"></div>
+    </div>
+
+    <button class="btn btn-ghost btn-full mt1" onclick="resetAll()">
+      ↺ Empezar de nuevo
+    </button>
+
+  </div><!-- /step3 -->
+
+</div><!-- /main -->
+
+<!-- OVERLAY -->
+<div id="overlay">
+  <div class="ov-spinner"></div>
+  <div class="ov-title" id="ovTitle">Generando con IA...</div>
+  <div class="ov-sub" id="ovSub">Esto puede tomar unos segundos</div>
+  <div class="ov-steps" id="ovSteps"></div>
+</div>
+
+<!-- PREVIEW MODAL -->
+<div id="previewModal">
+  <button id="previewClose" onclick="closePreview()">✕ Cerrar</button>
+  <iframe id="previewFrame"></iframe>
+</div>
+
+<!-- TOAST -->
+<div id="toast"></div>
+
+<script>
+const PROXY = 'https://generador.duallegacyideas.com/proxy.php';
+
+const SEC_LIST = [
+  {id:'hero',         ico:'🖼️', name:'Hero',          def:true,  always:true},
+  {id:'problema',     ico:'😤', name:'Problema',       def:true},
+  {id:'beneficios',   ico:'✅', name:'Beneficios',     def:true},
+  {id:'reviews',      ico:'⭐', name:'Reviews',        def:true},
+  {id:'cta_final',    ico:'📣', name:'CTA Final',      def:true},
+  {id:'video',        ico:'🎬', name:'Video',          def:false},
+  {id:'faq',          ico:'❓', name:'FAQ',            def:false},
+  {id:'garantia',     ico:'🛡️', name:'Garantía',      def:false},
+  {id:'popup_social', ico:'🔔', name:'Popup Social',   def:false}
+];
+
+const SWATCHES = ['#1D9E75','#3B82F6','#EF4444','#F59E0B','#8B5CF6','#EC4899','#0EA5E9','#10B981','#F97316','#6366F1'];
+const FONTS    = ['Inter','Poppins','Montserrat','Raleway','Lato','Open Sans','Roboto','Nunito'];
+
+const st = {
+  step: 1,
+  secs: {},
+  imgs: {
+    hero: {urls:['']},
+    prob: {url:''},
+    revs: {urls:['']}
+  },
+  video_url: '', video_caption: '',
+  style: {color:'#1D9E75', fuente:'Inter'},
+  copy: null,
+  html: '',
+  last_tipo: 'html'
+};
+
+/* ── INIT ─────────────────────────────────────── */
+function init(){
+  buildSecGrid();
+  buildSwatches();
+  buildFonts();
+  renderUrlList('hero');
+  renderUrlList('revs');
+  renderProbUrl();
+  updateColorUI(st.style.color);
+}
+
+/* ── SECTIONS GRID ───────────────────────────── */
+function buildSecGrid(){
+  const g = document.getElementById('secGrid');
+  g.innerHTML = '';
+  SEC_LIST.forEach(s => {
+    st.secs[s.id] = s.def;
+    const el = document.createElement('div');
+    el.className = 'sec-chip' + (s.def?' on':'') + (s.always?' always':'');
+    el.dataset.id = s.id;
+    el.innerHTML = `<span class="ico">${s.ico}</span>${s.name}<span class="chk">✓</span>`;
+    if(!s.always) el.onclick = () => toggleSec(s.id, el);
+    g.appendChild(el);
+  });
+}
+
+function toggleSec(id, el){
+  st.secs[id] = !st.secs[id];
+  el.classList.toggle('on', st.secs[id]);
+  if(id === 'video') document.getElementById('videoCard').style.display = st.secs[id] ? 'block' : 'none';
+}
+
+/* ── SWATCHES ────────────────────────────────── */
+function buildSwatches(){
+  const row = document.getElementById('swatchRow');
+  row.innerHTML = '';
+  SWATCHES.forEach(c => {
+    const el = document.createElement('div');
+    el.className = 'swatch' + (c === st.style.color ? ' active' : '');
+    el.style.background = c;
+    el.title = c;
+    el.onclick = () => { pickColor(c); };
+    row.appendChild(el);
+  });
+}
+
+function pickColor(c){
+  st.style.color = c;
+  document.getElementById('colorPicker').value = c;
+  document.getElementById('colorHex').value = c;
+  updateColorUI(c);
+}
+
+function hexColor(v){
+  if(/^#[0-9a-fA-F]{6}$/.test(v)){
+    st.style.color = v;
+    document.getElementById('colorPicker').value = v;
+    updateColorUI(v);
+  }
+}
+
+function updateColorUI(c){
+  document.querySelectorAll('.swatch').forEach(s => s.classList.toggle('active', s.style.background === c || s.title === c));
+}
+
+/* ── FONTS ───────────────────────────────────── */
+function buildFonts(){
+  const g = document.getElementById('fontGrid');
+  g.innerHTML = '';
+  FONTS.forEach(f => {
+    const el = document.createElement('div');
+    el.className = 'font-chip' + (f === st.style.fuente ? ' active' : '');
+    el.style.fontFamily = f;
+    el.textContent = f;
+    el.onclick = () => {
+      st.style.fuente = f;
+      document.querySelectorAll('.font-chip').forEach(x => x.classList.remove('active'));
+      el.classList.add('active');
+    };
+    g.appendChild(el);
+  });
+}
+
+/* ── URL LISTS ───────────────────────────────── */
+function renderUrlList(key){
+  const container = key === 'hero' ? document.getElementById('heroUrls') : document.getElementById('revsUrls');
+  const urls = st.imgs[key].urls;
+  container.innerHTML = '';
+  urls.forEach((u, i) => {
+    const row = document.createElement('div');
+    row.className = 'url-item';
+    row.innerHTML = `
+      <input type="url" value="${u}" placeholder="https://..." oninput="st.imgs['${key}'].urls[${i}]=this.value"/>
+      ${urls.length > 1 ? `<button class="url-btn rem" onclick="removeUrl('${key}',${i})">✕</button>` : ''}
+    `;
+    container.appendChild(row);
+  });
+}
+
+function renderProbUrl(){
+  const container = document.getElementById('probUrl');
+  container.innerHTML = `
+    <div class="url-item">
+      <input type="url" value="${st.imgs.prob.url}" placeholder="https://..." oninput="st.imgs.prob.url=this.value"/>
+    </div>`;
+}
+
+function addUrl(key){
+  st.imgs[key].urls.push('');
+  renderUrlList(key);
+}
+
+function removeUrl(key, i){
+  st.imgs[key].urls.splice(i, 1);
+  renderUrlList(key);
+}
+
+/* ── GENERATE COPY (Step 1 → Step 2) ────────── */
+async function generateCopy(){
+  const nombre = document.getElementById('s1_nombre').value.trim();
+  const desc   = document.getElementById('s1_desc').value.trim();
+  if(!nombre){ toast('Ingresa el nombre del producto'); return; }
+  if(!desc)  { toast('Ingresa la descripción del producto'); return; }
+
+  const secciones = SEC_LIST.filter(s => st.secs[s.id]).map(s => s.id);
+
+  const payload = {
+    accion: 'generar_copy',
+    nombre_producto: nombre,
+    descripcion: desc,
+    beneficios: document.getElementById('s1_bens').value.trim(),
+    publico_objetivo: document.getElementById('s1_pub').value.trim(),
+    tono: document.getElementById('s1_tono').value,
+    instrucciones: document.getElementById('s1_instr').value.trim(),
+    secciones
+  };
+
+  showOverlay('copy');
+  document.getElementById('btnGenCopy').disabled = true;
+
+  try {
+    const res  = await fetch(PROXY, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data = await res.json();
+
+    if(!data.success){
+      throw new Error(data.error || data.message || 'Error generando copy');
+    }
+    st.copy = data.copy;
+    buildCopyEditor();
+    hideOverlay();
+    nav(2);
+  } catch(e){
+    hideOverlay();
+    toast('❌ ' + e.message, 4000);
+    console.error('generateCopy error:', e);
+  } finally {
+    document.getElementById('btnGenCopy').disabled = false;
+  }
+}
+
+/* ── BUILD COPY EDITOR ───────────────────────── */
+function buildCopyEditor(){
+  const ed = document.getElementById('copyEditor');
+  ed.innerHTML = '';
+  if(!st.copy) return;
+
+  const labels = {
+    hero:'Hero / Encabezado', problema:'Problema', beneficios:'Beneficios',
+    reviews:'Reviews', cta_final:'CTA Final', faq:'FAQ',
+    garantia:'Garantía', popup_social:'Popup Social'
+  };
+  const icos = {
+    hero:'🖼️', problema:'😤', beneficios:'✅', reviews:'⭐',
+    cta_final:'📣', faq:'❓', garantia:'🛡️', popup_social:'🔔'
+  };
+
+  Object.keys(st.copy).forEach(id => {
+    if(!st.secs[id] && id !== 'hero') return;
+    const val = typeof st.copy[id] === 'object' ? JSON.stringify(st.copy[id], null, 2) : String(st.copy[id]);
+    const div = document.createElement('div');
+    div.className = 'csec';
+    div.id = 'csec_' + id;
+    div.innerHTML = `
+      <div class="csec-head" onclick="toggleCS('${id}')">
+        <span class="csec-title">${icos[id]||'📝'} ${labels[id]||id}</span>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <button class="regen-btn" onclick="event.stopPropagation();regenSec('${id}')">↻ Regenerar</button>
+          <span class="arrow">▶</span>
+        </div>
+      </div>
+      <div class="csec-body">
+        <textarea id="copy_${id}" oninput="st.copy['${id}']=this.value">${escHtml(val)}</textarea>
+      </div>`;
+    ed.appendChild(div);
+  });
+}
+
+function toggleCS(id){
+  document.getElementById('csec_'+id).classList.toggle('open');
+}
+
+/* ── REGEN SECTION ───────────────────────────── */
+async function regenSec(id){
+  const btn = document.querySelector(`#csec_${id} .regen-btn`);
+  const orig = btn.textContent;
+  btn.textContent = '...';
+  btn.disabled = true;
+
+  const payload = {
+    accion: 'regenerar_seccion',
+    seccion: id,
+    nombre_producto: document.getElementById('s1_nombre').value.trim(),
+    descripcion: document.getElementById('s1_desc').value.trim(),
+    tono: document.getElementById('s1_tono').value,
+    instrucciones: document.getElementById('s1_instr').value.trim(),
+    copy_actual: st.copy
+  };
+
+  try {
+    const res  = await fetch(PROXY, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data = await res.json();
+    if(!data.success) throw new Error(data.error || 'Error regenerando sección');
+    if(data.copy && data.copy[id]){
+      st.copy[id] = data.copy[id];
+      const ta = document.getElementById('copy_'+id);
+      if(ta) ta.value = typeof st.copy[id] === 'object' ? JSON.stringify(st.copy[id], null, 2) : String(st.copy[id]);
+      toast('Sección actualizada ✓');
+    }
+  } catch(e){
+    toast('❌ ' + e.message, 3000);
+  } finally {
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
+}
+
+/* ── GENERATE LANDING (Step 2 → Step 3) ─────── */
+async function generate(tipo_salida){
+  const nombre = document.getElementById('s1_nombre').value.trim();
+  if(!nombre){ toast('Falta el nombre del producto'); return; }
+
+  const secciones_activas = SEC_LIST.filter(s => st.secs[s.id]).map(s => s.id);
+
+  const copy_editado = {};
+  if(st.copy){
+    Object.keys(st.copy).forEach(id => {
+      const ta = document.getElementById('copy_'+id);
+      copy_editado[id] = ta ? ta.value : st.copy[id];
+    });
+  }
+
+  const payload = {
+    accion: tipo_salida === 'shopify' ? 'generar_liquid' : 'generar_html',
+    tipo_salida,
+    nombre_producto: nombre,
+    precio: document.getElementById('s1_precio').value.trim(),
+    precio_antes: document.getElementById('s1_precio_antes').value.trim(),
+    whatsapp: document.getElementById('s1_wa').value.trim(),
+    instrucciones: document.getElementById('s1_instr').value.trim(),
+    color_principal: st.style.color,
+    fuente: st.style.fuente,
+    copy_editado,
+    secciones_activas,
+    video_url: document.getElementById('videoUrl').value.trim(),
+    video_caption: document.getElementById('videoCaption').value.trim(),
+    imagenes_hero: st.imgs.hero.urls.filter(u => u.trim()),
+    imagen_problema: document.getElementById('probUrl').querySelector('input')?.value.trim() || '',
+    imagenes_reviews: st.imgs.revs.urls.filter(u => u.trim())
+  };
+
+  st.last_tipo = tipo_salida;
+  document.getElementById('regenTipoLabel').textContent = tipo_salida === 'shopify' ? 'Liquid' : 'HTML';
+
+  showOverlay(tipo_salida);
+  document.getElementById('btnHTML').disabled = true;
+  document.getElementById('btnLiquid').disabled = true;
+
+  try {
+    const res  = await fetch(PROXY, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+    const data = await res.json();
+
+    if(!data.success){
+      throw new Error(data.error || data.message || 'Error generando la landing');
+    }
+    if(!data.html){
+      throw new Error('La respuesta no contiene HTML');
+    }
+
+    st.html = data.html;
+    hideOverlay();
+    buildResult(tipo_salida);
+    nav(3);
+  } catch(e){
+    hideOverlay();
+    toast('❌ ' + e.message, 5000);
+    console.error('generate() error:', e);
+  } finally {
+    document.getElementById('btnHTML').disabled = false;
+    document.getElementById('btnLiquid').disabled = false;
+  }
+}
+
+/* ── BUILD RESULT ────────────────────────────── */
+function buildResult(tipo){
+  const isLiquid = tipo === 'shopify';
+  const ext      = isLiquid ? 'liquid' : 'html';
+  const nombre   = document.getElementById('s1_nombre').value.trim().replace(/\s+/g,'_').toLowerCase() || 'landing';
+
+  document.getElementById('resIcon').textContent  = isLiquid ? '📄' : '✅';
+  document.getElementById('resTitle').textContent = isLiquid ? '¡Archivo Liquid generado!' : '¡Landing HTML generada!';
+  document.getElementById('resSub').textContent   = `Tu archivo ${ext.toUpperCase()} está listo`;
+
+  const dlCards = document.getElementById('dlCards');
+  dlCards.innerHTML = `
+    <div class="dl-card">
+      <div class="dl-card-info">
+        <div class="dl-title">${nombre}.${ext}</div>
+        <div class="dl-sub">${isLiquid ? 'Plantilla Shopify' : 'Página HTML completa'} · ${(st.html.length/1024).toFixed(1)} KB</div>
+      </div>
+      <div style="display:flex;gap:.5rem">
+        ${!isLiquid ? `<button class="btn btn-secondary" onclick="previewResult()">👁 Vista previa</button>` : ''}
+        <button class="btn btn-primary" onclick="downloadResult('${ext}','${nombre}')">⬇ Descargar</button>
+      </div>
+    </div>`;
+
+  const instrBox = document.getElementById('instrBox');
+  instrBox.innerHTML = isLiquid
+    ? `<b>Cómo instalar en Shopify:</b>
+       <ol style="padding-left:1.2rem;margin-top:.5rem">
+         <li>Ve a <b>Tienda online → Temas → Editar código</b></li>
+         <li>En la carpeta <b>Templates</b>, crea un nuevo archivo y pega el contenido</li>
+         <li>Asigna la plantilla a la página desde el editor de páginas</li>
+       </ol>`
+    : `<b>Opciones de publicación:</b>
+       <ul style="padding-left:1.2rem;margin-top:.5rem">
+         <li>Sube el archivo a cualquier hosting (cPanel, FTP, etc.)</li>
+         <li>Usa servicios como <b>Netlify Drop</b> o <b>Vercel</b> para publicar gratis</li>
+         <li>Integra directamente en WordPress como página personalizada</li>
+       </ul>`;
+}
+
+function downloadResult(ext, nombre){
+  const blob = new Blob([st.html], {type:'text/html'});
+  const a    = document.createElement('a');
+  a.href     = URL.createObjectURL(blob);
+  a.download = `${nombre}.${ext}`;
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+
+function previewResult(){
+  const modal = document.getElementById('previewModal');
+  const frame = document.getElementById('previewFrame');
+  frame.srcdoc = st.html;
+  modal.classList.add('show');
+}
+
+function closePreview(){
+  document.getElementById('previewModal').classList.remove('show');
+  document.getElementById('previewFrame').srcdoc = '';
+}
+
+/* ── OVERLAY ─────────────────────────────────── */
+function showOverlay(mode){
+  const steps = mode === 'copy'
+    ? [
+        {t:'Analizando producto'},
+        {t:'Creando argumentos'},
+        {t:'Redactando secciones'},
+        {t:'Puliendo copy'}
+      ]
+    : [
+        {t:'Procesando copy'},
+        {t:'Generando estructura'},
+        {t:'Aplicando estilos'},
+        {t:'Construyendo layout'},
+        {t:'Finalizando'}
+      ];
+
+  const title = mode === 'copy' ? 'Generando copy con IA...' : (mode === 'shopify' ? 'Generando Liquid...' : 'Generando HTML...');
+  const sub   = mode === 'copy' ? 'Unos segundos...' : (mode === 'shopify' ? 'Puede tomar ~30 seg...' : 'Puede tomar ~10 seg...');
+
+  document.getElementById('ovTitle').textContent = title;
+  document.getElementById('ovSub').textContent   = sub;
+
+  const cont = document.getElementById('ovSteps');
+  cont.innerHTML = steps.map((s,i) => `
+    <div class="ov-step" id="ovs${i}">
+      <div class="dot"></div>${s.t}
+    </div>`).join('');
+
+  document.getElementById('overlay').classList.add('show');
+
+  let idx = 0;
+  const total   = steps.length;
+  const totalMs = mode === 'copy' ? 8000 : (mode === 'shopify' ? 28000 : 9000);
+  const interval = totalMs / (total + 1);
+
+  if(window._ovTimer) clearInterval(window._ovTimer);
+  window._ovTimer = setInterval(() => {
+    if(idx > 0) document.getElementById('ovs'+(idx-1))?.classList.replace('active','done');
+    if(idx < total){
+      document.getElementById('ovs'+idx)?.classList.add('active');
+      idx++;
+    } else {
+      clearInterval(window._ovTimer);
+    }
+  }, interval);
+}
+
+function hideOverlay(){
+  if(window._ovTimer) clearInterval(window._ovTimer);
+  document.getElementById('overlay').classList.remove('show');
+}
+
+/* ── NAV ─────────────────────────────────────── */
+function nav(step){
+  if(step < 1 || step > 3) return;
+  st.step = step;
+  document.querySelectorAll('.step-panel').forEach((p,i) => p.classList.toggle('active', i+1 === step));
+  updateStepBar();
+  window.scrollTo({top:0, behavior:'smooth'});
+}
+
+function goStep(step){
+  if(step === 2 && !st.copy) return;
+  if(step === 3 && !st.html) return;
+  nav(step);
+}
+
+function updateStepBar(){
+  const s = st.step;
+  for(let i = 1; i <= 3; i++){
+    const el = document.getElementById('sbStep'+i);
+    el.classList.toggle('active', i === s);
+    el.classList.toggle('done', i < s);
+  }
+  for(let i = 1; i <= 2; i++){
+    document.getElementById('sbDiv'+i)?.classList.toggle('done', i < s);
+  }
+}
+
+/* ── RESET ───────────────────────────────────── */
+function resetAll(){
+  st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html';
+  st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']}};
+  ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_instr','videoUrl','videoCaption']
+    .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  document.getElementById('copyEditor').innerHTML = '';
+  buildSecGrid();
+  renderUrlList('hero'); renderUrlList('revs'); renderProbUrl();
+  nav(1);
+}
+
+/* ── TOAST ───────────────────────────────────── */
+function toast(msg, ms=2500){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), ms);
+}
+
+/* ── UTILS ───────────────────────────────────── */
+function escHtml(s){
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+/* ── BOOT ────────────────────────────────────── */
+init();
+</script>
+</body>
+</html>
