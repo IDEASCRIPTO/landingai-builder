@@ -483,7 +483,7 @@ select{appearance:none;cursor:pointer}
 <div id="toast"></div>
 
 <script>
-const PROXY = 'https://generador.duallegacyideas.com/proxy.php';
+const PROXY = '/proxy.php';
 
 const SEC_LIST = [
   {id:'hero',         ico:'🖼️', name:'Hero',          def:true,  always:true},
@@ -767,6 +767,7 @@ async function generate(tipo_salida){
   }
 
   const payload = {
+    accion: tipo_salida === 'shopify' ? 'generar_liquid' : 'generar_html',
     tipo_salida,
     nombre_producto: nombre,
     precio: document.getElementById('s1_precio').value.trim(),
