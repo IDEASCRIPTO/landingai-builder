@@ -268,6 +268,36 @@ select{appearance:none;cursor:pointer}
 .hint{font-size:.74rem;color:var(--td);margin-top:.3rem}
 .mt1{margin-top:.75rem}
 .gap-actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem}
+
+/* ─── COUNTRY SELECTOR ──────────────────────── */
+.country-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem}
+.country-flag{font-size:1.1rem}
+select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:var(--r2);padding:.55rem .8rem;color:var(--tx);font-size:.85rem;cursor:pointer;appearance:none}
+
+/* ─── AI IMAGE BTN ──────────────────────────── */
+.ai-img-btn{
+  flex-shrink:0;height:30px;border:none;border-radius:6px;
+  background:rgba(139,92,246,.15);color:#a78bfa;
+  font-size:.7rem;font-weight:700;cursor:pointer;
+  padding:0 .6rem;transition:all .15s;white-space:nowrap;
+}
+.ai-img-btn:hover{background:#8b5cf6;color:#fff}
+
+/* ─── AI IMAGE MODAL ────────────────────────── */
+#aiImgModal{
+  display:none;position:fixed;inset:0;z-index:997;
+  background:rgba(0,0,0,.75);backdrop-filter:blur(6px);
+  align-items:center;justify-content:center;padding:1rem;
+}
+#aiImgModal.show{display:flex}
+.aim-box{
+  background:var(--s1);border:1px solid var(--bd2);border-radius:var(--r);
+  padding:1.5rem;width:100%;max-width:460px;
+}
+.aim-box h3{font-size:.95rem;font-weight:700;margin-bottom:.25rem}
+.aim-box .aim-sub{font-size:.75rem;color:var(--tm);margin-bottom:.9rem}
+.aim-box textarea{min-height:80px;margin-bottom:.75rem}
+.aim-actions{display:flex;gap:.5rem;justify-content:flex-end}
 </style>
 </head>
 <body>
@@ -330,7 +360,36 @@ select{appearance:none;cursor:pointer}
     </div>
 
     <div class="card">
-      <div class="sec-title">💰 Precio &amp; contacto</div>
+      <div class="sec-title">🌎 País &amp; contacto</div>
+
+      <label class="lbl">País</label>
+      <div class="country-row">
+        <span class="country-flag" id="countryFlag">🌎</span>
+        <select id="s1_pais" onchange="selectCountry(this.value)" style="flex:1">
+          <option value="">— Seleccioná un país —</option>
+          <option value="MX">🇲🇽 México</option>
+          <option value="AR">🇦🇷 Argentina</option>
+          <option value="CO">🇨🇴 Colombia</option>
+          <option value="CL">🇨🇱 Chile</option>
+          <option value="PE">🇵🇪 Perú</option>
+          <option value="BR">🇧🇷 Brasil</option>
+          <option value="VE">🇻🇪 Venezuela</option>
+          <option value="EC">🇪🇨 Ecuador</option>
+          <option value="BO">🇧🇴 Bolivia</option>
+          <option value="PY">🇵🇾 Paraguay</option>
+          <option value="UY">🇺🇾 Uruguay</option>
+          <option value="GT">🇬🇹 Guatemala</option>
+          <option value="HN">🇭🇳 Honduras</option>
+          <option value="SV">🇸🇻 El Salvador</option>
+          <option value="NI">🇳🇮 Nicaragua</option>
+          <option value="CR">🇨🇷 Costa Rica</option>
+          <option value="PA">🇵🇦 Panamá</option>
+          <option value="DO">🇩🇴 Rep. Dominicana</option>
+          <option value="CU">🇨🇺 Cuba</option>
+          <option value="ES">🇪🇸 España</option>
+          <option value="US">🇺🇸 Estados Unidos</option>
+        </select>
+      </div>
 
       <div class="row3">
         <div>
@@ -343,7 +402,7 @@ select{appearance:none;cursor:pointer}
         </div>
         <div>
           <label class="lbl">WhatsApp</label>
-          <input type="text" id="s1_wa" placeholder="5491112345678"/>
+          <input type="text" id="s1_wa" placeholder="Ej: 5491112345678" id="s1_wa"/>
         </div>
       </div>
     </div>
@@ -479,6 +538,19 @@ select{appearance:none;cursor:pointer}
   <iframe id="previewFrame"></iframe>
 </div>
 
+<!-- AI IMAGE MODAL -->
+<div id="aiImgModal">
+  <div class="aim-box">
+    <h3>🎨 Generar imagen con IA</h3>
+    <p class="aim-sub">Describí la imagen que necesitás y la IA la generará</p>
+    <textarea id="aiImgPrompt" placeholder="Ej: Foto de producto, crema hidratante sobre fondo blanco minimalista, luz natural suave, estilo editorial..."></textarea>
+    <div class="aim-actions">
+      <button class="btn btn-ghost" onclick="closeAIImgModal()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmAIImg()" id="btnAIImgGen">✨ Generar</button>
+    </div>
+  </div>
+</div>
+
 <!-- TOAST -->
 <div id="toast"></div>
 
@@ -486,7 +558,7 @@ select{appearance:none;cursor:pointer}
 const PROXY = '/proxy.php';
 
 const SEC_LIST = [
-  {id:'hero',         ico:'🖼️', name:'Hero',          def:true,  always:true},
+  {id:'hero',         ico:'🖼️', name:'Hero',          def:true},
   {id:'problema',     ico:'😤', name:'Problema',       def:true},
   {id:'beneficios',   ico:'✅', name:'Beneficios',     def:true},
   {id:'reviews',      ico:'⭐', name:'Reviews',        def:true},
@@ -500,8 +572,33 @@ const SEC_LIST = [
 const SWATCHES = ['#1D9E75','#3B82F6','#EF4444','#F59E0B','#8B5CF6','#EC4899','#0EA5E9','#10B981','#F97316','#6366F1'];
 const FONTS    = ['Inter','Poppins','Montserrat','Raleway','Lato','Open Sans','Roboto','Nunito'];
 
+const COUNTRIES = {
+  MX:{flag:'🇲🇽', name:'México',           wa:'+52',  currency:'MXN', sym:'$'},
+  AR:{flag:'🇦🇷', name:'Argentina',         wa:'+54',  currency:'ARS', sym:'$'},
+  CO:{flag:'🇨🇴', name:'Colombia',          wa:'+57',  currency:'COP', sym:'$'},
+  CL:{flag:'🇨🇱', name:'Chile',             wa:'+56',  currency:'CLP', sym:'$'},
+  PE:{flag:'🇵🇪', name:'Perú',              wa:'+51',  currency:'PEN', sym:'S/'},
+  BR:{flag:'🇧🇷', name:'Brasil',            wa:'+55',  currency:'BRL', sym:'R$'},
+  VE:{flag:'🇻🇪', name:'Venezuela',         wa:'+58',  currency:'USD', sym:'$'},
+  EC:{flag:'🇪🇨', name:'Ecuador',           wa:'+593', currency:'USD', sym:'$'},
+  BO:{flag:'🇧🇴', name:'Bolivia',           wa:'+591', currency:'BOB', sym:'Bs'},
+  PY:{flag:'🇵🇾', name:'Paraguay',          wa:'+595', currency:'PYG', sym:'₲'},
+  UY:{flag:'🇺🇾', name:'Uruguay',           wa:'+598', currency:'UYU', sym:'$U'},
+  GT:{flag:'🇬🇹', name:'Guatemala',         wa:'+502', currency:'GTQ', sym:'Q'},
+  HN:{flag:'🇭🇳', name:'Honduras',          wa:'+504', currency:'HNL', sym:'L'},
+  SV:{flag:'🇸🇻', name:'El Salvador',       wa:'+503', currency:'USD', sym:'$'},
+  NI:{flag:'🇳🇮', name:'Nicaragua',         wa:'+505', currency:'NIO', sym:'C$'},
+  CR:{flag:'🇨🇷', name:'Costa Rica',        wa:'+506', currency:'CRC', sym:'₡'},
+  PA:{flag:'🇵🇦', name:'Panamá',            wa:'+507', currency:'USD', sym:'$'},
+  DO:{flag:'🇩🇴', name:'Rep. Dominicana',   wa:'+1',   currency:'DOP', sym:'RD$'},
+  CU:{flag:'🇨🇺', name:'Cuba',              wa:'+53',  currency:'CUP', sym:'$'},
+  ES:{flag:'🇪🇸', name:'España',            wa:'+34',  currency:'EUR', sym:'€'},
+  US:{flag:'🇺🇸', name:'EE.UU.',            wa:'+1',   currency:'USD', sym:'$'},
+};
+
 const st = {
   step: 1,
+  pais: '',
   secs: {},
   imgs: {
     hero: {urls:['']},
@@ -514,6 +611,17 @@ const st = {
   html: '',
   last_tipo: 'html'
 };
+
+/* ── COUNTRY ─────────────────────────────────── */
+function selectCountry(code){
+  const c = COUNTRIES[code];
+  if(!c) return;
+  document.getElementById('countryFlag').textContent = c.flag;
+  document.getElementById('s1_wa').placeholder = `Ej: ${c.wa}1234567890`;
+  document.getElementById('s1_precio').placeholder = `Ej: ${c.sym}29.99`;
+  document.getElementById('s1_precio_antes').placeholder = `Ej: ${c.sym}49.99`;
+  st.pais = code;
+}
 
 /* ── INIT ─────────────────────────────────────── */
 function init(){
@@ -608,6 +716,7 @@ function renderUrlList(key){
     row.className = 'url-item';
     row.innerHTML = `
       <input type="url" value="${u}" placeholder="https://..." oninput="st.imgs['${key}'].urls[${i}]=this.value"/>
+      <button class="ai-img-btn" onclick="openAIImgModal('${key}',${i})">✨ IA</button>
       ${urls.length > 1 ? `<button class="url-btn rem" onclick="removeUrl('${key}',${i})">✕</button>` : ''}
     `;
     container.appendChild(row);
@@ -619,6 +728,7 @@ function renderProbUrl(){
   container.innerHTML = `
     <div class="url-item">
       <input type="url" value="${st.imgs.prob.url}" placeholder="https://..." oninput="st.imgs.prob.url=this.value"/>
+      <button class="ai-img-btn" onclick="openAIImgModal('prob',0)">✨ IA</button>
     </div>`;
 }
 
@@ -641,6 +751,9 @@ async function generateCopy(){
 
   const secciones = SEC_LIST.filter(s => st.secs[s.id]).map(s => s.id);
 
+  const paisCode = document.getElementById('s1_pais').value;
+  const paisData = COUNTRIES[paisCode] || {};
+
   const payload = {
     accion: 'generar_copy',
     nombre_producto: nombre,
@@ -649,6 +762,9 @@ async function generateCopy(){
     publico_objetivo: document.getElementById('s1_pub').value.trim(),
     tono: document.getElementById('s1_tono').value,
     instrucciones: document.getElementById('s1_instr').value.trim(),
+    pais: paisCode,
+    pais_nombre: paisData.name || '',
+    moneda: paisData.currency || '',
     secciones
   };
 
@@ -766,9 +882,16 @@ async function generate(tipo_salida){
     });
   }
 
+  const paisCode = document.getElementById('s1_pais').value;
+  const paisData = COUNTRIES[paisCode] || {};
+
   const payload = {
     accion: tipo_salida === 'shopify' ? 'generar_liquid' : 'generar_html',
     tipo_salida,
+    pais: paisCode,
+    pais_nombre: paisData.name || '',
+    moneda: paisData.currency || '',
+    simbolo_moneda: paisData.sym || '$',
     nombre_producto: nombre,
     precio: document.getElementById('s1_precio').value.trim(),
     precio_antes: document.getElementById('s1_precio_antes').value.trim(),
@@ -967,6 +1090,55 @@ function resetAll(){
   buildSecGrid();
   renderUrlList('hero'); renderUrlList('revs'); renderProbUrl();
   nav(1);
+}
+
+/* ── AI IMAGE MODAL ──────────────────────────── */
+let _aiImgTarget = {key:'hero', idx:0};
+
+function openAIImgModal(key, idx){
+  _aiImgTarget = {key, idx};
+  document.getElementById('aiImgPrompt').value = '';
+  document.getElementById('aiImgModal').classList.add('show');
+}
+
+function closeAIImgModal(){
+  document.getElementById('aiImgModal').classList.remove('show');
+}
+
+async function confirmAIImg(){
+  const prompt = document.getElementById('aiImgPrompt').value.trim();
+  if(!prompt){ toast('Describí la imagen primero'); return; }
+
+  const btn = document.getElementById('btnAIImgGen');
+  btn.disabled = true;
+  btn.textContent = '⏳ Generando...';
+
+  try {
+    const payload = {
+      accion: 'generar_imagen',
+      prompt,
+      nombre_producto: document.getElementById('s1_nombre').value.trim()
+    };
+    const res  = await fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+    const data = await res.json();
+    if(!data.success || !data.url) throw new Error(data.error || 'No se recibió URL de imagen');
+
+    const {key, idx} = _aiImgTarget;
+    if(key === 'prob'){
+      st.imgs.prob.url = data.url;
+      renderProbUrl();
+    } else {
+      st.imgs[key].urls[idx] = data.url;
+      renderUrlList(key);
+    }
+    closeAIImgModal();
+    toast('✅ Imagen generada y cargada');
+  } catch(e){
+    toast('❌ ' + e.message, 4000);
+  } finally {
+    btn.disabled = false;
+    btn.textContent = '✨ Generar';
+  }
 }
 
 /* ── TOAST ───────────────────────────────────── */
