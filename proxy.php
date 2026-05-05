@@ -24,7 +24,7 @@ $routes = [
     'generar_copy'       => $base . 'generar-copy-v2',
     'regenerar_seccion'  => $base . 'generar-copy-v2',
     'generar_html'       => $base . 'generar-v2',
-    'generar_liquid'     => $base . 'generar-liquid-v2',
+    'generar_liquid'     => $base . 'generar-v2',
 ];
 
 $accion = $data['accion'];
