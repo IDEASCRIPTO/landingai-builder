@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "n8n": {
+      "command": "npx",
+      "args": ["-y", "n8n-mcp"],
+      "env": {
+        "N8N_HOST": "https://duallegacy-ia-asistentes-n8n.aigmej.easypanel.host",
+        "N8N_API_KEY": "TU_API_KEY_AQUI"
+      }
+    }
+  }
+}
