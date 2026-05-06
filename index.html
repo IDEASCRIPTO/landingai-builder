@@ -570,11 +570,13 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 <div id="aiImgModal">
   <div class="aim-box">
     <h3>🎨 Generar imagen con IA</h3>
-    <p class="aim-sub">Describí la imagen que necesitás y la IA la generará</p>
-    <textarea id="aiImgPrompt" placeholder="Ej: Foto de producto, crema hidratante sobre fondo blanco minimalista, luz natural suave, estilo editorial..."></textarea>
+    <p class="aim-sub" id="aimSubText">La IA está creando un prompt profesional para tu imagen...</p>
+    <div id="aimLoading" style="text-align:center;padding:20px 0;color:var(--tm);font-size:.9rem">⏳ Generando prompt...</div>
+    <textarea id="aiImgPrompt" placeholder="Ej: Foto de producto, crema hidratante sobre fondo blanco minimalista, luz natural suave, estilo editorial..." style="display:none"></textarea>
     <div class="aim-actions">
       <button class="btn btn-ghost" onclick="closeAIImgModal()">Cancelar</button>
-      <button class="btn btn-primary" onclick="confirmAIImg()" id="btnAIImgGen">✨ Generar</button>
+      <button class="btn btn-secondary" onclick="suggestAIPrompt()" id="btnAIRegenPrompt" style="display:none">🔄 Nuevo prompt</button>
+      <button class="btn btn-primary" onclick="confirmAIImg()" id="btnAIImgGen" disabled>✨ Generar imagen</button>
     </div>
   </div>
 </div>
@@ -1136,12 +1138,70 @@ let _aiImgTarget = {key:'hero', idx:0};
 
 function openAIImgModal(key, idx){
   _aiImgTarget = {key, idx};
-  document.getElementById('aiImgPrompt').value = '';
+  const ta = document.getElementById('aiImgPrompt');
+  const loading = document.getElementById('aimLoading');
+  const sub = document.getElementById('aimSubText');
+  const btnGen = document.getElementById('btnAIImgGen');
+  const btnRegen = document.getElementById('btnAIRegenPrompt');
+  ta.value = '';
+  ta.style.display = 'none';
+  loading.style.display = 'block';
+  sub.textContent = 'La IA está creando un prompt profesional para tu imagen...';
+  btnGen.disabled = true;
+  btnRegen.style.display = 'none';
   document.getElementById('aiImgModal').classList.add('show');
+  suggestAIPrompt();
 }
 
 function closeAIImgModal(){
   document.getElementById('aiImgModal').classList.remove('show');
+}
+
+async function suggestAIPrompt(){
+  const ta = document.getElementById('aiImgPrompt');
+  const loading = document.getElementById('aimLoading');
+  const sub = document.getElementById('aimSubText');
+  const btnGen = document.getElementById('btnAIImgGen');
+  const btnRegen = document.getElementById('btnAIRegenPrompt');
+
+  ta.style.display = 'none';
+  loading.style.display = 'block';
+  loading.textContent = '⏳ Generando prompt con IA...';
+  btnGen.disabled = true;
+
+  const secLabels = {hero:'hero (banner principal)', prob:'problema', revs:'reviews/testimonios'};
+  const payload = {
+    accion: 'generar_prompt_imagen',
+    seccion: secLabels[_aiImgTarget.key] || _aiImgTarget.key,
+    nombre_producto: document.getElementById('s1_nombre')?.value?.trim() || '',
+    descripcion: document.getElementById('s1_desc')?.value?.trim() || '',
+    tono: document.getElementById('s1_tono')?.value || 'profesional',
+    pais: st.pais || 'Argentina',
+    color_primario: st.style.color || '#2563EB'
+  };
+
+  try {
+    const res = await fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+    const data = await res.json();
+    if(data.success && data.prompt) {
+      ta.value = data.prompt;
+      ta.style.display = 'block';
+      loading.style.display = 'none';
+      sub.textContent = 'Prompt generado por IA — editalo si querés y luego generá la imagen.';
+      btnGen.disabled = false;
+      btnRegen.style.display = 'inline-block';
+    } else {
+      throw new Error(data.error || 'No se recibió prompt');
+    }
+  } catch(e) {
+    loading.style.display = 'none';
+    ta.placeholder = 'Ej: Professional product photo, white background, studio lighting, high quality...';
+    ta.style.display = 'block';
+    sub.textContent = 'Escribí o editá el prompt para tu imagen:';
+    btnGen.disabled = false;
+    btnRegen.style.display = 'inline-block';
+    toast('No se pudo generar prompt automático — escribilo manualmente', 3000);
+  }
 }
 
 async function confirmAIImg(){
@@ -1150,7 +1210,7 @@ async function confirmAIImg(){
 
   const btn = document.getElementById('btnAIImgGen');
   btn.disabled = true;
-  btn.textContent = '⏳ Generando...';
+  btn.textContent = '⏳ Generando imagen...';
 
   try {
     const payload = {
@@ -1176,7 +1236,7 @@ async function confirmAIImg(){
     toast('❌ ' + e.message, 4000);
   } finally {
     btn.disabled = false;
-    btn.textContent = '✨ Generar';
+    btn.textContent = '✨ Generar imagen';
   }
 }
 

@@ -21,11 +21,12 @@ if (!$data || !isset($data['accion'])) {
 $base = 'https://duallegacy-ia-asistentes-n8n.aigmej.easypanel.host/webhook/';
 
 $routes = [
-    'generar_copy'       => $base . 'generar-copy-v2',
-    'regenerar_seccion'  => $base . 'generar-copy-v2',
-    'generar_imagen'     => $base . 'generar-imagen-v1',
-    'generar_html'       => $base . 'generar-v2',
-    'generar_liquid'     => $base . 'generar-v2',
+    'generar_copy'          => $base . 'generar-copy-v2',
+    'regenerar_seccion'     => $base . 'generar-copy-v2',
+    'generar_imagen'        => $base . 'generar-imagen-v1',
+    'generar_html'          => $base . 'generar-v2',
+    'generar_liquid'        => $base . 'generar-v2',
+    'generar_prompt_imagen' => $base . 'generar-prompt-imagen',
 ];
 
 $accion = $data['accion'];
