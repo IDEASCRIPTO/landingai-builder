@@ -269,6 +269,21 @@ select{appearance:none;cursor:pointer}
 .mt1{margin-top:.75rem}
 .gap-actions{display:flex;gap:.6rem;justify-content:flex-end;margin-top:1rem}
 
+/* ─── FORMATO SELECTOR ──────────────────────── */
+.fmt-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.5rem}
+@media(max-width:480px){.fmt-grid{grid-template-columns:1fr}}
+.fmt-card{
+  border:2px solid var(--bd2);border-radius:var(--r);padding:1rem;
+  cursor:pointer;transition:all .2s;text-align:left;background:var(--s2);
+}
+.fmt-card:hover{border-color:var(--p)}
+.fmt-card.active{border-color:var(--p);background:var(--pl)}
+.fmt-ico{font-size:1.6rem;margin-bottom:.35rem}
+.fmt-name{font-size:.9rem;font-weight:700;margin-bottom:.2rem;color:var(--tx)}
+.fmt-desc{font-size:.73rem;color:var(--tm);line-height:1.45}
+.fmt-card.active .fmt-name{color:var(--p)}
+.fmt-card.active .fmt-desc{color:var(--p);opacity:.8}
+
 /* ─── COUNTRY SELECTOR ──────────────────────── */
 .country-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.75rem}
 .country-flag{font-size:1.1rem}
@@ -327,6 +342,22 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
        STEP 1 — PRODUCTO
   ═════════════════════════════════════════════ -->
   <div class="step-panel active" id="step1">
+
+    <div class="card">
+      <div class="sec-title">📄 Tipo de documento</div>
+      <div class="fmt-grid">
+        <div class="fmt-card active" id="fmt_html" onclick="selectFormato('html')">
+          <div class="fmt-ico">🌐</div>
+          <div class="fmt-name">HTML Landing Page</div>
+          <div class="fmt-desc">Landing completa lista para publicar en cualquier sitio web. Genera Hero, todas las secciones y CSS en un solo archivo.</div>
+        </div>
+        <div class="fmt-card" id="fmt_shopify" onclick="selectFormato('shopify')">
+          <div class="fmt-ico">🛍️</div>
+          <div class="fmt-name">Liquid para Shopify</div>
+          <div class="fmt-desc">Código modular por secciones para el editor Custom Liquid de Shopify. Elegís qué secciones querés generar.</div>
+        </div>
+      </div>
+    </div>
 
     <div class="card">
       <div class="sec-title">📦 Información del producto</div>
@@ -477,11 +508,8 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 
     <div class="action-row">
       <button class="btn btn-secondary" onclick="nav(1)">← Volver</button>
-      <button class="btn btn-primary btn-lg" onclick="generate('html')" id="btnHTML" style="flex:2">
-        ⚡ Generar HTML
-      </button>
-      <button class="btn btn-ghost" onclick="generate('shopify')" id="btnLiquid">
-        📄 Liquid
+      <button class="btn btn-primary btn-lg btn-full" onclick="generate(st.tipo_formato)" id="btnGenerate">
+        ⚡ Generar <span id="btnGenerateTipo">HTML Landing</span>
       </button>
     </div>
 
@@ -505,7 +533,7 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
       <div class="sec-title">🔄 Generar otra versión</div>
       <div class="action-row">
         <button class="btn btn-secondary" onclick="nav(2)">← Editar copy &amp; estilo</button>
-        <button class="btn btn-primary" onclick="generate(st.last_tipo)">
+        <button class="btn btn-primary" onclick="generate(st.tipo_formato)">
           ↻ Regenerar <span id="regenTipoLabel">HTML</span>
         </button>
       </div>
@@ -598,6 +626,7 @@ const COUNTRIES = {
 
 const st = {
   step: 1,
+  tipo_formato: 'html',
   pais: '',
   secs: {},
   imgs: {
@@ -611,6 +640,15 @@ const st = {
   html: '',
   last_tipo: 'html'
 };
+
+/* ── FORMATO ─────────────────────────────────── */
+function selectFormato(tipo){
+  st.tipo_formato = tipo;
+  document.getElementById('fmt_html').classList.toggle('active', tipo === 'html');
+  document.getElementById('fmt_shopify').classList.toggle('active', tipo === 'shopify');
+  const label = document.getElementById('btnGenerateTipo');
+  if(label) label.textContent = tipo === 'shopify' ? 'Liquid para Shopify' : 'HTML Landing';
+}
 
 /* ── COUNTRY ─────────────────────────────────── */
 function selectCountry(code){
@@ -909,11 +947,12 @@ async function generate(tipo_salida){
   };
 
   st.last_tipo = tipo_salida;
+  st.tipo_formato = tipo_salida;
   document.getElementById('regenTipoLabel').textContent = tipo_salida === 'shopify' ? 'Liquid' : 'HTML';
 
   showOverlay(tipo_salida);
-  document.getElementById('btnHTML').disabled = true;
-  document.getElementById('btnLiquid').disabled = true;
+  const btnGen = document.getElementById('btnGenerate');
+  if(btnGen) btnGen.disabled = true;
 
   try {
     const res  = await fetch(PROXY, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
@@ -935,8 +974,8 @@ async function generate(tipo_salida){
     toast('❌ ' + e.message, 5000);
     console.error('generate() error:', e);
   } finally {
-    document.getElementById('btnHTML').disabled = false;
-    document.getElementById('btnLiquid').disabled = false;
+    const btnGen = document.getElementById('btnGenerate');
+    if(btnGen) btnGen.disabled = false;
   }
 }
 
