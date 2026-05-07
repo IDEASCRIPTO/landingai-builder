@@ -348,6 +348,31 @@ select{appearance:none;cursor:pointer}
 .country-flag{font-size:1.1rem}
 select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:var(--r2);padding:.55rem .8rem;color:var(--tx);font-size:.85rem;cursor:pointer;appearance:none}
 
+/* ─── REVIEWS ESTILO SELECTOR ───────────────── */
+.rev-sel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.25rem}
+@media(max-width:580px){.rev-sel-grid{grid-template-columns:repeat(2,1fr)}}
+.rev-sel-card{background:var(--s2);border:2px solid var(--bd2);border-radius:var(--r);padding:.65rem .4rem .55rem;cursor:pointer;text-align:center;transition:all .2s}
+.rev-sel-card.active{border-color:var(--p);background:var(--pl)}
+.rev-sel-card:hover:not(.active){border-color:var(--p)}
+.rev-preview{height:48px;border-radius:5px;margin-bottom:.45rem;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--s3);padding:5px;gap:3px}
+.rev-sel-name{font-size:.71rem;font-weight:700;color:var(--tx);margin-bottom:2px}
+.rev-sel-desc{font-size:.63rem;color:var(--tm);line-height:1.3}
+/* mini preview — Clásico */
+.rp1{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px}
+.rp1 .rpc{background:var(--bd2);border-radius:3px;height:100%}
+/* mini preview — Flujo */
+.rp2{flex-direction:column;justify-content:center}
+.rp2 .rpr{display:flex;gap:3px;width:100%}
+.rp2 .rph{flex:1;height:11px;background:var(--bd2);border-radius:2px}
+.rp2 .rph:nth-child(2){flex:1.4}
+/* mini preview — Retrato */
+.rp3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px}
+.rp3 .rpf{border-radius:3px;height:100%;background:linear-gradient(to top,var(--p),rgba(29,158,117,.25))}
+/* mini preview — Mosaico */
+.rp4{align-items:flex-start}
+.rp4 .rpcol{display:flex;flex-direction:column;gap:3px;flex:1;height:100%}
+.rp4 .rpb{background:var(--bd2);border-radius:2px;width:100%}
+
 /* ─── HERO ESTILO SELECTOR ──────────────────── */
 .hero-estilo-row{display:flex;gap:.4rem;margin-bottom:.6rem;flex-wrap:wrap}
 .estilo-btn{padding:.38rem .8rem;border-radius:var(--r2);border:1px solid var(--bd2);
@@ -601,6 +626,49 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
       <div class="font-grid" id="fontGrid"></div>
     </div>
 
+    <!-- Reviews Estilo -->
+    <div class="card">
+      <div class="sec-title">⭐ Estilo de Reviews</div>
+      <div class="rev-sel-grid">
+
+        <div class="rev-sel-card active" id="rev_1" onclick="selectReviewsEstilo(1)">
+          <div class="rev-preview rp1">
+            <div class="rpc"></div><div class="rpc"></div><div class="rpc"></div>
+          </div>
+          <div class="rev-sel-name">Clásico</div>
+          <div class="rev-sel-desc">Grid de tarjetas</div>
+        </div>
+
+        <div class="rev-sel-card" id="rev_2" onclick="selectReviewsEstilo(2)">
+          <div class="rev-preview rp2">
+            <div class="rpr"><div class="rph"></div><div class="rph"></div><div class="rph"></div></div>
+            <div class="rpr" style="margin-top:4px"><div class="rph"></div><div class="rph"></div></div>
+          </div>
+          <div class="rev-sel-name">Flujo</div>
+          <div class="rev-sel-desc">Carrusel infinito</div>
+        </div>
+
+        <div class="rev-sel-card" id="rev_3" onclick="selectReviewsEstilo(3)">
+          <div class="rev-preview rp3">
+            <div class="rpf"></div><div class="rpf"></div><div class="rpf"></div>
+          </div>
+          <div class="rev-sel-name">Retrato</div>
+          <div class="rev-sel-desc">Foto con overlay</div>
+        </div>
+
+        <div class="rev-sel-card" id="rev_4" onclick="selectReviewsEstilo(4)">
+          <div class="rev-preview rp4">
+            <div class="rpcol"><div class="rpb" style="height:22px"></div><div class="rpb" style="height:12px"></div></div>
+            <div class="rpcol"><div class="rpb" style="height:12px"></div><div class="rpb" style="height:20px"></div></div>
+            <div class="rpcol"><div class="rpb" style="height:17px"></div><div class="rpb" style="height:14px"></div></div>
+          </div>
+          <div class="rev-sel-name">Mosaico</div>
+          <div class="rev-sel-desc">Columnas variables</div>
+        </div>
+
+      </div>
+    </div>
+
     <!-- Imágenes -->
     <div class="card">
       <div class="sec-title">🖼️ Imágenes por sección</div>
@@ -774,6 +842,7 @@ const st = {
     bens:    {url:''}
   },
   hero_estilo: 'A',
+  reviews_estilo: 1,
   video_url: '', video_caption: '',
   style: {color:'#1D9E75', fuente:'Inter'},
   copy: null,
@@ -799,6 +868,12 @@ function selectTema(n){
     const el = document.getElementById('tema_'+i);
     if(el) el.classList.toggle('active', i === n);
   });
+}
+
+/* ── REVIEWS ESTILO ──────────────────────────── */
+function selectReviewsEstilo(n){
+  st.reviews_estilo = n;
+  [1,2,3,4].forEach(i => document.getElementById('rev_'+i)?.classList.toggle('active', i===n));
 }
 
 /* ── HERO ESTILO ─────────────────────────────── */
@@ -1121,6 +1196,7 @@ async function generate(tipo_salida){
     imagen_despues: st.imgs.despues?.url?.trim() || '',
     imagen_bens: st.imgs.bens?.url?.trim() || '',
     hero_estilo: st.hero_estilo || 'A',
+    reviews_estilo: st.reviews_estilo || 1,
     imagenes_reviews: st.imgs.revs.urls.filter(u => u.trim())
   };
 
@@ -1299,7 +1375,7 @@ function updateStepBar(){
 
 /* ── RESET ───────────────────────────────────── */
 function resetAll(){
-  st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html'; st.hero_estilo = 'A';
+  st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html'; st.hero_estilo = 'A'; st.reviews_estilo = 1;
   st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']},antes:{url:''},despues:{url:''},bens:{url:''}};
   ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_instr','videoUrl','videoCaption']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
@@ -1308,6 +1384,7 @@ function resetAll(){
   renderUrlList('hero'); renderUrlList('revs');
   renderSingleUrl('prob'); renderSingleUrl('antes'); renderSingleUrl('despues'); renderSingleUrl('bens');
   selectHeroEstilo('A');
+  selectReviewsEstilo(1);
   nav(1);
 }
 

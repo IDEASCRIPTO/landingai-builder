@@ -21,6 +21,7 @@ const foto_antes = body.imagen_antes || foto_problema || null;
 const foto_despues = body.imagen_despues || (fotos_hero[0] || null);
 const foto_bens = body.imagen_bens || null;
 const hero_estilo = body.hero_estilo || 'A';
+const reviews_estilo = Number(body.reviews_estilo) || 1;
 
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function stars(n){ const s=Math.min(5,Math.max(1,n||5)); return '★'.repeat(s)+'☆'.repeat(5-s); }
@@ -115,6 +116,47 @@ footer{background:#111827;color:rgba(255,255,255,.4);padding:28px;text-align:cen
 .car-dot.on{width:18px;border-radius:4px;background:${CP}}
 .car-arr{position:absolute;top:50%;transform:translateY(-50%);background:rgba(0,0,0,.38);color:#fff;border:none;border-radius:50%;width:32px;height:32px;font-size:1rem;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3}
 .car-arr.p{left:8px}.car-arr.n{right:8px}
+/* ── Reviews Estilo 2: Flujo ─── */
+.rev-flujo{padding:70px 0;overflow:hidden}
+.rev-flujo-hdr{text-align:center;margin-bottom:28px}
+.rev-flujo-mask{overflow:hidden;-webkit-mask:linear-gradient(90deg,transparent 0%,#000 10%,#000 90%,transparent 100%);mask:linear-gradient(90deg,transparent 0%,#000 10%,#000 90%,transparent 100%)}
+.rev-flujo-track{display:flex;gap:16px;width:max-content;animation:revFlow 36s linear infinite}
+.rev-flujo-track:hover{animation-play-state:paused}
+@keyframes revFlow{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.rev-flujo-card{background:#f9fafb;border-radius:14px;padding:22px 18px;width:300px;flex-shrink:0;border:1px solid #f3f4f6}
+.rev-flujo-stars{color:#f59e0b;font-size:.9rem;margin-bottom:8px}
+.rev-flujo-text{font-size:.86rem;color:#374151;line-height:1.65;font-style:italic;margin-bottom:14px}
+.rev-flujo-author{display:flex;align-items:center;gap:9px}
+.rev-flujo-av{width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.rev-flujo-av-pl{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,${CP},rgba(${colorRgb},.5));display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:#fff;flex-shrink:0}
+.rev-flujo-name{font-size:.8rem;font-weight:700;color:#111827}
+.rev-flujo-ck{font-size:.71rem;color:#16a34a;font-weight:600}
+/* ── Reviews Estilo 3: Retrato ─── */
+.rev-retrato{padding:70px 0}
+.rev-ret-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:32px}
+.rev-ret-card{border-radius:18px;overflow:hidden;position:relative;min-height:300px;display:flex;align-items:flex-end;background:linear-gradient(135deg,${CP},rgba(${colorRgb},.6))}
+.rev-ret-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.rev-ret-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8) 0%,rgba(0,0,0,.05) 65%,transparent 100%)}
+.rev-ret-content{position:relative;z-index:2;padding:22px 18px;color:#fff;width:100%}
+.rev-ret-stars{color:#f59e0b;font-size:.95rem;margin-bottom:8px}
+.rev-ret-text{font-size:.88rem;line-height:1.65;font-style:italic;margin-bottom:12px}
+.rev-ret-name{font-weight:700;font-size:.83rem;margin-bottom:2px}
+.rev-ret-ck{font-size:.72rem;opacity:.75;font-weight:600}
+/* ── Reviews Estilo 4: Mosaico ─── */
+.rev-mosaico{padding:70px 0}
+.rev-mas-cols{columns:3;column-gap:14px;margin-top:32px}
+@media(max-width:760px){.rev-mas-cols{columns:2}}
+@media(max-width:480px){.rev-mas-cols{columns:1}}
+.rev-mas-card{break-inside:avoid;background:#f9fafb;border-radius:14px;padding:20px;border:1px solid #f3f4f6;margin-bottom:14px;display:block}
+.rev-mas-img{width:100%;border-radius:9px;margin-bottom:12px;display:block;object-fit:cover}
+.rev-mas-stars{color:#f59e0b;font-size:.88rem;margin-bottom:7px}
+.rev-mas-text{font-size:.85rem;color:#374151;line-height:1.7;font-style:italic;margin-bottom:12px}
+.rev-mas-author{display:flex;align-items:center;gap:8px}
+.rev-mas-av{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.rev-mas-av-pl{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,${CP},rgba(${colorRgb},.5));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0}
+.rev-mas-name{font-weight:700;font-size:.79rem;color:#111827}
+.rev-mas-ck{font-size:.7rem;color:#16a34a;font-weight:600}
+/* ─────────────────────────────────────────────── */
 .cta-float{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:890;pointer-events:auto;transition:opacity .3s,transform .3s}
 .cta-float.hidden{opacity:0;transform:translateX(-50%) translateY(12px);pointer-events:none}
 .cta-float a{display:block;padding:14px 38px;border-radius:50px;background:${CP};color:#fff;font-weight:800;font-size:.95rem;text-decoration:none;box-shadow:0 6px 24px rgba(${colorRgb},.45);white-space:nowrap;transition:box-shadow .2s,transform .2s;font-family:inherit}
@@ -492,38 +534,61 @@ ${vE}</div></section>`;
 
 // REVIEWS
 if (secSet.has('reviews') && revs.length) {
-  const rH = revs.map((r, i) => {
-    const av = fotos_reviews[i]
-      ? `<img src="${esc(fotos_reviews[i])}" class="r-av" alt="${esc(r.name||'')}">`
-      : `<div class="r-av-pl">${(r.name||'C').charAt(0).toUpperCase()}</div>`;
-    if (tema === 2) {
-      const rImg = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="test-img" alt="${esc(r.name||'')}">` : `<div class="test-img-ph">😊</div>`;
-      return `<div class="test-card">${rImg}
-<div class="test-hl">"Excelente producto"</div>
-<div class="test-body">${esc(r.comment||'')}</div>
-<div class="test-foot"><div class="test-name">${esc(r.name||'Cliente')}${r.city?' · '+esc(r.city):''}</div><div class="test-stars">${stars(r.stars)}</div></div>
-</div>`;
-    }
-    return `<div class="r-card">
-<div class="r-stars">${stars(r.stars)}</div>
-<p class="r-text">"${esc(r.comment||'')}"</p>
-<div class="r-author">${av}<div><div class="r-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="${tema===3?'r-tick':'r-ck'}">✓ Compra verificada</div></div></div>
-</div>`;
-  }).join('');
 
-  if (tema === 2) {
-    secs += `<section class="testimonials"><div class="container">
-<h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2>
-<p class="sec-p" style="text-align:center;margin:0 auto 32px">+3.000 clientes satisfechos en toda la región</p>
-<div class="test-grid">${rH}</div></div></section>`;
-  } else if (tema === 3) {
-    secs += `<section class="reviews"><div class="container">
-<div class="reviews-hdr"><div class="r-big-stars">★★★★★</div><div class="r-big-score">4.8/5 · Basado en +2.000 valoraciones verificadas</div></div>
-<div class="r-grid">${rH}</div></div></section>`;
+  if (reviews_estilo === 2) {
+    // ── FLUJO: carrusel horizontal infinito ──
+    const cards = revs.map((r,i) => {
+      const av = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-flujo-av" alt="">` : `<div class="rev-flujo-av-pl">${(r.name||'C').charAt(0).toUpperCase()}</div>`;
+      return `<div class="rev-flujo-card"><div class="rev-flujo-stars">${stars(r.stars)}</div><p class="rev-flujo-text">"${esc(r.comment||'')}"</p><div class="rev-flujo-author">${av}<div><div class="rev-flujo-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="rev-flujo-ck">✓ Compra verificada</div></div></div></div>`;
+    }).join('');
+    secs += `<section class="rev-flujo"><div class="container rev-flujo-hdr">
+<span class="sec-label">⭐ Reviews</span>
+<h2 class="sec-h" style="margin:8px auto 0;max-width:700px">Lo que dicen nuestros clientes</h2>
+<p class="sec-p" style="margin:8px auto 0;max-width:560px">+3.000 clientes satisfechos en toda la región</p>
+</div>
+<div class="rev-flujo-mask"><div class="rev-flujo-track">${cards+cards}</div></div></section>`;
+
+  } else if (reviews_estilo === 3) {
+    // ── RETRATO: foto de fondo con texto overlay ──
+    const cards = revs.map((r,i) => {
+      const bg = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-ret-bg" alt="">` : '';
+      return `<div class="rev-ret-card"><div class="rev-ret-overlay"></div>${bg}<div class="rev-ret-content"><div class="rev-ret-stars">${stars(r.stars)}</div><p class="rev-ret-text">"${esc(r.comment||'')}"</p><div class="rev-ret-name">${esc(r.name||'Cliente verificado')}</div><div class="rev-ret-ck">✓ Compra verificada${r.city?' · '+esc(r.city):''}</div></div></div>`;
+    }).join('');
+    secs += `<section class="rev-retrato"><div class="container">
+<div style="text-align:center;margin-bottom:8px"><span class="sec-label">⭐ Reviews</span></div>
+<h2 class="sec-h" style="text-align:center;margin:0 auto 0;max-width:700px">Experiencias reales</h2>
+<div class="rev-ret-grid">${cards}</div></div></section>`;
+
+  } else if (reviews_estilo === 4) {
+    // ── MOSAICO: columnas estilo Pinterest ──
+    const cards = revs.map((r,i) => {
+      const av = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-mas-av" alt="">` : `<div class="rev-mas-av-pl">${(r.name||'C').charAt(0).toUpperCase()}</div>`;
+      const topImg = fotos_reviews[i] && i%2===0 ? `<img src="${esc(fotos_reviews[i])}" class="rev-mas-img" alt="">` : '';
+      return `<div class="rev-mas-card">${topImg}<div class="rev-mas-stars">${stars(r.stars)}</div><p class="rev-mas-text">"${esc(r.comment||'')}"</p><div class="rev-mas-author">${av}<div><div class="rev-mas-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="rev-mas-ck">✓ Compra verificada</div></div></div></div>`;
+    }).join('');
+    secs += `<section class="rev-mosaico"><div class="container">
+<div style="text-align:center;margin-bottom:8px"><span class="sec-label">⭐ Reviews</span></div>
+<h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que opinan nuestros clientes</h2>
+<p class="sec-p" style="text-align:center;margin:0 auto 0;max-width:580px">+3.000 clientes satisfechos en toda la región</p>
+<div class="rev-mas-cols">${cards}</div></div></section>`;
+
   } else {
-    secs += `<section class="reviews"><div class="container">
-<div class="rating-hdr"><div class="rating-big">4.8</div><div class="rating-stars">★★★★★</div><div class="rating-cnt">Basado en +2.000 valoraciones verificadas</div></div>
-<div class="r-grid">${rH}</div></div></section>`;
+    // ── CLÁSICO: grid de tarjetas (por tema) ──
+    const rH = revs.map((r, i) => {
+      const av = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="r-av" alt="${esc(r.name||'')}">` : `<div class="r-av-pl">${(r.name||'C').charAt(0).toUpperCase()}</div>`;
+      if (tema === 2) {
+        const rImg = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="test-img" alt="">` : `<div class="test-img-ph">😊</div>`;
+        return `<div class="test-card">${rImg}<div class="test-hl">"Excelente producto"</div><div class="test-body">${esc(r.comment||'')}</div><div class="test-foot"><div class="test-name">${esc(r.name||'Cliente')}${r.city?' · '+esc(r.city):''}</div><div class="test-stars">${stars(r.stars)}</div></div></div>`;
+      }
+      return `<div class="r-card"><div class="r-stars">${stars(r.stars)}</div><p class="r-text">"${esc(r.comment||'')}"</p><div class="r-author">${av}<div><div class="r-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="${tema===3?'r-tick':'r-ck'}">✓ Compra verificada</div></div></div></div>`;
+    }).join('');
+    if (tema === 2) {
+      secs += `<section class="testimonials"><div class="container"><h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2><p class="sec-p" style="text-align:center;margin:0 auto 32px">+3.000 clientes satisfechos en toda la región</p><div class="test-grid">${rH}</div></div></section>`;
+    } else if (tema === 3) {
+      secs += `<section class="reviews"><div class="container"><div class="reviews-hdr"><div class="r-big-stars">★★★★★</div><div class="r-big-score">4.8/5 · Basado en +2.000 valoraciones verificadas</div></div><div class="r-grid">${rH}</div></div></section>`;
+    } else {
+      secs += `<section class="reviews"><div class="container"><div class="rating-hdr"><div class="rating-big">4.8</div><div class="rating-stars">★★★★★</div><div class="rating-cnt">Basado en +2.000 valoraciones verificadas</div></div><div class="r-grid">${rH}</div></div></section>`;
+    }
   }
 }
 
