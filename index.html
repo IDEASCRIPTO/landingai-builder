@@ -414,7 +414,7 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 }
 .ai-img-btn:hover{background:#8b5cf6;color:#fff}
 
-/* ─── SECTIONS DRAG LIST ────────────────────── */
+/* ─── SECTIONS LIST ──────────────────────────── */
 .sec-drag-list{display:flex;flex-direction:column;gap:.3rem;margin-top:.5rem}
 .sec-drag-item{
   display:flex;align-items:center;gap:.45rem;
@@ -423,12 +423,16 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
   transition:border-color .15s,background .15s;user-select:none;
 }
 .sec-drag-item.on{border-color:var(--p);background:var(--pl)}
-.sec-drag-item.dragging{opacity:.35;border-style:dashed}
-.sec-drag-item.drag-over{border-color:var(--p);background:rgba(29,158,117,.08);border-style:dashed}
-.sdh{cursor:grab;color:var(--td);font-size:1.05rem;flex-shrink:0;line-height:1;padding:0 1px}
-.sdh:active{cursor:grabbing}
+.sd-move{display:flex;flex-direction:column;gap:1px;flex-shrink:0;width:16px}
+.sd-arr{width:16px;height:12px;border:none;background:transparent;color:var(--td);
+  font-size:.52rem;cursor:pointer;padding:0;border-radius:2px;
+  display:flex;align-items:center;justify-content:center;transition:.12s;line-height:1}
+.sd-arr:hover:not(:disabled){background:var(--p);color:#fff}
+.sd-arr:disabled{opacity:.18;cursor:default}
+.sd-move-ph{width:16px;flex-shrink:0}
 .sd-ico{font-size:.88rem;flex-shrink:0}
 .sd-name{flex:1;min-width:0}
+.sd-fixed-lbl{font-size:.6rem;color:var(--td);flex-shrink:0;padding:1px 4px;border:1px solid var(--bd2);border-radius:3px}
 .sd-tog{position:relative;width:32px;height:17px;flex-shrink:0}
 .sd-tog input{opacity:0;width:0;height:0;position:absolute}
 .sd-sl{position:absolute;inset:0;background:var(--bd2);border-radius:17px;cursor:pointer;transition:.2s}
@@ -748,26 +752,33 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
       <div id="heroUrls" class="url-list"></div>
       <button class="btn btn-ghost mt1" id="heroAddBtn" onclick="addUrl('hero')" style="font-size:.78rem;padding:.35rem .7rem;display:none">+ Agregar imagen al carrusel</button>
 
-      <label class="lbl" style="margin-top:1rem">Imagen "Antes"</label>
-      <div class="ratio-row" id="ratioAntesRow"></div>
-      <div id="antesUrl" class="url-list"></div>
+      <div id="imgAbGroup">
+        <label class="lbl" style="margin-top:1rem">Imagen "Antes"</label>
+        <div class="ratio-row" id="ratioAntesRow"></div>
+        <div id="antesUrl" class="url-list"></div>
+        <label class="lbl" style="margin-top:.6rem">Imagen "Después"</label>
+        <div class="ratio-row" id="ratioDespuesRow"></div>
+        <div id="despuesUrl" class="url-list"></div>
+      </div>
 
-      <label class="lbl" style="margin-top:.6rem">Imagen "Después"</label>
-      <div class="ratio-row" id="ratioDespuesRow"></div>
-      <div id="despuesUrl" class="url-list"></div>
+      <div id="imgBensGroup">
+        <label class="lbl" style="margin-top:1rem">Imagen Beneficios</label>
+        <div class="ratio-row" id="ratioBensRow"></div>
+        <div id="bensUrl" class="url-list"></div>
+      </div>
 
-      <label class="lbl" style="margin-top:1rem">Imagen Beneficios</label>
-      <div class="ratio-row" id="ratioBensRow"></div>
-      <div id="bensUrl" class="url-list"></div>
+      <div id="imgProbGroup">
+        <label class="lbl" style="margin-top:1rem">Imagen Problema</label>
+        <div class="ratio-row" id="ratioProbRow"></div>
+        <div id="probUrl" class="url-list"></div>
+      </div>
 
-      <label class="lbl" style="margin-top:1rem">Imagen Problema</label>
-      <div class="ratio-row" id="ratioProbRow"></div>
-      <div id="probUrl" class="url-list"></div>
-
-      <label class="lbl" style="margin-top:1rem">Imágenes Reviews</label>
-      <div class="ratio-row" id="ratioRevsRow"></div>
-      <div id="revsUrls" class="url-list"></div>
-      <button class="btn btn-ghost mt1" onclick="addUrl('revs')" style="font-size:.78rem;padding:.35rem .7rem">+ Agregar URL</button>
+      <div id="imgRevsGroup">
+        <label class="lbl" style="margin-top:1rem">Imágenes Reviews</label>
+        <div class="ratio-row" id="ratioRevsRow"></div>
+        <div id="revsUrls" class="url-list"></div>
+        <button class="btn btn-ghost mt1" onclick="addUrl('revs')" style="font-size:.78rem;padding:.35rem .7rem">+ Agregar URL</button>
+      </div>
     </div>
 
     <!-- Video -->
@@ -861,16 +872,16 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 const PROXY = '/proxy.php';
 
 const SEC_LIST = [
-  {id:'hero',         ico:'🖼️', name:'Hero',          def:true,  always:true},
-  {id:'problema',     ico:'😤', name:'Problema',       def:true},
-  {id:'beneficios',   ico:'✅', name:'Beneficios',     def:true},
-  {id:'ab',           ico:'↔️', name:'Antes/Después',  def:true},
-  {id:'reviews',      ico:'⭐', name:'Reviews',        def:true},
-  {id:'cta_final',    ico:'📣', name:'CTA Final',      def:true,  always:true},
-  {id:'video',        ico:'🎬', name:'Video',          def:false},
-  {id:'faq',          ico:'❓', name:'FAQ',            def:false},
-  {id:'garantia',     ico:'🛡️', name:'Garantía',      def:false},
-  {id:'popup_social', ico:'🔔', name:'Popup Social',   def:false}
+  {id:'hero',         ico:'🖼️', name:'Hero',           def:true,  always:true},
+  {id:'problema',     ico:'😤', name:'Problema',        def:true},
+  {id:'beneficios',   ico:'✅', name:'Beneficios',      def:true},
+  {id:'ab',           ico:'↔️', name:'Antes/Después',   def:true},
+  {id:'reviews',      ico:'⭐', name:'Reviews',         def:true},
+  {id:'video',        ico:'🎬', name:'Video',           def:false},
+  {id:'faq',          ico:'❓', name:'FAQ',             def:false},
+  {id:'garantia',     ico:'🛡️', name:'Garantía',       def:false},
+  {id:'cta_final',    ico:'📣', name:'CTA Final',       def:true,  fixed:true},
+  {id:'popup_social', ico:'🔔', name:'Popup Social',    def:false, fixed:true}
 ];
 
 const SWATCHES = ['#1D9E75','#3B82F6','#EF4444','#F59E0B','#8B5CF6','#EC4899','#0EA5E9','#10B981','#F97316','#6366F1'];
@@ -1016,7 +1027,7 @@ function init(){
   updateColorUI(st.style.color);
 }
 
-/* ── SECTIONS DRAG LIST ──────────────────────── */
+/* ── SECTIONS LIST ───────────────────────────── */
 function buildSecGrid(){
   if(!st.secs_order.length) st.secs_order = SEC_LIST.map(s => s.id);
   SEC_LIST.forEach(s => { if(!(s.id in st.secs)) st.secs[s.id] = s.def; });
@@ -1025,47 +1036,59 @@ function buildSecGrid(){
   g.innerHTML = '';
   g.className = 'sec-drag-list';
 
-  let dragSrc = -1;
+  const moveableIds = st.secs_order.filter(id => {
+    const s = SEC_LIST.find(x => x.id === id);
+    return s && !s.always && !s.fixed;
+  });
 
   st.secs_order.forEach(id => {
     const s = SEC_LIST.find(x => x.id === id);
     if(!s) return;
     const el = document.createElement('div');
     el.className = 'sec-drag-item' + (st.secs[id] ? ' on' : '');
-    el.draggable = !s.always;
     el.dataset.id = id;
-    el.innerHTML = `<span class="sdh" title="Arrastrar">${s.always?'&nbsp;':'⠿'}</span><span class="sd-ico">${s.ico}</span><span class="sd-name">${s.name}</span><label class="sd-tog${s.always?' always':''}"><input type="checkbox"${st.secs[id]?' checked':''}${s.always?' disabled':''} onchange="toggleSec('${id}',this.closest('.sec-drag-item'),this.checked)"><span class="sd-sl"></span></label>`;
 
-    if(!s.always){
-      el.addEventListener('dragstart', e => {
-        dragSrc = st.secs_order.indexOf(id);
-        e.dataTransfer.effectAllowed = 'move';
-        e.dataTransfer.setData('text/plain', id);
-        setTimeout(() => el.classList.add('dragging'), 0);
-      });
-      el.addEventListener('dragend', () => {
-        el.classList.remove('dragging');
-        g.querySelectorAll('.sec-drag-item').forEach(x => x.classList.remove('drag-over'));
-      });
-      el.addEventListener('dragover', e => {
-        e.preventDefault();
-        e.dataTransfer.dropEffect = 'move';
-        g.querySelectorAll('.sec-drag-item').forEach(x => x.classList.remove('drag-over'));
-        el.classList.add('drag-over');
-      });
-      el.addEventListener('drop', e => {
-        e.preventDefault();
-        el.classList.remove('drag-over');
-        const targetIdx = st.secs_order.indexOf(id);
-        if(dragSrc !== -1 && dragSrc !== targetIdx){
-          const [moved] = st.secs_order.splice(dragSrc, 1);
-          st.secs_order.splice(targetIdx, 0, moved);
-          buildSecGrid();
-        }
-      });
+    const isMoveable = !s.always && !s.fixed;
+    const mIdx = moveableIds.indexOf(id);
+    const canUp   = isMoveable && mIdx > 0;
+    const canDown = isMoveable && mIdx < moveableIds.length - 1;
+
+    let leftCtrl = '';
+    if(s.always){
+      leftCtrl = '<div class="sd-move-ph"></div>';
+    } else if(isMoveable){
+      leftCtrl = `<div class="sd-move">
+        <button class="sd-arr"${canUp?'':' disabled'} onclick="moveSection('${id}',-1)">▲</button>
+        <button class="sd-arr"${canDown?'':' disabled'} onclick="moveSection('${id}',1)">▼</button>
+      </div>`;
+    } else {
+      leftCtrl = '<div class="sd-move-ph"></div>';
     }
+
+    const rightCtrl = s.always
+      ? ''
+      : `<label class="sd-tog"><input type="checkbox"${st.secs[id]?' checked':''} onchange="toggleSec('${id}',this.closest('.sec-drag-item'),this.checked)"><span class="sd-sl"></span></label>`;
+
+    const fixedLbl = s.fixed ? '<span class="sd-fixed-lbl">fijo</span>' : '';
+
+    el.innerHTML = `${leftCtrl}<span class="sd-ico">${s.ico}</span><span class="sd-name">${s.name}</span>${fixedLbl}${rightCtrl}`;
     g.appendChild(el);
   });
+}
+
+function moveSection(id, dir){
+  const moveableIds = st.secs_order.filter(i => {
+    const s = SEC_LIST.find(x => x.id === i);
+    return s && !s.always && !s.fixed;
+  });
+  const mIdx = moveableIds.indexOf(id);
+  const newMIdx = mIdx + dir;
+  if(newMIdx < 0 || newMIdx >= moveableIds.length) return;
+  const otherId = moveableIds[newMIdx];
+  const i1 = st.secs_order.indexOf(id);
+  const i2 = st.secs_order.indexOf(otherId);
+  [st.secs_order[i1], st.secs_order[i2]] = [st.secs_order[i2], st.secs_order[i1]];
+  buildSecGrid();
 }
 
 function toggleSec(id, el, checked){
@@ -1511,11 +1534,24 @@ function hideOverlay(){
   document.getElementById('overlay').classList.remove('show');
 }
 
+/* ── IMAGE FIELD FILTER ──────────────────────── */
+function filterImageFields(){
+  const show = (id, visible) => {
+    const el = document.getElementById(id);
+    if(el) el.style.display = visible ? '' : 'none';
+  };
+  show('imgAbGroup',   !!st.secs['ab']);
+  show('imgBensGroup', !!st.secs['beneficios']);
+  show('imgProbGroup', !!st.secs['problema']);
+  show('imgRevsGroup', !!st.secs['reviews']);
+}
+
 /* ── NAV ─────────────────────────────────────── */
 function nav(step){
   if(step < 1 || step > 3) return;
   st.step = step;
   document.querySelectorAll('.step-panel').forEach((p,i) => p.classList.toggle('active', i+1 === step));
+  if(step === 2) filterImageFields();
   updateStepBar();
   window.scrollTo({top:0, behavior:'smooth'});
 }

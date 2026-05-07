@@ -96,9 +96,8 @@ const secSet = new Set(secciones_activas.map(s=>typeof s==='object'?s.id:s));
 const hero=copy.hero, prob=copy.problema, bens=copy.beneficios;
 const cantidad_reviews = Number(body.cantidad_reviews) || 0;
 let revs = copy.reviews || [];
-if(cantidad_reviews > 0 && revs.length > 0){
-  if(revs.length < cantidad_reviews){ const base=[...revs]; for(let i=revs.length;i<cantidad_reviews;i++) revs.push({...base[i%base.length]}); }
-  else if(revs.length > cantidad_reviews){ revs=revs.slice(0,cantidad_reviews); }
+if(cantidad_reviews > 0 && revs.length > cantidad_reviews){
+  revs = revs.slice(0, cantidad_reviews);
 }
 const faqs=copy.faq, ctaF=copy.cta_final, vid=copy.video, pop=copy.popup_social, gar=copy.garantia;
 const hT=hero.titulo||NP, hS=hero.sub||'', hB=hero.badge||'';
@@ -631,7 +630,7 @@ if (secSet.has('reviews') && revs.length) {
     // ── FLUJO: carrusel horizontal infinito ──
     const cards = revs.map((r,i) => {
       const av = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-flujo-av" alt="">` : `<div class="rev-flujo-av-pl">${(r.name||'C').charAt(0).toUpperCase()}</div>`;
-      return `<div class="rev-flujo-card"><div class="rev-flujo-stars">${stars(r.stars)}</div><p class="rev-flujo-text">"${esc(r.comment||'')}"</p><div class="rev-flujo-author">${av}<div><div class="rev-flujo-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="rev-flujo-ck">✓ Compra verificada</div></div></div></div>`;
+      return `<div class="rev-flujo-card"><div class="rev-flujo-stars">${stars(r.stars)}</div><p class="rev-flujo-text">"${esc(r.comment||'')}"</p><div class="rev-flujo-author">${av}<div><div class="rev-flujo-name">${esc(r.name||'Cliente verificado')}</div><div class="rev-flujo-ck">✓ Compra verificada</div></div></div></div>`;
     }).join('');
     secHtml['reviews'] = `<section class="rev-flujo"><div class="container rev-flujo-hdr">
 <h2 class="sec-h" style="margin:0 auto 0;max-width:700px">Lo que dicen nuestros clientes</h2>
@@ -648,7 +647,7 @@ ${img}
 <div class="rev-car-foot">
 <div class="rev-car-stars">${stars(r.stars)}</div>
 <div class="rev-car-name">${esc(r.name||'Cliente verificado')}</div>
-<div class="rev-car-ck">✓ Compra verificada${r.city?' · '+esc(r.city):''}</div>
+<div class="rev-car-ck">✓ Compra verificada</div>
 <div class="rev-car-tap">▼ Leer reseña</div>
 <div class="rev-car-body"><p class="rev-car-text">"${esc(r.comment||'')}"</p></div>
 </div></div>`;
@@ -667,7 +666,7 @@ ${img}
 <div class="rev-lee-body">
 <div class="rev-lee-stars">${stars(r.stars)}</div>
 <div class="rev-lee-name">${esc(r.name||'Cliente verificado')}</div>
-<div class="rev-lee-ck">✓ Compra verificada${r.city?' · '+esc(r.city):''}</div>
+<div class="rev-lee-ck">✓ Compra verificada</div>
 <button class="rev-lee-btn" onclick="this.closest('.rev-lee-card').classList.toggle('open')">
 Leer reseña <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
 </button>
@@ -684,7 +683,7 @@ Leer reseña <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d
     const cards = revs.map((r,i) => {
       const img = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-mosaic-img" alt="">` : `<div class="rev-mosaic-img-ph">👤</div>`;
       const av = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-mosaic-av" alt="">` : `<div class="rev-mosaic-av-pl">${(r.name||'C').charAt(0).toUpperCase()}</div>`;
-      return `<div class="rev-mosaic-card">${img}<div class="rev-mosaic-body"><div class="rev-mosaic-stars">${stars(r.stars)}</div><p class="rev-mosaic-text">"${esc(r.comment||'')}"</p><div class="rev-mosaic-foot">${av}<div><div class="rev-mosaic-name">${esc(r.name||'Cliente verificado')}</div><div class="rev-mosaic-ck">✓ Compra verificada${r.city?' · '+esc(r.city):''}</div></div></div></div></div>`;
+      return `<div class="rev-mosaic-card">${img}<div class="rev-mosaic-body"><div class="rev-mosaic-stars">${stars(r.stars)}</div><p class="rev-mosaic-text">"${esc(r.comment||'')}"</p><div class="rev-mosaic-foot">${av}<div><div class="rev-mosaic-name">${esc(r.name||'Cliente verificado')}</div><div class="rev-mosaic-ck">✓ Compra verificada</div></div></div></div></div>`;
     }).join('');
     const mHdr = tema===2
       ? `<h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2><p class="sec-p" style="text-align:center;margin:0 auto 28px">+3.000 clientes satisfechos en toda la región</p>`
@@ -699,9 +698,9 @@ Leer reseña <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d
       const av = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="r-av" alt="${esc(r.name||'')}">` : `<div class="r-av-pl">${(r.name||'C').charAt(0).toUpperCase()}</div>`;
       if (tema === 2) {
         const rImg = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="test-img" alt="">` : `<div class="test-img-ph">😊</div>`;
-        return `<div class="test-card" style="width:260px;flex-shrink:0;scroll-snap-align:start">${rImg}<div class="test-hl">"Excelente producto"</div><div class="test-body">${esc(r.comment||'')}</div><div class="test-foot"><div class="test-name">${esc(r.name||'Cliente')}${r.city?' · '+esc(r.city):''}</div><div class="test-stars">${stars(r.stars)}</div></div></div>`;
+        return `<div class="test-card" style="width:260px;flex-shrink:0;scroll-snap-align:start">${rImg}<div class="test-hl">"Excelente producto"</div><div class="test-body">${esc(r.comment||'')}</div><div class="test-foot"><div class="test-name">${esc(r.name||'Cliente')}</div><div class="test-stars">${stars(r.stars)}</div></div></div>`;
       }
-      return `<div class="r-card" style="width:270px;flex-shrink:0;scroll-snap-align:start"><div class="r-stars">${stars(r.stars)}</div><p class="r-text">"${esc(r.comment||'')}"</p><div class="r-author">${av}<div><div class="r-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="${tema===3?'r-tick':'r-ck'}">✓ Compra verificada</div></div></div></div>`;
+      return `<div class="r-card" style="width:270px;flex-shrink:0;scroll-snap-align:start"><div class="r-stars">${stars(r.stars)}</div><p class="r-text">"${esc(r.comment||'')}"</p><div class="r-author">${av}<div><div class="r-name">${esc(r.name||'Cliente verificado')}</div><div class="${tema===3?'r-tick':'r-ck'}">✓ Compra verificada</div></div></div></div>`;
     }).join('');
     if (tema === 2) {
       secHtml['reviews'] = `<section class="testimonials"><div class="container"><h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2><p class="sec-p" style="text-align:center;margin:0 auto 28px">+3.000 clientes satisfechos en toda la región</p><div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT1',-1)">&#8249;</button><div class="rev-track" id="rT1">${rH}</div><button class="rev-arr n" onclick="revScroll('rT1',1)">&#8250;</button></div></div></section>`;
@@ -750,18 +749,19 @@ if (tema === 2) {
 </div></div></section>`;
 }
 
-// CTA FINAL
-const ctaFT = esc(ctaF.titulo||hT), ctaFS = esc(ctaF.sub||''), ctaFB = esc(ctaF.btn||hCta), ctaFE = ctaF.escasez||'';
-if (tema === 3) {
-  secs += `<section class="cta-f" id="cta"><div class="container" style="position:relative;z-index:2;max-width:680px;margin:0 auto;text-align:center">
+// CTA FINAL (opcional)
+if (secSet.has('cta_final')) {
+  const ctaFT = esc(ctaF.titulo||hT), ctaFS = esc(ctaF.sub||''), ctaFB = esc(ctaF.btn||hCta), ctaFE = ctaF.escasez||'';
+  if (tema === 3) {
+    secs += `<section class="cta-f" id="cta"><div class="container" style="position:relative;z-index:2;max-width:680px;margin:0 auto;text-align:center">
 <div class="cta-urgencia">⚡ ${ctaFE?esc(ctaFE):'ÚLTIMAS UNIDADES DISPONIBLES'}</div>
 <h2>${ctaFT}</h2>
 ${ctaFS?`<p>${ctaFS}</p>`:''}
 <a href="#" class="btn btn-p">${ctaFB}</a>
 <p class="escasez">✔ Envío gratis · ✔ Pago al recibir · ✔ Garantía 100%</p>
 </div></section>`;
-} else {
-  secs += `<section class="cta-f" id="cta"><div class="container">
+  } else {
+    secs += `<section class="cta-f" id="cta"><div class="container">
 <h2>${ctaFT}</h2>
 ${ctaFS?`<p>${ctaFS}</p>`:''}
 <a href="#" class="btn ${tema===2?'btn-w':'btn-p'}">${ctaFB}</a>
@@ -770,6 +770,7 @@ ${ctaFE?`<p class="escasez">⚡ ${esc(ctaFE)}</p>`:''}
   <span>✔ Envío gratis</span><span>✔ Pago al recibir</span><span>✔ Garantía incluida</span>
 </div>
 </div></section>`;
+  }
 }
 
 // POPUP
