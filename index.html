@@ -357,21 +357,37 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 .rev-preview{height:48px;border-radius:5px;margin-bottom:.45rem;overflow:hidden;display:flex;align-items:center;justify-content:center;background:var(--s3);padding:5px;gap:3px}
 .rev-sel-name{font-size:.71rem;font-weight:700;color:var(--tx);margin-bottom:2px}
 .rev-sel-desc{font-size:.63rem;color:var(--tm);line-height:1.3}
-/* mini preview — Clásico */
-.rp1{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px}
-.rp1 .rpc{background:var(--bd2);border-radius:3px;height:100%}
-/* mini preview — Flujo */
-.rp2{flex-direction:column;justify-content:center}
-.rp2 .rpr{display:flex;gap:3px;width:100%}
-.rp2 .rph{flex:1;height:11px;background:var(--bd2);border-radius:2px}
-.rp2 .rph:nth-child(2){flex:1.4}
-/* mini preview — Retrato */
+/* mini preview — Clásico (grid cards con estrella) */
+.rp1{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px;align-items:stretch}
+.rp1 .rpc{background:var(--s1);border:1px solid var(--bd2);border-radius:3px;padding:3px;display:flex;flex-direction:column;gap:2px}
+.rp1 .rpc::before{content:'★';font-size:5px;color:var(--p);line-height:1}
+.rp1 .rpc::after{content:'';flex:1;background:var(--bd2);border-radius:1px;min-height:6px}
+/* mini preview — Flujo (tira animada) */
+.rp2{overflow:hidden;padding:2px}
+.rp2 .rpr{display:flex;gap:4px;animation:rpScroll 3s linear infinite;width:200%}
+@keyframes rpScroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+.rp2 .rph{flex-shrink:0;width:36%;height:40px;background:var(--s1);border:1px solid var(--bd2);border-radius:4px}
+/* mini preview — Carrusel tap (imagen + pie + tap indicator) */
 .rp3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:3px}
-.rp3 .rpf{border-radius:3px;height:100%;background:linear-gradient(to top,var(--p),rgba(29,158,117,.25))}
-/* mini preview — Mosaico */
-.rp4{align-items:flex-start}
-.rp4 .rpcol{display:flex;flex-direction:column;gap:3px;flex:1;height:100%}
-.rp4 .rpb{background:var(--bd2);border-radius:2px;width:100%}
+.rp3 .rpc3{background:var(--s1);border:1px solid var(--bd2);border-radius:3px;overflow:hidden;display:flex;flex-direction:column}
+.rp3 .rpc3-img{height:26px;background:linear-gradient(160deg,var(--p),rgba(29,158,117,.25));flex-shrink:0}
+.rp3 .rpc3-foot{padding:2px 3px;display:flex;flex-direction:column;gap:2px;flex:1}
+.rp3 .rpc3-star{font-size:5px;color:var(--p);line-height:1}
+.rp3 .rpc3-btn{height:4px;background:var(--p);border-radius:1px;opacity:.6;width:70%}
+/* mini preview — Leer reseña (imagen + botón expandir) */
+.rp4{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.rp4 .rp4c{background:var(--s1);border:1px solid var(--bd2);border-radius:3px;overflow:hidden;display:flex;flex-direction:column}
+.rp4 .rp4c-img{height:20px;background:linear-gradient(135deg,rgba(29,158,117,.5),rgba(29,158,117,.1));flex-shrink:0}
+.rp4 .rp4c-body{padding:3px;display:flex;flex-direction:column;gap:2px;flex:1}
+.rp4 .rp4c-line{height:2px;background:var(--bd2);border-radius:1px}
+.rp4 .rp4c-btn{height:4px;width:75%;background:var(--p);border-radius:1px;opacity:.8}
+
+/* ─── RATIO SELECTOR ────────────────────────── */
+.ratio-row{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.5rem}
+.ratio-btn{padding:.28rem .55rem;border-radius:5px;border:1px solid var(--bd2);background:var(--s2);
+  font-size:.68rem;font-weight:700;cursor:pointer;color:var(--tm);transition:.15s;font-family:inherit;line-height:1}
+.ratio-btn.active{background:var(--p);color:#fff;border-color:var(--p)}
+.ratio-btn:hover:not(.active){border-color:var(--p);color:var(--tx)}
 
 /* ─── HERO ESTILO SELECTOR ──────────────────── */
 .hero-estilo-row{display:flex;gap:.4rem;margin-bottom:.6rem;flex-wrap:wrap}
@@ -636,34 +652,34 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
             <div class="rpc"></div><div class="rpc"></div><div class="rpc"></div>
           </div>
           <div class="rev-sel-name">Clásico</div>
-          <div class="rev-sel-desc">Grid de tarjetas</div>
+          <div class="rev-sel-desc">Grid · tarjetas</div>
         </div>
 
         <div class="rev-sel-card" id="rev_2" onclick="selectReviewsEstilo(2)">
           <div class="rev-preview rp2">
-            <div class="rpr"><div class="rph"></div><div class="rph"></div><div class="rph"></div></div>
-            <div class="rpr" style="margin-top:4px"><div class="rph"></div><div class="rph"></div></div>
+            <div class="rpr"><div class="rph"></div><div class="rph"></div><div class="rph"></div><div class="rph"></div></div>
           </div>
           <div class="rev-sel-name">Flujo</div>
-          <div class="rev-sel-desc">Carrusel infinito</div>
+          <div class="rev-sel-desc">Loop infinito</div>
         </div>
 
         <div class="rev-sel-card" id="rev_3" onclick="selectReviewsEstilo(3)">
           <div class="rev-preview rp3">
-            <div class="rpf"></div><div class="rpf"></div><div class="rpf"></div>
+            <div class="rpc3"><div class="rpc3-img"></div><div class="rpc3-foot"><div class="rpc3-star">★★★★★</div><div class="rpc3-btn"></div></div></div>
+            <div class="rpc3"><div class="rpc3-img"></div><div class="rpc3-foot"><div class="rpc3-star">★★★★★</div><div class="rpc3-btn"></div></div></div>
+            <div class="rpc3"><div class="rpc3-img"></div><div class="rpc3-foot"><div class="rpc3-star">★★★★★</div><div class="rpc3-btn"></div></div></div>
           </div>
-          <div class="rev-sel-name">Retrato</div>
-          <div class="rev-sel-desc">Foto con overlay</div>
+          <div class="rev-sel-name">Carrusel</div>
+          <div class="rev-sel-desc">Foto · tap reseña</div>
         </div>
 
         <div class="rev-sel-card" id="rev_4" onclick="selectReviewsEstilo(4)">
           <div class="rev-preview rp4">
-            <div class="rpcol"><div class="rpb" style="height:22px"></div><div class="rpb" style="height:12px"></div></div>
-            <div class="rpcol"><div class="rpb" style="height:12px"></div><div class="rpb" style="height:20px"></div></div>
-            <div class="rpcol"><div class="rpb" style="height:17px"></div><div class="rpb" style="height:14px"></div></div>
+            <div class="rp4c"><div class="rp4c-img"></div><div class="rp4c-body"><div class="rp4c-line"></div><div class="rp4c-line"></div><div class="rp4c-btn"></div></div></div>
+            <div class="rp4c"><div class="rp4c-img"></div><div class="rp4c-body"><div class="rp4c-line"></div><div class="rp4c-line"></div><div class="rp4c-btn"></div></div></div>
           </div>
-          <div class="rev-sel-name">Mosaico</div>
-          <div class="rev-sel-desc">Columnas variables</div>
+          <div class="rev-sel-name">Reseña</div>
+          <div class="rev-sel-desc">Foto · leer más</div>
         </div>
 
       </div>
@@ -675,25 +691,31 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 
       <label class="lbl">Hero — estilo de imagen</label>
       <div class="hero-estilo-row">
-        <button class="estilo-btn active" id="hEA" onclick="selectHeroEstilo('A')">🖼️ Estilo A · Una imagen</button>
-        <button class="estilo-btn" id="hEB" onclick="selectHeroEstilo('B')">🎠 Estilo B · Carrusel</button>
+        <button class="estilo-btn active" id="hEA" onclick="selectHeroEstilo('A')">🖼️ Una imagen</button>
+        <button class="estilo-btn" id="hEB" onclick="selectHeroEstilo('B')">🎠 Carrusel</button>
       </div>
+      <div class="ratio-row" id="ratioHeroRow"></div>
       <div id="heroUrls" class="url-list"></div>
       <button class="btn btn-ghost mt1" id="heroAddBtn" onclick="addUrl('hero')" style="font-size:.78rem;padding:.35rem .7rem;display:none">+ Agregar imagen al carrusel</button>
 
       <label class="lbl" style="margin-top:1rem">Imagen "Antes"</label>
+      <div class="ratio-row" id="ratioAntesRow"></div>
       <div id="antesUrl" class="url-list"></div>
 
       <label class="lbl" style="margin-top:.6rem">Imagen "Después"</label>
+      <div class="ratio-row" id="ratioDespuesRow"></div>
       <div id="despuesUrl" class="url-list"></div>
 
       <label class="lbl" style="margin-top:1rem">Imagen Beneficios</label>
+      <div class="ratio-row" id="ratioBensRow"></div>
       <div id="bensUrl" class="url-list"></div>
 
       <label class="lbl" style="margin-top:1rem">Imagen Problema</label>
+      <div class="ratio-row" id="ratioProbRow"></div>
       <div id="probUrl" class="url-list"></div>
 
       <label class="lbl" style="margin-top:1rem">Imágenes Reviews</label>
+      <div class="ratio-row" id="ratioRevsRow"></div>
       <div id="revsUrls" class="url-list"></div>
       <button class="btn btn-ghost mt1" onclick="addUrl('revs')" style="font-size:.78rem;padding:.35rem .7rem">+ Agregar URL</button>
     </div>
@@ -843,6 +865,7 @@ const st = {
   },
   hero_estilo: 'A',
   reviews_estilo: 1,
+  ratios: { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' },
   video_url: '', video_caption: '',
   style: {color:'#1D9E75', fuente:'Inter'},
   copy: null,
@@ -867,6 +890,29 @@ function selectTema(n){
   [1,2,3].forEach(i => {
     const el = document.getElementById('tema_'+i);
     if(el) el.classList.toggle('active', i === n);
+  });
+}
+
+/* ── ASPECT RATIO ────────────────────────────── */
+const RATIOS_HERO = ['1/1','5/4','4/3','16/9'];
+const RATIOS_ALL  = ['1/1','5/4','4/3','16/9','9/16'];
+const RATIO_LABELS = {'1/1':'1:1','5/4':'5:4','4/3':'4:3','16/9':'16:9','9/16':'9:16'};
+
+function buildRatioRow(key, containerId){
+  const container = document.getElementById(containerId);
+  if(!container) return;
+  const options = key==='hero' ? RATIOS_HERO : RATIOS_ALL;
+  container.innerHTML = '';
+  options.forEach(r => {
+    const btn = document.createElement('button');
+    btn.className = 'ratio-btn' + (st.ratios[key]===r ? ' active' : '');
+    btn.textContent = RATIO_LABELS[r];
+    btn.onclick = () => {
+      st.ratios[key] = r;
+      container.querySelectorAll('.ratio-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+    };
+    container.appendChild(btn);
   });
 }
 
@@ -908,6 +954,12 @@ function init(){
   renderSingleUrl('antes');
   renderSingleUrl('despues');
   renderSingleUrl('bens');
+  buildRatioRow('hero','ratioHeroRow');
+  buildRatioRow('antes','ratioAntesRow');
+  buildRatioRow('despues','ratioDespuesRow');
+  buildRatioRow('bens','ratioBensRow');
+  buildRatioRow('prob','ratioProbRow');
+  buildRatioRow('revs','ratioRevsRow');
   updateColorUI(st.style.color);
 }
 
@@ -1197,6 +1249,12 @@ async function generate(tipo_salida){
     imagen_bens: st.imgs.bens?.url?.trim() || '',
     hero_estilo: st.hero_estilo || 'A',
     reviews_estilo: st.reviews_estilo || 1,
+    ratio_hero:    st.ratios.hero,
+    ratio_antes:   st.ratios.antes,
+    ratio_despues: st.ratios.despues,
+    ratio_bens:    st.ratios.bens,
+    ratio_prob:    st.ratios.prob,
+    ratio_revs:    st.ratios.revs,
     imagenes_reviews: st.imgs.revs.urls.filter(u => u.trim())
   };
 
@@ -1376,6 +1434,7 @@ function updateStepBar(){
 /* ── RESET ───────────────────────────────────── */
 function resetAll(){
   st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html'; st.hero_estilo = 'A'; st.reviews_estilo = 1;
+  st.ratios = { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' };
   st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']},antes:{url:''},despues:{url:''},bens:{url:''}};
   ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_instr','videoUrl','videoCaption']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
@@ -1385,6 +1444,7 @@ function resetAll(){
   renderSingleUrl('prob'); renderSingleUrl('antes'); renderSingleUrl('despues'); renderSingleUrl('bens');
   selectHeroEstilo('A');
   selectReviewsEstilo(1);
+  ['hero','antes','despues','bens','prob','revs'].forEach(k => buildRatioRow(k, 'ratio'+k.charAt(0).toUpperCase()+k.slice(1)+'Row'));
   nav(1);
 }
 

@@ -22,6 +22,12 @@ const foto_despues = body.imagen_despues || (fotos_hero[0] || null);
 const foto_bens = body.imagen_bens || null;
 const hero_estilo = body.hero_estilo || 'A';
 const reviews_estilo = Number(body.reviews_estilo) || 1;
+const ratio_hero   = body.ratio_hero   || '4/3';
+const ratio_antes  = body.ratio_antes  || '1/1';
+const ratio_despues= body.ratio_despues|| '1/1';
+const ratio_bens   = body.ratio_bens   || '4/3';
+const ratio_prob   = body.ratio_prob   || '4/3';
+const ratio_revs   = body.ratio_revs   || '1/1';
 
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function stars(n){ const s=Math.min(5,Math.max(1,n||5)); return '★'.repeat(s)+'☆'.repeat(5-s); }
@@ -110,7 +116,7 @@ footer{background:#111827;color:rgba(255,255,255,.4);padding:28px;text-align:cen
 .pop-c{font-size:.8rem;color:${CP};font-weight:600}
 .car-wrap{position:relative;overflow:hidden;border-radius:14px;max-width:520px;margin:32px auto 0;touch-action:pan-y}
 .car-slides{display:flex;transition:transform .42s ease;will-change:transform}
-.car-slides img{width:100%;aspect-ratio:4/3;object-fit:cover;display:block;flex-shrink:0}
+.car-slides img{width:100%;aspect-ratio:${ratio_hero};object-fit:cover;display:block;flex-shrink:0}
 .car-dots{display:flex;justify-content:center;gap:6px;margin-top:10px}
 .car-dot{width:7px;height:7px;border-radius:50%;background:rgba(0,0,0,.22);cursor:pointer;border:none;padding:0;transition:.2s}
 .car-dot.on{width:18px;border-radius:4px;background:${CP}}
@@ -131,31 +137,38 @@ footer{background:#111827;color:rgba(255,255,255,.4);padding:28px;text-align:cen
 .rev-flujo-av-pl{width:34px;height:34px;border-radius:50%;background:linear-gradient(135deg,${CP},rgba(${colorRgb},.5));display:flex;align-items:center;justify-content:center;font-size:.78rem;font-weight:700;color:#fff;flex-shrink:0}
 .rev-flujo-name{font-size:.8rem;font-weight:700;color:#111827}
 .rev-flujo-ck{font-size:.71rem;color:#16a34a;font-weight:600}
-/* ── Reviews Estilo 3: Retrato ─── */
-.rev-retrato{padding:70px 0}
-.rev-ret-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin-top:32px}
-.rev-ret-card{border-radius:18px;overflow:hidden;position:relative;min-height:300px;display:flex;align-items:flex-end;background:linear-gradient(135deg,${CP},rgba(${colorRgb},.6))}
-.rev-ret-bg{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.rev-ret-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,0,0,.8) 0%,rgba(0,0,0,.05) 65%,transparent 100%)}
-.rev-ret-content{position:relative;z-index:2;padding:22px 18px;color:#fff;width:100%}
-.rev-ret-stars{color:#f59e0b;font-size:.95rem;margin-bottom:8px}
-.rev-ret-text{font-size:.88rem;line-height:1.65;font-style:italic;margin-bottom:12px}
-.rev-ret-name{font-weight:700;font-size:.83rem;margin-bottom:2px}
-.rev-ret-ck{font-size:.72rem;opacity:.75;font-weight:600}
-/* ── Reviews Estilo 4: Mosaico ─── */
-.rev-mosaico{padding:70px 0}
-.rev-mas-cols{columns:3;column-gap:14px;margin-top:32px}
-@media(max-width:760px){.rev-mas-cols{columns:2}}
-@media(max-width:480px){.rev-mas-cols{columns:1}}
-.rev-mas-card{break-inside:avoid;background:#f9fafb;border-radius:14px;padding:20px;border:1px solid #f3f4f6;margin-bottom:14px;display:block}
-.rev-mas-img{width:100%;border-radius:9px;margin-bottom:12px;display:block;object-fit:cover}
-.rev-mas-stars{color:#f59e0b;font-size:.88rem;margin-bottom:7px}
-.rev-mas-text{font-size:.85rem;color:#374151;line-height:1.7;font-style:italic;margin-bottom:12px}
-.rev-mas-author{display:flex;align-items:center;gap:8px}
-.rev-mas-av{width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0}
-.rev-mas-av-pl{width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,${CP},rgba(${colorRgb},.5));display:flex;align-items:center;justify-content:center;font-size:.75rem;font-weight:700;color:#fff;flex-shrink:0}
-.rev-mas-name{font-weight:700;font-size:.79rem;color:#111827}
-.rev-mas-ck{font-size:.7rem;color:#16a34a;font-weight:600}
+/* ── Reviews Estilo 3: Carrusel con tap ─── */
+.rev-car{padding:70px 0}
+.rev-car-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
+.rev-car-card{border-radius:16px;overflow:hidden;background:#fff;border:1px solid #f3f4f6;box-shadow:0 2px 12px rgba(0,0,0,.06);cursor:pointer;transition:box-shadow .2s}
+.rev-car-card:hover{box-shadow:0 8px 28px rgba(0,0,0,.1)}
+.rev-car-img{width:100%;aspect-ratio:${ratio_revs};object-fit:cover;display:block}
+.rev-car-img-ph{width:100%;aspect-ratio:${ratio_revs};background:linear-gradient(135deg,${CP},rgba(${colorRgb},.4));display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+.rev-car-foot{padding:14px 16px}
+.rev-car-stars{color:#f59e0b;font-size:.9rem;margin-bottom:4px}
+.rev-car-name{font-weight:700;font-size:.8rem;color:#111827}
+.rev-car-ck{font-size:.7rem;color:#16a34a;font-weight:600;margin-bottom:8px}
+.rev-car-body{max-height:0;overflow:hidden;transition:max-height .4s ease,opacity .3s;opacity:0}
+.rev-car-card.open .rev-car-body{max-height:300px;opacity:1}
+.rev-car-text{font-size:.84rem;color:#374151;line-height:1.65;font-style:italic;padding-top:8px;border-top:1px solid #f3f4f6}
+.rev-car-tap{font-size:.72rem;color:${CP};font-weight:600;display:flex;align-items:center;gap:4px;margin-top:6px}
+.rev-car-card.open .rev-car-tap{display:none}
+/* ── Reviews Estilo 4: Imagen + Leer reseña ─── */
+.rev-lee{padding:70px 0}
+.rev-lee-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:32px}
+.rev-lee-card{background:#fff;border-radius:16px;border:1px solid #f3f4f6;box-shadow:0 2px 12px rgba(0,0,0,.05);overflow:hidden}
+.rev-lee-img{width:100%;aspect-ratio:${ratio_revs};object-fit:cover;display:block}
+.rev-lee-img-ph{width:100%;aspect-ratio:${ratio_revs};background:linear-gradient(135deg,rgba(${colorRgb},.15),rgba(${colorRgb},.05));display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+.rev-lee-body{padding:16px 18px}
+.rev-lee-stars{color:#f59e0b;font-size:.9rem;margin-bottom:5px}
+.rev-lee-name{font-weight:700;font-size:.82rem;color:#111827;margin-bottom:2px}
+.rev-lee-ck{font-size:.71rem;color:#16a34a;font-weight:600;margin-bottom:10px}
+.rev-lee-btn{display:flex;align-items:center;gap:6px;font-size:.78rem;font-weight:700;color:${CP};cursor:pointer;background:none;border:none;padding:0;font-family:inherit}
+.rev-lee-btn svg{transition:transform .3s}
+.rev-lee-card.open .rev-lee-btn svg{transform:rotate(180deg)}
+.rev-lee-comment{max-height:0;overflow:hidden;transition:max-height .4s ease,opacity .3s;opacity:0}
+.rev-lee-card.open .rev-lee-comment{max-height:200px;opacity:1}
+.rev-lee-text{font-size:.85rem;color:#374151;line-height:1.7;font-style:italic;padding-top:12px;margin-top:10px;border-top:1px solid #f3f4f6}
 /* ─────────────────────────────────────────────── */
 .cta-float{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:890;pointer-events:auto;transition:opacity .3s,transform .3s}
 .cta-float.hidden{opacity:0;transform:translateX(-50%) translateY(12px);pointer-events:none}
@@ -395,14 +408,15 @@ let secs = '';
 let popScript = '';
 
 // HERO
-function buildCarousel(imgs, alt){
-  if(imgs.length === 1) return `<img src="${esc(imgs[0])}" alt="${esc(alt)}" class="hero-img">`;
-  const slides = imgs.map(u=>`<img src="${esc(u)}" alt="${esc(alt)}">`).join('');
+function buildCarousel(imgs, alt, ratio){
+  const ar = ratio||'4/3';
+  if(imgs.length === 1) return `<img src="${esc(imgs[0])}" alt="${esc(alt)}" class="hero-img" style="aspect-ratio:${ar};object-fit:cover;width:100%">`;
+  const slides = imgs.map(u=>`<img src="${esc(u)}" alt="${esc(alt)}" style="aspect-ratio:${ar};object-fit:cover;width:100%;flex-shrink:0;display:block">`).join('');
   const dots = imgs.map((_,i)=>`<button class="car-dot${i===0?' on':''}" data-i="${i}"></button>`).join('');
   return `<div class="car-wrap" id="hCar"><button class="car-arr p" id="hPrev">&#8249;</button><div class="car-slides" id="hSlides">${slides}</div><button class="car-arr n" id="hNext">&#8250;</button></div><div class="car-dots" id="hDots">${dots}</div>`;
 }
 const heroImgs = fotos_hero.length ? (hero_estilo==='B' ? fotos_hero : [fotos_hero[0]]) : [];
-const heroImgTag = heroImgs.length ? buildCarousel(heroImgs, hT) : '';
+const heroImgTag = heroImgs.length ? buildCarousel(heroImgs, hT, ratio_hero) : '';
 const precioTag = hPrecio ? `<div class="hero-price"><span class="curr">${esc(hPrecio)}</span>${hAntes?`<span class="prev">${esc(hAntes)}</span>`:''}</div>` : '';
 const trustTag = `<div class="hero-trust">✔ Envío gratis &nbsp;·&nbsp; ✔ Pago al recibir &nbsp;·&nbsp; ✔ Garantía 100%</div>`;
 
@@ -476,18 +490,16 @@ ${p.badge?`<div class="pack-badge">${p.badge}</div>`:''}
 
 // PROBLEMA
 if (secSet.has('problema') && prob.titulo) {
-  const pImgH = foto_problema ? `<div><img src="${esc(foto_problema)}" alt="problema" style="width:100%;border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.1)"></div>` : '';
+  const pImgH = foto_problema ? `<div><img src="${esc(foto_problema)}" alt="problema" style="width:100%;aspect-ratio:${ratio_prob};object-fit:cover;border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.1)"></div>` : '';
   if (tema === 3) {
-    const painItems = prob.desc ? prob.desc.split('.').filter(s=>s.trim().length>8).slice(0,3).map(s=>`<div class="pain-item">😤 ${esc(s.trim())}.</div>`).join('') : '';
+    const painItems = prob.desc ? prob.desc.split('.').filter(s=>s.trim().length>8).slice(0,3).map(s=>`<div class="pain-item">— ${esc(s.trim())}.</div>`).join('') : '';
     secs += `<section class="problema"><div class="container"><div class="problema-inner"><div>
-<span class="sec-label">⚡ El problema</span>
 <h2 class="sec-h">${esc(prob.titulo)}</h2>
 ${prob.desc?`<p class="sec-p">${esc(prob.desc)}</p>`:''}
 ${painItems?`<div class="pain-list">${painItems}</div>`:''}
 </div>${pImgH}</div></div></section>`;
   } else {
     secs += `<section class="problema"><div class="container"><div class="problema-inner"><div>
-<span class="sec-label">⚡ El problema</span>
 <h2 class="sec-h">${esc(prob.titulo)}</h2>
 ${prob.desc?`<p class="sec-p">${esc(prob.desc)}</p>`:''}
 </div>${pImgH}</div></div></section>`;
@@ -495,12 +507,11 @@ ${prob.desc?`<p class="sec-p">${esc(prob.desc)}</p>`:''}
 }
 
 // ANTES/DESPUÉS
-const antesImg = foto_antes   ? `<img src="${esc(foto_antes)}"   alt="Antes"    class="ab-img">` : `<div class="ab-ph">😤</div>`;
-const despImg  = foto_despues ? `<img src="${esc(foto_despues)}" alt="Después"  class="ab-img">` : `<div class="ab-ph">✨</div>`;
+const antesImg = foto_antes   ? `<img src="${esc(foto_antes)}"   alt="Antes"    class="ab-img" style="aspect-ratio:${ratio_antes};object-fit:cover">` : `<div class="ab-ph" style="aspect-ratio:${ratio_antes}">😤</div>`;
+const despImg  = foto_despues ? `<img src="${esc(foto_despues)}" alt="Después"  class="ab-img" style="aspect-ratio:${ratio_despues};object-fit:cover">` : `<div class="ab-ph" style="aspect-ratio:${ratio_despues}">✨</div>`;
 const abWrapClass = tema===2 ? 'ab-inner' : 'ab-wrap';
 secs += `<section class="ab-section"><div class="container">
-<div style="text-align:center;margin-bottom:8px"><span class="sec-label">📸 Resultados</span></div>
-<h2 class="sec-h" style="text-align:center;margin:0 auto 0;max-width:700px">Antes vs. Después</h2>
+<h2 class="sec-h" style="text-align:center;margin:0 auto 24px;max-width:700px">Antes vs. Después</h2>
 <div class="${abWrapClass}">
   <div class="ab-box ab-antes"><div class="ab-lbl">ANTES</div>${antesImg}</div>
   <div class="ab-box ab-despues"><div class="ab-lbl">DESPUÉS</div>${despImg}</div>
@@ -514,7 +525,6 @@ if (secSet.has('beneficios') && bens.length) {
 <p>${esc(b.d||'')}</p>
 </div>`).join('');
   secs += `<section class="features" style="padding:60px 0${tema===2||tema===3?';background:#fff':''}"><div class="container">
-<div style="text-align:center;margin-bottom:8px"><span class="sec-label">✅ Beneficios</span></div>
 <h2 class="sec-h" style="text-align:center;margin:0 auto 32px;max-width:700px">¿Por qué elegir ${esc(NP)}?</h2>
 <div class="features-grid">${bH}</div></div></section>`;
 }
@@ -526,7 +536,6 @@ if (secSet.has('video') && vid.titulo) {
     ? `<div style="max-width:820px;margin:0 auto;border-radius:14px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.12)"><iframe src="${esc(vUrl)}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allowfullscreen loading="lazy"></iframe></div>`
     : `<div style="max-width:820px;margin:0 auto;background:#0f0f1a;aspect-ratio:16/9;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:4rem">▶️</div>`;
   secs += `<section style="padding:60px 0;text-align:center"><div class="container">
-<span class="sec-label">🎬 Video</span>
 <h2 class="sec-h" style="text-align:center;margin:0 auto 26px;max-width:700px">${esc(vid.titulo)}</h2>
 ${vid.sub?`<p class="sec-p" style="text-align:center;margin:0 auto 26px;max-width:600px">${esc(vid.sub)}</p>`:''}
 ${vE}</div></section>`;
@@ -542,35 +551,50 @@ if (secSet.has('reviews') && revs.length) {
       return `<div class="rev-flujo-card"><div class="rev-flujo-stars">${stars(r.stars)}</div><p class="rev-flujo-text">"${esc(r.comment||'')}"</p><div class="rev-flujo-author">${av}<div><div class="rev-flujo-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="rev-flujo-ck">✓ Compra verificada</div></div></div></div>`;
     }).join('');
     secs += `<section class="rev-flujo"><div class="container rev-flujo-hdr">
-<span class="sec-label">⭐ Reviews</span>
-<h2 class="sec-h" style="margin:8px auto 0;max-width:700px">Lo que dicen nuestros clientes</h2>
+<h2 class="sec-h" style="margin:0 auto 0;max-width:700px">Lo que dicen nuestros clientes</h2>
 <p class="sec-p" style="margin:8px auto 0;max-width:560px">+3.000 clientes satisfechos en toda la región</p>
 </div>
 <div class="rev-flujo-mask"><div class="rev-flujo-track">${cards+cards}</div></div></section>`;
 
   } else if (reviews_estilo === 3) {
-    // ── RETRATO: foto de fondo con texto overlay ──
+    // ── CARRUSEL TAP: imagen + stars + nombre, tap expande comentario ──
     const cards = revs.map((r,i) => {
-      const bg = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-ret-bg" alt="">` : '';
-      return `<div class="rev-ret-card"><div class="rev-ret-overlay"></div>${bg}<div class="rev-ret-content"><div class="rev-ret-stars">${stars(r.stars)}</div><p class="rev-ret-text">"${esc(r.comment||'')}"</p><div class="rev-ret-name">${esc(r.name||'Cliente verificado')}</div><div class="rev-ret-ck">✓ Compra verificada${r.city?' · '+esc(r.city):''}</div></div></div>`;
+      const img = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-car-img" alt="">` : `<div class="rev-car-img-ph">👤</div>`;
+      return `<div class="rev-car-card" onclick="this.classList.toggle('open')">
+${img}
+<div class="rev-car-foot">
+<div class="rev-car-stars">${stars(r.stars)}</div>
+<div class="rev-car-name">${esc(r.name||'Cliente verificado')}</div>
+<div class="rev-car-ck">✓ Compra verificada${r.city?' · '+esc(r.city):''}</div>
+<div class="rev-car-tap">▼ Leer reseña</div>
+<div class="rev-car-body"><p class="rev-car-text">"${esc(r.comment||'')}"</p></div>
+</div></div>`;
     }).join('');
-    secs += `<section class="rev-retrato"><div class="container">
-<div style="text-align:center;margin-bottom:8px"><span class="sec-label">⭐ Reviews</span></div>
-<h2 class="sec-h" style="text-align:center;margin:0 auto 0;max-width:700px">Experiencias reales</h2>
-<div class="rev-ret-grid">${cards}</div></div></section>`;
+    secs += `<section class="rev-car"><div class="container">
+<h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2>
+<p class="sec-p" style="text-align:center;margin:0 auto 0;max-width:560px">+3.000 clientes satisfechos · Toca para leer la reseña completa</p>
+<div class="rev-car-grid">${cards}</div></div></section>`;
 
   } else if (reviews_estilo === 4) {
-    // ── MOSAICO: columnas estilo Pinterest ──
+    // ── IMAGEN + LEER RESEÑA: imagen visible, comentario se abre al tap ──
     const cards = revs.map((r,i) => {
-      const av = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-mas-av" alt="">` : `<div class="rev-mas-av-pl">${(r.name||'C').charAt(0).toUpperCase()}</div>`;
-      const topImg = fotos_reviews[i] && i%2===0 ? `<img src="${esc(fotos_reviews[i])}" class="rev-mas-img" alt="">` : '';
-      return `<div class="rev-mas-card">${topImg}<div class="rev-mas-stars">${stars(r.stars)}</div><p class="rev-mas-text">"${esc(r.comment||'')}"</p><div class="rev-mas-author">${av}<div><div class="rev-mas-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="rev-mas-ck">✓ Compra verificada</div></div></div></div>`;
+      const img = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-lee-img" alt="">` : `<div class="rev-lee-img-ph">👤</div>`;
+      return `<div class="rev-lee-card">
+${img}
+<div class="rev-lee-body">
+<div class="rev-lee-stars">${stars(r.stars)}</div>
+<div class="rev-lee-name">${esc(r.name||'Cliente verificado')}</div>
+<div class="rev-lee-ck">✓ Compra verificada${r.city?' · '+esc(r.city):''}</div>
+<button class="rev-lee-btn" onclick="this.closest('.rev-lee-card').classList.toggle('open')">
+Leer reseña <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d="M2 4l4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+</button>
+<div class="rev-lee-comment"><p class="rev-lee-text">"${esc(r.comment||'')}"</p></div>
+</div></div>`;
     }).join('');
-    secs += `<section class="rev-mosaico"><div class="container">
-<div style="text-align:center;margin-bottom:8px"><span class="sec-label">⭐ Reviews</span></div>
+    secs += `<section class="rev-lee"><div class="container">
 <h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que opinan nuestros clientes</h2>
-<p class="sec-p" style="text-align:center;margin:0 auto 0;max-width:580px">+3.000 clientes satisfechos en toda la región</p>
-<div class="rev-mas-cols">${cards}</div></div></section>`;
+<p class="sec-p" style="text-align:center;margin:0 auto 0;max-width:560px">+3.000 clientes satisfechos en toda la región</p>
+<div class="rev-lee-grid">${cards}</div></div></section>`;
 
   } else {
     // ── CLÁSICO: grid de tarjetas (por tema) ──
@@ -613,7 +637,6 @@ if (secSet.has('faq') && faqs.length) {
 <div class="faq-a">${esc(f.a||'')}</div>
 </div>`).join('');
   secs += `<section class="faq"><div class="container">
-<div style="text-align:center;margin-bottom:8px"><span class="sec-label">❓ FAQ</span></div>
 <h2 class="sec-h" style="text-align:center;margin:0 auto 0;max-width:700px">Preguntas frecuentes</h2>
 <div class="faq-list">${fH}</div></div></section>`;
 }
