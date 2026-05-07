@@ -414,6 +414,29 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 }
 .ai-img-btn:hover{background:#8b5cf6;color:#fff}
 
+/* ─── SECTIONS DRAG LIST ────────────────────── */
+.sec-drag-list{display:flex;flex-direction:column;gap:.3rem;margin-top:.5rem}
+.sec-drag-item{
+  display:flex;align-items:center;gap:.45rem;
+  background:var(--s2);border:1.5px solid var(--bd2);border-radius:var(--r2);
+  padding:.38rem .65rem;font-size:.81rem;font-weight:500;color:var(--tx);
+  transition:border-color .15s,background .15s;user-select:none;
+}
+.sec-drag-item.on{border-color:var(--p);background:var(--pl)}
+.sec-drag-item.dragging{opacity:.35;border-style:dashed}
+.sec-drag-item.drag-over{border-color:var(--p);background:rgba(29,158,117,.08);border-style:dashed}
+.sdh{cursor:grab;color:var(--td);font-size:1.05rem;flex-shrink:0;line-height:1;padding:0 1px}
+.sdh:active{cursor:grabbing}
+.sd-ico{font-size:.88rem;flex-shrink:0}
+.sd-name{flex:1;min-width:0}
+.sd-tog{position:relative;width:32px;height:17px;flex-shrink:0}
+.sd-tog input{opacity:0;width:0;height:0;position:absolute}
+.sd-sl{position:absolute;inset:0;background:var(--bd2);border-radius:17px;cursor:pointer;transition:.2s}
+.sd-sl:before{content:'';position:absolute;width:11px;height:11px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.sd-tog input:checked+.sd-sl{background:var(--p)}
+.sd-tog input:checked+.sd-sl:before{transform:translateX(15px)}
+.sd-tog.always .sd-sl{opacity:.4;cursor:not-allowed}
+
 /* ─── AI IMAGE MODAL ────────────────────────── */
 #aiImgModal{
   display:none;position:fixed;inset:0;z-index:997;
@@ -838,11 +861,12 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 const PROXY = '/proxy.php';
 
 const SEC_LIST = [
-  {id:'hero',         ico:'🖼️', name:'Hero',          def:true},
+  {id:'hero',         ico:'🖼️', name:'Hero',          def:true,  always:true},
   {id:'problema',     ico:'😤', name:'Problema',       def:true},
   {id:'beneficios',   ico:'✅', name:'Beneficios',     def:true},
+  {id:'ab',           ico:'↔️', name:'Antes/Después',  def:true},
   {id:'reviews',      ico:'⭐', name:'Reviews',        def:true},
-  {id:'cta_final',    ico:'📣', name:'CTA Final',      def:true},
+  {id:'cta_final',    ico:'📣', name:'CTA Final',      def:true,  always:true},
   {id:'video',        ico:'🎬', name:'Video',          def:false},
   {id:'faq',          ico:'❓', name:'FAQ',            def:false},
   {id:'garantia',     ico:'🛡️', name:'Garantía',      def:false},
@@ -882,6 +906,7 @@ const st = {
   tema: 1,
   pais: '',
   secs: {},
+  secs_order: [],
   imgs: {
     hero:    {urls:['']},
     prob:    {url:''},
@@ -991,25 +1016,62 @@ function init(){
   updateColorUI(st.style.color);
 }
 
-/* ── SECTIONS GRID ───────────────────────────── */
+/* ── SECTIONS DRAG LIST ──────────────────────── */
 function buildSecGrid(){
+  if(!st.secs_order.length) st.secs_order = SEC_LIST.map(s => s.id);
+  SEC_LIST.forEach(s => { if(!(s.id in st.secs)) st.secs[s.id] = s.def; });
+
   const g = document.getElementById('secGrid');
   g.innerHTML = '';
-  SEC_LIST.forEach(s => {
-    st.secs[s.id] = s.def;
+  g.className = 'sec-drag-list';
+
+  let dragSrc = -1;
+
+  st.secs_order.forEach(id => {
+    const s = SEC_LIST.find(x => x.id === id);
+    if(!s) return;
     const el = document.createElement('div');
-    el.className = 'sec-chip' + (s.def?' on':'') + (s.always?' always':'');
-    el.dataset.id = s.id;
-    el.innerHTML = `<span class="ico">${s.ico}</span>${s.name}<span class="chk">✓</span>`;
-    if(!s.always) el.onclick = () => toggleSec(s.id, el);
+    el.className = 'sec-drag-item' + (st.secs[id] ? ' on' : '');
+    el.draggable = !s.always;
+    el.dataset.id = id;
+    el.innerHTML = `<span class="sdh" title="Arrastrar">${s.always?'&nbsp;':'⠿'}</span><span class="sd-ico">${s.ico}</span><span class="sd-name">${s.name}</span><label class="sd-tog${s.always?' always':''}"><input type="checkbox"${st.secs[id]?' checked':''}${s.always?' disabled':''} onchange="toggleSec('${id}',this.closest('.sec-drag-item'),this.checked)"><span class="sd-sl"></span></label>`;
+
+    if(!s.always){
+      el.addEventListener('dragstart', e => {
+        dragSrc = st.secs_order.indexOf(id);
+        e.dataTransfer.effectAllowed = 'move';
+        e.dataTransfer.setData('text/plain', id);
+        setTimeout(() => el.classList.add('dragging'), 0);
+      });
+      el.addEventListener('dragend', () => {
+        el.classList.remove('dragging');
+        g.querySelectorAll('.sec-drag-item').forEach(x => x.classList.remove('drag-over'));
+      });
+      el.addEventListener('dragover', e => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'move';
+        g.querySelectorAll('.sec-drag-item').forEach(x => x.classList.remove('drag-over'));
+        el.classList.add('drag-over');
+      });
+      el.addEventListener('drop', e => {
+        e.preventDefault();
+        el.classList.remove('drag-over');
+        const targetIdx = st.secs_order.indexOf(id);
+        if(dragSrc !== -1 && dragSrc !== targetIdx){
+          const [moved] = st.secs_order.splice(dragSrc, 1);
+          st.secs_order.splice(targetIdx, 0, moved);
+          buildSecGrid();
+        }
+      });
+    }
     g.appendChild(el);
   });
 }
 
-function toggleSec(id, el){
-  st.secs[id] = !st.secs[id];
-  el.classList.toggle('on', st.secs[id]);
-  if(id === 'video') document.getElementById('videoCard').style.display = st.secs[id] ? 'block' : 'none';
+function toggleSec(id, el, checked){
+  st.secs[id] = checked;
+  el.classList.toggle('on', checked);
+  if(id === 'video') document.getElementById('videoCard').style.display = checked ? 'block' : 'none';
 }
 
 /* ── SWATCHES ────────────────────────────────── */
@@ -1115,14 +1177,22 @@ async function generateCopy(){
   if(!nombre){ toast('Ingresa el nombre del producto'); return; }
   if(!desc)  { toast('Ingresa la descripción del producto'); return; }
 
-  const secciones = SEC_LIST.filter(s => st.secs[s.id]).map(s => s.id);
+  const secciones = (st.secs_order.length ? st.secs_order : SEC_LIST.map(s=>s.id)).filter(id => st.secs[id]);
 
   const paisCode = document.getElementById('s1_pais').value;
   const paisData = COUNTRIES[paisCode] || {};
 
   const revQty = st.reviews_cantidad || 3;
   const instrBase = document.getElementById('s1_instr').value.trim();
-  const instrFinal = [`Genera exactamente ${revQty} reviews de clientes diferentes.`, instrBase].filter(Boolean).join('\n');
+  const countryName = paisData.name || '';
+  const cityRule = countryName
+    ? `Cada review DEBE tener un nombre de persona y una ciudad real de ${countryName}. NUNCA uses ciudades ni nombres de otros países.`
+    : '';
+  const instrFinal = [
+    `Genera exactamente ${revQty} reviews de clientes diferentes.`,
+    cityRule,
+    instrBase
+  ].filter(Boolean).join('\n');
 
   const payload = {
     accion: 'generar_copy',
@@ -1170,16 +1240,19 @@ function buildCopyEditor(){
 
   const labels = {
     hero:'Hero / Encabezado', problema:'Problema', beneficios:'Beneficios',
-    reviews:'Reviews', cta_final:'CTA Final', faq:'FAQ',
-    garantia:'Garantía', popup_social:'Popup Social'
+    ab:'Antes/Después', reviews:'Reviews', cta_final:'CTA Final', faq:'FAQ',
+    garantia:'Garantía', popup_social:'Popup Social', video:'Video'
   };
   const icos = {
-    hero:'🖼️', problema:'😤', beneficios:'✅', reviews:'⭐',
-    cta_final:'📣', faq:'❓', garantia:'🛡️', popup_social:'🔔'
+    hero:'🖼️', problema:'😤', beneficios:'✅', ab:'↔️', reviews:'⭐',
+    cta_final:'📣', faq:'❓', garantia:'🛡️', popup_social:'🔔', video:'🎬'
   };
 
-  Object.keys(st.copy).forEach(id => {
-    if(!st.secs[id] && id !== 'hero') return;
+  const orderedIds = (st.secs_order.length ? st.secs_order : SEC_LIST.map(s=>s.id))
+    .filter(id => st.copy[id] !== undefined && (st.secs[id] || id === 'hero' || id === 'cta_final'));
+
+  orderedIds.forEach(id => {
+    if(!st.copy[id]) return;
     const val = typeof st.copy[id] === 'object' ? JSON.stringify(st.copy[id], null, 2) : String(st.copy[id]);
     const div = document.createElement('div');
     div.className = 'csec';
@@ -1243,7 +1316,7 @@ async function generate(tipo_salida){
   const nombre = document.getElementById('s1_nombre').value.trim();
   if(!nombre){ toast('Falta el nombre del producto'); return; }
 
-  const secciones_activas = SEC_LIST.filter(s => st.secs[s.id]).map(s => s.id);
+  const secciones_activas = (st.secs_order.length ? st.secs_order : SEC_LIST.map(s=>s.id)).filter(id => st.secs[id]);
 
   const copy_editado = {};
   if(st.copy){
@@ -1282,6 +1355,7 @@ async function generate(tipo_salida){
     imagen_bens: st.imgs.bens?.url?.trim() || '',
     hero_estilo: st.hero_estilo || 'A',
     reviews_estilo: st.reviews_estilo || 1,
+    cantidad_reviews: st.reviews_cantidad || 3,
     ratio_hero:    st.ratios.hero,
     ratio_antes:   st.ratios.antes,
     ratio_despues: st.ratios.despues,
@@ -1467,6 +1541,7 @@ function updateStepBar(){
 /* ── RESET ───────────────────────────────────── */
 function resetAll(){
   st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html'; st.hero_estilo = 'A'; st.reviews_estilo = 1;
+  st.secs = {}; st.secs_order = [];
   st.ratios = { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' };
   st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']},antes:{url:''},despues:{url:''},bens:{url:''}};
   ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_instr','videoUrl','videoCaption']

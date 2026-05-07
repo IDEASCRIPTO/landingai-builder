@@ -93,7 +93,13 @@ function normalizeCopy(raw){
 
 const copy = normalizeCopy(body.copy_editado);
 const secSet = new Set(secciones_activas.map(s=>typeof s==='object'?s.id:s));
-const hero=copy.hero, prob=copy.problema, bens=copy.beneficios, revs=copy.reviews;
+const hero=copy.hero, prob=copy.problema, bens=copy.beneficios;
+const cantidad_reviews = Number(body.cantidad_reviews) || 0;
+let revs = copy.reviews || [];
+if(cantidad_reviews > 0 && revs.length > 0){
+  if(revs.length < cantidad_reviews){ const base=[...revs]; for(let i=revs.length;i<cantidad_reviews;i++) revs.push({...base[i%base.length]}); }
+  else if(revs.length > cantidad_reviews){ revs=revs.slice(0,cantidad_reviews); }
+}
 const faqs=copy.faq, ctaF=copy.cta_final, vid=copy.video, pop=copy.popup_social, gar=copy.garantia;
 const hT=hero.titulo||NP, hS=hero.sub||'', hB=hero.badge||'';
 const hCta=hero.cta||brief.cta_recomendado||'Comprar ahora';
@@ -108,7 +114,8 @@ const CSS_BASE = `
 @import url('${fontUrl}');
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--p:${CP}}
-body{font-family:'${fuente}',system-ui,sans-serif;background:#fff;color:#111827;line-height:1.6;overflow-x:hidden}
+html{overflow-x:hidden}
+body{font-family:'${fuente}',system-ui,sans-serif;background:#fff;color:#111827;line-height:1.6}
 .container{max-width:1100px;margin:0 auto;padding:0 20px}
 .sec-label{display:inline-block;background:rgba(${colorRgb},.1);color:${CP};padding:5px 14px;border-radius:50px;font-size:.72rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
 .sec-h{font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:800;line-height:1.2;margin-bottom:14px}
@@ -559,34 +566,39 @@ ${p.badge?`<div class="pack-badge">${p.badge}</div>`:''}
   secs += `<section class="packs"><div class="container"><h2>Elegí tu pack</h2><div class="packs-grid">${pH}</div></div></section>`;
 }
 
+// ── SECCIONES VARIABLES (se renderizan en el orden de secciones_activas) ──
+const secHtml = {};
+
 // PROBLEMA
 if (secSet.has('problema') && prob.titulo) {
   const pImgH = foto_problema ? `<div><img src="${esc(foto_problema)}" alt="problema" style="width:100%;aspect-ratio:${ratio_prob};object-fit:cover;border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.1)"></div>` : '';
   if (tema === 3) {
     const painItems = prob.desc ? prob.desc.split('.').filter(s=>s.trim().length>8).slice(0,3).map(s=>`<div class="pain-item">— ${esc(s.trim())}.</div>`).join('') : '';
-    secs += `<section class="problema"><div class="container"><div class="problema-inner"><div>
+    secHtml['problema'] = `<section class="problema"><div class="container"><div class="problema-inner"><div>
 <h2 class="sec-h">${esc(prob.titulo)}</h2>
 ${prob.desc?`<p class="sec-p">${esc(prob.desc)}</p>`:''}
 ${painItems?`<div class="pain-list">${painItems}</div>`:''}
 </div>${pImgH}</div></div></section>`;
   } else {
-    secs += `<section class="problema"><div class="container"><div class="problema-inner"><div>
+    secHtml['problema'] = `<section class="problema"><div class="container"><div class="problema-inner"><div>
 <h2 class="sec-h">${esc(prob.titulo)}</h2>
 ${prob.desc?`<p class="sec-p">${esc(prob.desc)}</p>`:''}
 </div>${pImgH}</div></div></section>`;
   }
 }
 
-// ANTES/DESPUÉS
-const antesImg = foto_antes   ? `<img src="${esc(foto_antes)}"   alt="Antes"    class="ab-img" style="aspect-ratio:${ratio_antes};object-fit:cover">` : `<div class="ab-ph" style="aspect-ratio:${ratio_antes}">😤</div>`;
-const despImg  = foto_despues ? `<img src="${esc(foto_despues)}" alt="Después"  class="ab-img" style="aspect-ratio:${ratio_despues};object-fit:cover">` : `<div class="ab-ph" style="aspect-ratio:${ratio_despues}">✨</div>`;
-const abWrapClass = tema===2 ? 'ab-inner' : 'ab-wrap';
-secs += `<section class="ab-section"><div class="container">
+// ANTES/DESPUÉS (sección opcional)
+if (secSet.has('ab')) {
+  const antesImg = foto_antes   ? `<img src="${esc(foto_antes)}"   alt="Antes"    class="ab-img" style="aspect-ratio:${ratio_antes};object-fit:cover">` : `<div class="ab-ph" style="aspect-ratio:${ratio_antes}">😤</div>`;
+  const despImg  = foto_despues ? `<img src="${esc(foto_despues)}" alt="Después"  class="ab-img" style="aspect-ratio:${ratio_despues};object-fit:cover">` : `<div class="ab-ph" style="aspect-ratio:${ratio_despues}">✨</div>`;
+  const abWrapClass = tema===2 ? 'ab-inner' : 'ab-wrap';
+  secHtml['ab'] = `<section class="ab-section"><div class="container">
 <h2 class="sec-h" style="text-align:center;margin:0 auto 24px;max-width:700px">Antes vs. Después</h2>
 <div class="${abWrapClass}">
   <div class="ab-box ab-antes"><div class="ab-lbl">ANTES</div>${antesImg}</div>
   <div class="ab-box ab-despues"><div class="ab-lbl">DESPUÉS</div>${despImg}</div>
 </div></div></section>`;
+}
 
 // BENEFICIOS
 if (secSet.has('beneficios') && bens.length) {
@@ -595,7 +607,7 @@ if (secSet.has('beneficios') && bens.length) {
 <h3>${esc(b.t||'')}</h3>
 <p>${esc(b.d||'')}</p>
 </div>`).join('');
-  secs += `<section class="features" style="padding:60px 0${tema===2||tema===3?';background:#fff':''}"><div class="container">
+  secHtml['beneficios'] = `<section class="features" style="padding:60px 0${tema===2||tema===3?';background:#fff':''}"><div class="container">
 <h2 class="sec-h" style="text-align:center;margin:0 auto 32px;max-width:700px">¿Por qué elegir ${esc(NP)}?</h2>
 <div class="features-grid">${bH}</div></div></section>`;
 }
@@ -606,7 +618,7 @@ if (secSet.has('video') && vid.titulo) {
   const vE = vUrl
     ? `<div style="max-width:820px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.5)"><iframe src="${esc(vUrl)}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
     : `<div style="max-width:820px;margin:0 auto;background:#111;aspect-ratio:16/9;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:.6">▶️</div>`;
-  secs += `<section style="padding:70px 0;text-align:center;background:#0a0a0f"><div class="container">
+  secHtml['video'] = `<section style="padding:70px 0;text-align:center;background:#0a0a0f"><div class="container">
 <h2 style="text-align:center;margin:0 auto 14px;max-width:700px;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;color:#fff">${esc(vid.titulo)}</h2>
 ${vid.sub?`<p style="text-align:center;margin:0 auto 32px;max-width:600px;color:rgba(255,255,255,.6);font-size:.95rem;line-height:1.7">${esc(vid.sub)}</p>`:'<div style="margin-bottom:32px"></div>'}
 ${vE}</div></section>`;
@@ -621,7 +633,7 @@ if (secSet.has('reviews') && revs.length) {
       const av = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-flujo-av" alt="">` : `<div class="rev-flujo-av-pl">${(r.name||'C').charAt(0).toUpperCase()}</div>`;
       return `<div class="rev-flujo-card"><div class="rev-flujo-stars">${stars(r.stars)}</div><p class="rev-flujo-text">"${esc(r.comment||'')}"</p><div class="rev-flujo-author">${av}<div><div class="rev-flujo-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="rev-flujo-ck">✓ Compra verificada</div></div></div></div>`;
     }).join('');
-    secs += `<section class="rev-flujo"><div class="container rev-flujo-hdr">
+    secHtml['reviews'] = `<section class="rev-flujo"><div class="container rev-flujo-hdr">
 <h2 class="sec-h" style="margin:0 auto 0;max-width:700px">Lo que dicen nuestros clientes</h2>
 <p class="sec-p" style="margin:8px auto 0;max-width:560px">+3.000 clientes satisfechos en toda la región</p>
 </div>
@@ -641,7 +653,7 @@ ${img}
 <div class="rev-car-body"><p class="rev-car-text">"${esc(r.comment||'')}"</p></div>
 </div></div>`;
     }).join('');
-    secs += `<section class="rev-car"><div class="container">
+    secHtml['reviews'] = `<section class="rev-car"><div class="container">
 <h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2>
 <p class="sec-p" style="text-align:center;margin:0 auto 16px;max-width:560px">+3.000 clientes satisfechos · Toca para leer la reseña completa</p>
 <div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT3',-1)">&#8249;</button><div class="rev-track" id="rT3">${cards}</div><button class="rev-arr n" onclick="revScroll('rT3',1)">&#8250;</button></div></div></section>`;
@@ -662,7 +674,7 @@ Leer reseña <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d
 <div class="rev-lee-comment"><p class="rev-lee-text">"${esc(r.comment||'')}"</p></div>
 </div></div>`;
     }).join('');
-    secs += `<section class="rev-lee"><div class="container">
+    secHtml['reviews'] = `<section class="rev-lee"><div class="container">
 <h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que opinan nuestros clientes</h2>
 <p class="sec-p" style="text-align:center;margin:0 auto 16px;max-width:560px">+3.000 clientes satisfechos en toda la región</p>
 <div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT4',-1)">&#8249;</button><div class="rev-track" id="rT4">${cards}</div><button class="rev-arr n" onclick="revScroll('rT4',1)">&#8250;</button></div></div></section>`;
@@ -679,7 +691,7 @@ Leer reseña <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d
       : tema===3
       ? `<div class="reviews-hdr"><div class="r-big-stars">★★★★★</div><div class="r-big-score">4.8/5 · Basado en +2.000 valoraciones verificadas</div></div>`
       : `<div class="rating-hdr"><div class="rating-big">4.8</div><div class="rating-stars">★★★★★</div><div class="rating-cnt">Basado en +2.000 valoraciones verificadas</div></div>`;
-    secs += `<section class="rev-mosaic"><div class="container">${mHdr}<div class="rev-mosaic-grid">${cards}</div></div></section>`;
+    secHtml['reviews'] = `<section class="rev-mosaic"><div class="container">${mHdr}<div class="rev-mosaic-grid">${cards}</div></div></section>`;
 
   } else {
     // ── CLÁSICO: horizontal scroll ──
@@ -692,14 +704,37 @@ Leer reseña <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d
       return `<div class="r-card" style="width:270px;flex-shrink:0;scroll-snap-align:start"><div class="r-stars">${stars(r.stars)}</div><p class="r-text">"${esc(r.comment||'')}"</p><div class="r-author">${av}<div><div class="r-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="${tema===3?'r-tick':'r-ck'}">✓ Compra verificada</div></div></div></div>`;
     }).join('');
     if (tema === 2) {
-      secs += `<section class="testimonials"><div class="container"><h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2><p class="sec-p" style="text-align:center;margin:0 auto 28px">+3.000 clientes satisfechos en toda la región</p><div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT1',-1)">&#8249;</button><div class="rev-track" id="rT1">${rH}</div><button class="rev-arr n" onclick="revScroll('rT1',1)">&#8250;</button></div></div></section>`;
+      secHtml['reviews'] = `<section class="testimonials"><div class="container"><h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2><p class="sec-p" style="text-align:center;margin:0 auto 28px">+3.000 clientes satisfechos en toda la región</p><div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT1',-1)">&#8249;</button><div class="rev-track" id="rT1">${rH}</div><button class="rev-arr n" onclick="revScroll('rT1',1)">&#8250;</button></div></div></section>`;
     } else if (tema === 3) {
-      secs += `<section class="reviews"><div class="container"><div class="reviews-hdr"><div class="r-big-stars">★★★★★</div><div class="r-big-score">4.8/5 · Basado en +2.000 valoraciones verificadas</div></div><div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT1',-1)">&#8249;</button><div class="rev-track" id="rT1">${rH}</div><button class="rev-arr n" onclick="revScroll('rT1',1)">&#8250;</button></div></div></section>`;
+      secHtml['reviews'] = `<section class="reviews"><div class="container"><div class="reviews-hdr"><div class="r-big-stars">★★★★★</div><div class="r-big-score">4.8/5 · Basado en +2.000 valoraciones verificadas</div></div><div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT1',-1)">&#8249;</button><div class="rev-track" id="rT1">${rH}</div><button class="rev-arr n" onclick="revScroll('rT1',1)">&#8250;</button></div></div></section>`;
     } else {
-      secs += `<section class="reviews"><div class="container"><div class="rating-hdr"><div class="rating-big">4.8</div><div class="rating-stars">★★★★★</div><div class="rating-cnt">Basado en +2.000 valoraciones verificadas</div></div><div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT1',-1)">&#8249;</button><div class="rev-track" id="rT1">${rH}</div><button class="rev-arr n" onclick="revScroll('rT1',1)">&#8250;</button></div></div></section>`;
+      secHtml['reviews'] = `<section class="reviews"><div class="container"><div class="rating-hdr"><div class="rating-big">4.8</div><div class="rating-stars">★★★★★</div><div class="rating-cnt">Basado en +2.000 valoraciones verificadas</div></div><div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT1',-1)">&#8249;</button><div class="rev-track" id="rT1">${rH}</div><button class="rev-arr n" onclick="revScroll('rT1',1)">&#8250;</button></div></div></section>`;
     }
   }
 }
+
+// FAQ
+if (secSet.has('faq') && faqs.length) {
+  const fH = faqs.map((f,i) => `<div class="faq-item" id="fi${i}">
+<div class="faq-q" onclick="tF(${i})"><span>${esc(f.q||'')}</span><span class="faq-ic">▼</span></div>
+<div class="faq-a">${esc(f.a||'')}</div>
+</div>`).join('');
+  secHtml['faq'] = `<section class="faq"><div class="container">
+<h2 class="sec-h" style="text-align:center;margin:0 auto 0;max-width:700px">Preguntas frecuentes</h2>
+<div class="faq-list">${fH}</div></div></section>`;
+}
+
+// GARANTÍA
+if (secSet.has('garantia')) {
+  secHtml['garantia'] = `<section class="garantia"><div class="container">
+<div class="gar-ico">🛡️</div>
+<h2>${esc(gar.titulo||'100% Garantizado')}</h2>
+${gar.desc?`<p>${esc(gar.desc)}</p>`:''}
+</div></section>`;
+}
+
+// ── ORDENAR Y RENDERIZAR SECCIONES VARIABLES ──────────────────────────────
+secciones_activas.forEach(id => { if(secHtml[id]) secs += secHtml[id]; });
 
 // TABLA COMPARATIVA (solo Tema 2)
 if (tema === 2) {
@@ -713,26 +748,6 @@ if (tema === 2) {
   <div class="tabla-row"><div>Envío gratis</div><div class="check">✓</div><div class="check">✓</div></div>
   <div class="tabla-row"><div>Soporte postventa</div><div class="check">✓</div><div class="cross">✗</div></div>
 </div></div></section>`;
-}
-
-// FAQ
-if (secSet.has('faq') && faqs.length) {
-  const fH = faqs.map((f,i) => `<div class="faq-item" id="fi${i}">
-<div class="faq-q" onclick="tF(${i})"><span>${esc(f.q||'')}</span><span class="faq-ic">▼</span></div>
-<div class="faq-a">${esc(f.a||'')}</div>
-</div>`).join('');
-  secs += `<section class="faq"><div class="container">
-<h2 class="sec-h" style="text-align:center;margin:0 auto 0;max-width:700px">Preguntas frecuentes</h2>
-<div class="faq-list">${fH}</div></div></section>`;
-}
-
-// GARANTÍA
-if (secSet.has('garantia')) {
-  secs += `<section class="garantia"><div class="container">
-<div class="gar-ico">🛡️</div>
-<h2>${esc(gar.titulo||'100% Garantizado')}</h2>
-${gar.desc?`<p>${esc(gar.desc)}</p>`:''}
-</div></section>`;
 }
 
 // CTA FINAL
