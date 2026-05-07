@@ -415,30 +415,35 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 .ai-img-btn:hover{background:#8b5cf6;color:#fff}
 
 /* ─── SECTIONS LIST ──────────────────────────── */
-.sec-drag-list{display:flex;flex-direction:column;gap:.3rem;margin-top:.5rem}
+.sec-drag-list{display:flex;flex-direction:column;gap:.35rem;margin-top:.5rem}
 .sec-drag-item{
-  display:flex;align-items:center;gap:.45rem;
+  display:flex;align-items:center;gap:.5rem;
   background:var(--s2);border:1.5px solid var(--bd2);border-radius:var(--r2);
-  padding:.38rem .65rem;font-size:.81rem;font-weight:500;color:var(--tx);
-  transition:border-color .15s,background .15s;user-select:none;
+  padding:.5rem .7rem;font-size:.82rem;font-weight:500;color:var(--tx);
+  transition:border-color .15s,background .15s;user-select:none;min-height:44px;
 }
 .sec-drag-item.on{border-color:var(--p);background:var(--pl)}
-.sd-move{display:flex;flex-direction:column;gap:1px;flex-shrink:0;width:16px}
-.sd-arr{width:16px;height:12px;border:none;background:transparent;color:var(--td);
-  font-size:.52rem;cursor:pointer;padding:0;border-radius:2px;
-  display:flex;align-items:center;justify-content:center;transition:.12s;line-height:1}
-.sd-arr:hover:not(:disabled){background:var(--p);color:#fff}
-.sd-arr:disabled{opacity:.18;cursor:default}
-.sd-move-ph{width:16px;flex-shrink:0}
-.sd-ico{font-size:.88rem;flex-shrink:0}
+.sec-drag-item.moving{opacity:.6;transform:scale(.98)}
+.sd-move{display:flex;flex-direction:column;gap:2px;flex-shrink:0}
+.sd-arr{
+  width:28px;height:20px;border:1px solid var(--bd2);background:var(--s2);
+  color:var(--td);font-size:.7rem;cursor:pointer;padding:0;border-radius:4px;
+  display:flex;align-items:center;justify-content:center;transition:.12s;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent;
+}
+.sd-arr:hover:not([disabled]){background:var(--p);color:#fff;border-color:var(--p)}
+.sd-arr:active:not([disabled]){transform:scale(.92)}
+.sd-arr[disabled]{opacity:.2;cursor:default;pointer-events:none}
+.sd-move-ph{width:28px;flex-shrink:0}
+.sd-ico{font-size:.9rem;flex-shrink:0}
 .sd-name{flex:1;min-width:0}
-.sd-fixed-lbl{font-size:.6rem;color:var(--td);flex-shrink:0;padding:1px 4px;border:1px solid var(--bd2);border-radius:3px}
-.sd-tog{position:relative;width:32px;height:17px;flex-shrink:0}
+.sd-fixed-lbl{font-size:.58rem;color:var(--td);flex-shrink:0;padding:1px 5px;border:1px solid var(--bd2);border-radius:3px;letter-spacing:.02em}
+.sd-tog{position:relative;width:34px;height:18px;flex-shrink:0}
 .sd-tog input{opacity:0;width:0;height:0;position:absolute}
-.sd-sl{position:absolute;inset:0;background:var(--bd2);border-radius:17px;cursor:pointer;transition:.2s}
-.sd-sl:before{content:'';position:absolute;width:11px;height:11px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
+.sd-sl{position:absolute;inset:0;background:var(--bd2);border-radius:18px;cursor:pointer;transition:.2s}
+.sd-sl:before{content:'';position:absolute;width:12px;height:12px;left:3px;top:3px;background:#fff;border-radius:50%;transition:.2s}
 .sd-tog input:checked+.sd-sl{background:var(--p)}
-.sd-tog input:checked+.sd-sl:before{transform:translateX(15px)}
+.sd-tog input:checked+.sd-sl:before{transform:translateX(16px)}
 .sd-tog.always .sd-sl{opacity:.4;cursor:not-allowed}
 
 /* ─── AI IMAGE MODAL ────────────────────────── */
@@ -1048,6 +1053,7 @@ function buildSecGrid(){
   st.secs_order.forEach(id => {
     const s = SEC_LIST.find(x => x.id === id);
     if(!s) return;
+
     const el = document.createElement('div');
     el.className = 'sec-drag-item' + (st.secs[id] ? ' on' : '');
     el.dataset.id = id;
@@ -1057,30 +1063,77 @@ function buildSecGrid(){
     const canUp   = isMoveable && mIdx > 0;
     const canDown = isMoveable && mIdx < moveableIds.length - 1;
 
-    let leftCtrl = '';
-    if(s.always){
-      leftCtrl = '<div class="sd-move-ph"></div>';
-    } else if(isMoveable){
-      leftCtrl = `<div class="sd-move">
-        <button class="sd-arr"${canUp?'':' disabled'} onclick="moveSection('${id}',-1)">▲</button>
-        <button class="sd-arr"${canDown?'':' disabled'} onclick="moveSection('${id}',1)">▼</button>
-      </div>`;
+    // Left: move arrows or placeholder
+    if(isMoveable){
+      const wrap = document.createElement('div');
+      wrap.className = 'sd-move';
+
+      const btnUp = document.createElement('button');
+      btnUp.className = 'sd-arr';
+      btnUp.textContent = '▲';
+      btnUp.type = 'button';
+      if(!canUp) btnUp.setAttribute('disabled', '');
+      btnUp.addEventListener('click', function(e){ e.stopPropagation(); doMoveSection(id, -1); });
+
+      const btnDn = document.createElement('button');
+      btnDn.className = 'sd-arr';
+      btnDn.textContent = '▼';
+      btnDn.type = 'button';
+      if(!canDown) btnDn.setAttribute('disabled', '');
+      btnDn.addEventListener('click', function(e){ e.stopPropagation(); doMoveSection(id, 1); });
+
+      wrap.appendChild(btnUp);
+      wrap.appendChild(btnDn);
+      el.appendChild(wrap);
     } else {
-      leftCtrl = '<div class="sd-move-ph"></div>';
+      const ph = document.createElement('div');
+      ph.className = 'sd-move-ph';
+      el.appendChild(ph);
     }
 
-    const rightCtrl = s.always
-      ? ''
-      : `<label class="sd-tog"><input type="checkbox"${st.secs[id]?' checked':''} onchange="toggleSec('${id}',this.closest('.sec-drag-item'),this.checked)"><span class="sd-sl"></span></label>`;
+    // Icon + name
+    const ico = document.createElement('span');
+    ico.className = 'sd-ico';
+    ico.textContent = s.ico;
+    el.appendChild(ico);
 
-    const fixedLbl = s.fixed ? '<span class="sd-fixed-lbl">fijo</span>' : '';
+    const name = document.createElement('span');
+    name.className = 'sd-name';
+    name.textContent = s.name;
+    el.appendChild(name);
 
-    el.innerHTML = `${leftCtrl}<span class="sd-ico">${s.ico}</span><span class="sd-name">${s.name}</span>${fixedLbl}${rightCtrl}`;
+    // Fixed label
+    if(s.fixed){
+      const lbl = document.createElement('span');
+      lbl.className = 'sd-fixed-lbl';
+      lbl.textContent = 'fijo';
+      el.appendChild(lbl);
+    }
+
+    // Toggle switch
+    if(!s.always){
+      const tog = document.createElement('label');
+      tog.className = 'sd-tog';
+      const chk = document.createElement('input');
+      chk.type = 'checkbox';
+      chk.checked = !!st.secs[id];
+      chk.addEventListener('change', function(){
+        st.secs[id] = chk.checked;
+        el.classList.toggle('on', chk.checked);
+        if(id === 'video') document.getElementById('videoCard').style.display = chk.checked ? 'block' : 'none';
+      });
+      const sl = document.createElement('span');
+      sl.className = 'sd-sl';
+      tog.appendChild(chk);
+      tog.appendChild(sl);
+      el.appendChild(tog);
+    }
+
     g.appendChild(el);
   });
 }
 
-function moveSection(id, dir){
+function doMoveSection(id, dir){
   const moveableIds = st.secs_order.filter(i => {
     const s = SEC_LIST.find(x => x.id === i);
     return s && !s.always && !s.fixed;
