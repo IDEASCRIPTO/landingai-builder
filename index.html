@@ -602,6 +602,14 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
     <div class="card">
       <div class="sec-title">📋 Secciones de la landing</div>
       <div class="sec-grid" id="secGrid"></div>
+      <label class="lbl" style="margin-top:1rem">Cantidad de reviews a generar</label>
+      <select id="s1_rev_qty" onchange="st.reviews_cantidad=parseInt(this.value)">
+        <option value="3">3 reviews</option>
+        <option value="4">4 reviews</option>
+        <option value="5">5 reviews</option>
+        <option value="6">6 reviews</option>
+        <option value="8">8 reviews</option>
+      </select>
     </div>
 
     <div class="card">
@@ -865,6 +873,7 @@ const st = {
   },
   hero_estilo: 'A',
   reviews_estilo: 1,
+  reviews_cantidad: 3,
   ratios: { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' },
   video_url: '', video_caption: '',
   style: {color:'#1D9E75', fuente:'Inter'},
@@ -1103,7 +1112,8 @@ async function generateCopy(){
     pais: paisCode,
     pais_nombre: paisData.name || '',
     moneda: paisData.currency || '',
-    secciones
+    secciones,
+    cantidad_reviews: st.reviews_cantidad || 3
   };
 
   showOverlay('copy');

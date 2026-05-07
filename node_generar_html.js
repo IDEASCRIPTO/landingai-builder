@@ -33,6 +33,11 @@ function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;')
 function stars(n){ const s=Math.min(5,Math.max(1,n||5)); return '★'.repeat(s)+'☆'.repeat(5-s); }
 function toEmbedUrl(url){
   if(!url) return '';
+  const iframe = url.match(/<iframe[^>]+src=["']([^"']+)["']/i);
+  if(iframe) return iframe[1];
+  if(/player\.vimeo\.com/.test(url)) return url;
+  const vim = url.match(/vimeo\.com\/(\d+)/);
+  if(vim) return 'https://player.vimeo.com/video/'+vim[1]+'?title=0&byline=0&portrait=0&badge=0';
   const yt = url.match(/(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
   if(yt) return 'https://www.youtube.com/embed/'+yt[1]+'?rel=0&modestbranding=1';
   return url;
@@ -109,11 +114,12 @@ body{font-family:'${fuente}',system-ui,sans-serif;background:#fff;color:#111827;
 .btn-p:hover{box-shadow:0 10px 32px rgba(${colorRgb},.5)}
 .btn-w{background:#fff;color:${CP};border:2px solid ${CP}}
 footer{background:#111827;color:rgba(255,255,255,.4);padding:28px;text-align:center;font-size:.82rem}
-.pop{position:fixed;bottom:20px;left:20px;background:#fff;border-radius:12px;padding:14px 18px;box-shadow:0 8px 32px rgba(0,0,0,.18);max-width:280px;z-index:999;border-left:4px solid ${CP};display:none}
-.pop.vis{display:block;animation:slideIn .4s ease}
-@keyframes slideIn{from{transform:translateX(-120%)}to{transform:translateX(0)}}
-.pop-t{font-weight:700;font-size:.85rem;color:#111827;margin-bottom:3px}
-.pop-c{font-size:.8rem;color:${CP};font-weight:600}
+.pop{position:fixed;top:16px;right:16px;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 4px 20px rgba(0,0,0,.15);max-width:220px;z-index:999;border-left:4px solid ${CP};display:none}
+.pop.vis{display:block;animation:slideIn .35s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+.pop-t{font-weight:700;font-size:.76rem;color:#111827;margin-bottom:2px}
+.pop-c{font-size:.71rem;color:${CP};font-weight:600}
+@media(max-width:480px){.pop{max-width:170px;right:8px;top:8px;padding:8px 10px}}
 .car-wrap{position:relative;overflow:hidden;border-radius:14px;max-width:520px;margin:32px auto 0;touch-action:pan-y}
 .car-slides{display:flex;transition:transform .42s ease;will-change:transform}
 .car-slides img{width:100%;aspect-ratio:${ratio_hero};object-fit:cover;display:block;flex-shrink:0}
@@ -139,7 +145,6 @@ footer{background:#111827;color:rgba(255,255,255,.4);padding:28px;text-align:cen
 .rev-flujo-ck{font-size:.71rem;color:#16a34a;font-weight:600}
 /* ── Reviews Estilo 3: Carrusel con tap ─── */
 .rev-car{padding:70px 0}
-.rev-car-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin-top:32px}
 .rev-car-card{border-radius:16px;overflow:hidden;background:#fff;border:1px solid #f3f4f6;box-shadow:0 2px 12px rgba(0,0,0,.06);cursor:pointer;transition:box-shadow .2s}
 .rev-car-card:hover{box-shadow:0 8px 28px rgba(0,0,0,.1)}
 .rev-car-img{width:100%;aspect-ratio:${ratio_revs};object-fit:cover;display:block}
@@ -155,7 +160,6 @@ footer{background:#111827;color:rgba(255,255,255,.4);padding:28px;text-align:cen
 .rev-car-card.open .rev-car-tap{display:none}
 /* ── Reviews Estilo 4: Imagen + Leer reseña ─── */
 .rev-lee{padding:70px 0}
-.rev-lee-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:18px;margin-top:32px}
 .rev-lee-card{background:#fff;border-radius:16px;border:1px solid #f3f4f6;box-shadow:0 2px 12px rgba(0,0,0,.05);overflow:hidden}
 .rev-lee-img{width:100%;aspect-ratio:${ratio_revs};object-fit:cover;display:block}
 .rev-lee-img-ph{width:100%;aspect-ratio:${ratio_revs};background:linear-gradient(135deg,rgba(${colorRgb},.15),rgba(${colorRgb},.05));display:flex;align-items:center;justify-content:center;font-size:2.5rem}
@@ -169,6 +173,14 @@ footer{background:#111827;color:rgba(255,255,255,.4);padding:28px;text-align:cen
 .rev-lee-comment{max-height:0;overflow:hidden;transition:max-height .4s ease,opacity .3s;opacity:0}
 .rev-lee-card.open .rev-lee-comment{max-height:200px;opacity:1}
 .rev-lee-text{font-size:.85rem;color:#374151;line-height:1.7;font-style:italic;padding-top:12px;margin-top:10px;border-top:1px solid #f3f4f6}
+/* ── Reviews: horizontal scroll ─── */
+.rev-track-wrap{position:relative;margin-top:28px}
+.rev-track{display:flex;gap:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 4px 16px;scroll-snap-type:x mandatory}
+.rev-track::-webkit-scrollbar{display:none}
+.rev-arr{position:absolute;top:50%;transform:translateY(-50%);background:rgba(255,255,255,.96);border:1px solid rgba(0,0,0,.09);border-radius:50%;width:36px;height:36px;font-size:1.15rem;cursor:pointer;display:flex;align-items:center;justify-content:center;z-index:3;box-shadow:0 2px 8px rgba(0,0,0,.1);padding:0;transition:.15s;font-family:inherit;line-height:1}
+.rev-arr:hover{box-shadow:0 4px 14px rgba(0,0,0,.18)}
+.rev-arr.p{left:-8px}.rev-arr.n{right:-8px}
+@media(max-width:600px){.rev-arr{display:none}.rev-track{gap:12px;padding:4px 2px 12px}}
 /* ─────────────────────────────────────────────── */
 .cta-float{position:fixed;bottom:18px;left:50%;transform:translateX(-50%);z-index:890;pointer-events:auto;transition:opacity .3s,transform .3s}
 .cta-float.hidden{opacity:0;transform:translateX(-50%) translateY(12px);pointer-events:none}
@@ -239,7 +251,7 @@ const CSS_T1 = CSS_BASE + `
 .cta-f p{opacity:.75;max-width:540px;margin:0 auto 28px}
 .cta-badges{display:flex;justify-content:center;gap:18px;margin-top:20px;flex-wrap:wrap;font-size:.8rem;opacity:.65}
 .escasez{margin-top:14px;font-size:.85rem;color:#f59e0b;font-weight:600}
-@media(max-width:680px){.container{padding:0 14px}.hero,.features,.problema,.ab-section,.reviews,.faq,.cta-f{padding:50px 0}}
+@media(max-width:680px){.container{padding:0 14px}.hero,.features,.problema,.ab-section,.reviews,.faq,.cta-f{padding:50px 0}.hero .container{display:flex;flex-direction:column;align-items:center}.hero .hero-img,.hero .car-wrap{order:-1;margin:0 0 18px!important;max-width:100%}}
 `;
 
 // Tema 2: Premium, hero 2col, packs, estadísticas, tabla comparativa
@@ -247,7 +259,7 @@ const CSS_T2 = CSS_BASE + `
 .urgency-bar{background:#ef4444;color:#fff;text-align:center;padding:9px;font-size:.8rem;font-weight:700}
 .hero{padding:56px 0;background:#fff}
 .hero-inner{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
-@media(max-width:760px){.hero-inner{grid-template-columns:1fr;text-align:center}}
+@media(max-width:760px){.hero-inner{grid-template-columns:1fr;text-align:center}.hero-inner>div:last-child{order:-1;margin-bottom:22px}}
 .hero-badge{display:inline-block;background:#fef2f2;color:#ef4444;padding:5px 12px;border-radius:4px;font-size:.72rem;font-weight:700;text-transform:uppercase;margin-bottom:12px;border:1px solid #fecaca}
 .hero h1{font-size:clamp(1.8rem,4vw,2.8rem);font-weight:900;line-height:1.15;margin-bottom:12px}
 .hero-feats{display:flex;flex-direction:column;gap:7px;margin:16px 0 22px}
@@ -259,16 +271,16 @@ const CSS_T2 = CSS_BASE + `
 .hero-price{margin-bottom:20px}
 .hero img{width:100%;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.1)}
 .hero-img-ph{background:#f3f4f6;border-radius:10px;aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:4rem}
-.packs{padding:56px 0;background:#f9fafb}
-.packs h2{text-align:center;font-size:clamp(1.4rem,3vw,1.9rem);font-weight:800;margin-bottom:32px}
-.packs-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:18px}
-@media(max-width:620px){.packs-grid{grid-template-columns:1fr}}
-.pack-card{background:#fff;border-radius:14px;padding:24px 18px;border:2px solid #e5e7eb;text-align:center;position:relative;transition:.2s}
-.pack-card:hover,.pack-card.featured{border-color:${CP};box-shadow:0 8px 28px rgba(${colorRgb},.12)}
-.pack-badge{position:absolute;top:-9px;left:50%;transform:translateX(-50%);background:${CP};color:#fff;padding:3px 12px;border-radius:50px;font-size:.7rem;font-weight:700;white-space:nowrap}
-.pack-qty{font-size:.9rem;font-weight:600;color:#6b7280;margin-bottom:6px}
-.pack-price{font-size:1.9rem;font-weight:900;color:#111827;margin-bottom:3px}
-.pack-per{font-size:.75rem;color:#9ca3af;margin-bottom:14px}
+.packs{padding:28px 0;background:#f9fafb}
+.packs h2{text-align:center;font-size:1.05rem;font-weight:800;margin-bottom:14px}
+.packs-grid{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
+.packs-grid::-webkit-scrollbar{display:none}
+.pack-card{background:#fff;border-radius:10px;padding:14px 12px;border:2px solid #e5e7eb;text-align:center;position:relative;transition:.2s;min-width:140px;flex:1}
+.pack-card:hover,.pack-card.featured{border-color:${CP};box-shadow:0 4px 16px rgba(${colorRgb},.1)}
+.pack-badge{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:${CP};color:#fff;padding:2px 10px;border-radius:50px;font-size:.65rem;font-weight:700;white-space:nowrap}
+.pack-qty{font-size:.78rem;font-weight:600;color:#6b7280;margin-bottom:4px}
+.pack-price{font-size:1.5rem;font-weight:900;color:#111827;margin-bottom:2px}
+.pack-per{font-size:.68rem;color:#9ca3af;margin-bottom:10px}
 .ab-section{padding:56px 0}
 .ab-inner{display:grid;grid-template-columns:1fr 1fr;gap:20px;max-width:820px;margin:32px auto 0}
 @media(max-width:580px){.ab-inner{grid-template-columns:1fr}}
@@ -319,7 +331,7 @@ const CSS_T2 = CSS_BASE + `
 .cta-f h2{font-size:clamp(1.7rem,4vw,2.7rem);font-weight:900;margin-bottom:12px}
 .cta-f p{opacity:.9;max-width:540px;margin:0 auto 26px}
 .escasez{margin-top:12px;font-size:.82rem;opacity:.8;font-weight:600}
-@media(max-width:680px){.container{padding:0 14px}.hero,.packs,.ab-section,.testimonials,.stats,.comparativa,.faq,.cta-f{padding:40px 0}}
+@media(max-width:680px){.container{padding:0 14px}.hero,.ab-section,.testimonials,.stats,.comparativa,.faq,.cta-f{padding:40px 0}.packs{padding:16px 0}}
 `;
 
 // Tema 3: Bold, hero oscuro, stats coloreadas, urgencia
@@ -397,7 +409,7 @@ const CSS_T3 = CSS_BASE + `
 .cta-f h2{font-size:clamp(1.8rem,4.5vw,2.9rem);font-weight:900;line-height:1.1;margin-bottom:14px;position:relative}
 .cta-f p{opacity:.7;max-width:500px;margin:0 auto 26px;font-size:.98rem;position:relative}
 .escasez{margin-top:14px;font-size:.8rem;color:rgba(255,255,255,.45)}
-@media(max-width:680px){.container{padding:0 14px}.hero,.stats,.problema,.ab-section,.reviews,.faq,.cta-f{padding:44px 0}}
+@media(max-width:680px){.container{padding:0 14px}.hero,.stats,.problema,.ab-section,.reviews,.faq,.cta-f{padding:44px 0}.hero .container{display:flex;flex-direction:column;align-items:center}.hero .hero-img,.hero .car-wrap{order:-1;margin:0 0 18px!important;max-width:100%}}
 `;
 
 // ── SELECCIONAR CSS ───────────────────────────────────────────────────────
@@ -410,7 +422,7 @@ let popScript = '';
 // HERO
 function buildCarousel(imgs, alt, ratio){
   const ar = ratio||'4/3';
-  if(imgs.length === 1) return `<img src="${esc(imgs[0])}" alt="${esc(alt)}" class="hero-img" style="aspect-ratio:${ar};object-fit:cover;width:100%">`;
+  if(imgs.length === 1) return `<div class="hero-img" style="aspect-ratio:${ar};overflow:hidden"><img src="${esc(imgs[0])}" alt="${esc(alt)}" style="width:100%;height:100%;object-fit:cover;display:block"></div>`;
   const slides = imgs.map(u=>`<img src="${esc(u)}" alt="${esc(alt)}" style="aspect-ratio:${ar};object-fit:cover;width:100%;flex-shrink:0;display:block">`).join('');
   const dots = imgs.map((_,i)=>`<button class="car-dot${i===0?' on':''}" data-i="${i}"></button>`).join('');
   return `<div class="car-wrap" id="hCar"><button class="car-arr p" id="hPrev">&#8249;</button><div class="car-slides" id="hSlides">${slides}</div><button class="car-arr n" id="hNext">&#8250;</button></div><div class="car-dots" id="hDots">${dots}</div>`;
@@ -424,7 +436,7 @@ if (tema === 2) {
   let imgColContent = '';
   if(fotos_hero[0]) {
     const t2Imgs = hero_estilo==='B' ? fotos_hero : [fotos_hero[0]];
-    imgColContent = t2Imgs.length>1 ? buildCarousel(t2Imgs, hT).replace('class="car-wrap"','class="car-wrap" style="margin:0;max-width:100%;border-radius:10px"') : `<img src="${esc(fotos_hero[0])}" alt="${esc(hT)}">`;
+    imgColContent = t2Imgs.length>1 ? buildCarousel(t2Imgs, hT, ratio_hero).replace('class="car-wrap"','class="car-wrap" style="margin:0;max-width:100%;border-radius:10px"') : `<div style="aspect-ratio:${ratio_hero};overflow:hidden;border-radius:10px;box-shadow:0 8px 28px rgba(0,0,0,.1)"><img src="${esc(fotos_hero[0])}" alt="${esc(hT)}" style="width:100%;height:100%;object-fit:cover;display:block"></div>`;
   } else { imgColContent = `<div class="hero-img-ph">📸</div>`; }
   const imgCol = `<div>${imgColContent}</div>`;
   secs += `<div class="urgency-bar">⚡ ¡ÚLTIMAS UNIDADES! Oferta por tiempo limitado</div>
@@ -560,7 +572,7 @@ if (secSet.has('reviews') && revs.length) {
     // ── CARRUSEL TAP: imagen + stars + nombre, tap expande comentario ──
     const cards = revs.map((r,i) => {
       const img = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-car-img" alt="">` : `<div class="rev-car-img-ph">👤</div>`;
-      return `<div class="rev-car-card" onclick="this.classList.toggle('open')">
+      return `<div class="rev-car-card" style="width:200px;flex-shrink:0;scroll-snap-align:start" onclick="this.classList.toggle('open')">
 ${img}
 <div class="rev-car-foot">
 <div class="rev-car-stars">${stars(r.stars)}</div>
@@ -572,14 +584,14 @@ ${img}
     }).join('');
     secs += `<section class="rev-car"><div class="container">
 <h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2>
-<p class="sec-p" style="text-align:center;margin:0 auto 0;max-width:560px">+3.000 clientes satisfechos · Toca para leer la reseña completa</p>
-<div class="rev-car-grid">${cards}</div></div></section>`;
+<p class="sec-p" style="text-align:center;margin:0 auto 16px;max-width:560px">+3.000 clientes satisfechos · Toca para leer la reseña completa</p>
+<div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT3',-1)">&#8249;</button><div class="rev-track" id="rT3">${cards}</div><button class="rev-arr n" onclick="revScroll('rT3',1)">&#8250;</button></div></div></section>`;
 
   } else if (reviews_estilo === 4) {
     // ── IMAGEN + LEER RESEÑA: imagen visible, comentario se abre al tap ──
     const cards = revs.map((r,i) => {
       const img = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-lee-img" alt="">` : `<div class="rev-lee-img-ph">👤</div>`;
-      return `<div class="rev-lee-card">
+      return `<div class="rev-lee-card" style="width:220px;flex-shrink:0;scroll-snap-align:start">
 ${img}
 <div class="rev-lee-body">
 <div class="rev-lee-stars">${stars(r.stars)}</div>
@@ -593,25 +605,25 @@ Leer reseña <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d
     }).join('');
     secs += `<section class="rev-lee"><div class="container">
 <h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que opinan nuestros clientes</h2>
-<p class="sec-p" style="text-align:center;margin:0 auto 0;max-width:560px">+3.000 clientes satisfechos en toda la región</p>
-<div class="rev-lee-grid">${cards}</div></div></section>`;
+<p class="sec-p" style="text-align:center;margin:0 auto 16px;max-width:560px">+3.000 clientes satisfechos en toda la región</p>
+<div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT4',-1)">&#8249;</button><div class="rev-track" id="rT4">${cards}</div><button class="rev-arr n" onclick="revScroll('rT4',1)">&#8250;</button></div></div></section>`;
 
   } else {
-    // ── CLÁSICO: grid de tarjetas (por tema) ──
+    // ── CLÁSICO: horizontal scroll ──
     const rH = revs.map((r, i) => {
       const av = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="r-av" alt="${esc(r.name||'')}">` : `<div class="r-av-pl">${(r.name||'C').charAt(0).toUpperCase()}</div>`;
       if (tema === 2) {
         const rImg = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="test-img" alt="">` : `<div class="test-img-ph">😊</div>`;
-        return `<div class="test-card">${rImg}<div class="test-hl">"Excelente producto"</div><div class="test-body">${esc(r.comment||'')}</div><div class="test-foot"><div class="test-name">${esc(r.name||'Cliente')}${r.city?' · '+esc(r.city):''}</div><div class="test-stars">${stars(r.stars)}</div></div></div>`;
+        return `<div class="test-card" style="width:260px;flex-shrink:0;scroll-snap-align:start">${rImg}<div class="test-hl">"Excelente producto"</div><div class="test-body">${esc(r.comment||'')}</div><div class="test-foot"><div class="test-name">${esc(r.name||'Cliente')}${r.city?' · '+esc(r.city):''}</div><div class="test-stars">${stars(r.stars)}</div></div></div>`;
       }
-      return `<div class="r-card"><div class="r-stars">${stars(r.stars)}</div><p class="r-text">"${esc(r.comment||'')}"</p><div class="r-author">${av}<div><div class="r-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="${tema===3?'r-tick':'r-ck'}">✓ Compra verificada</div></div></div></div>`;
+      return `<div class="r-card" style="width:270px;flex-shrink:0;scroll-snap-align:start"><div class="r-stars">${stars(r.stars)}</div><p class="r-text">"${esc(r.comment||'')}"</p><div class="r-author">${av}<div><div class="r-name">${esc(r.name||'Cliente verificado')}${r.city?' · '+esc(r.city):''}</div><div class="${tema===3?'r-tick':'r-ck'}">✓ Compra verificada</div></div></div></div>`;
     }).join('');
     if (tema === 2) {
-      secs += `<section class="testimonials"><div class="container"><h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2><p class="sec-p" style="text-align:center;margin:0 auto 32px">+3.000 clientes satisfechos en toda la región</p><div class="test-grid">${rH}</div></div></section>`;
+      secs += `<section class="testimonials"><div class="container"><h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2><p class="sec-p" style="text-align:center;margin:0 auto 28px">+3.000 clientes satisfechos en toda la región</p><div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT1',-1)">&#8249;</button><div class="rev-track" id="rT1">${rH}</div><button class="rev-arr n" onclick="revScroll('rT1',1)">&#8250;</button></div></div></section>`;
     } else if (tema === 3) {
-      secs += `<section class="reviews"><div class="container"><div class="reviews-hdr"><div class="r-big-stars">★★★★★</div><div class="r-big-score">4.8/5 · Basado en +2.000 valoraciones verificadas</div></div><div class="r-grid">${rH}</div></div></section>`;
+      secs += `<section class="reviews"><div class="container"><div class="reviews-hdr"><div class="r-big-stars">★★★★★</div><div class="r-big-score">4.8/5 · Basado en +2.000 valoraciones verificadas</div></div><div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT1',-1)">&#8249;</button><div class="rev-track" id="rT1">${rH}</div><button class="rev-arr n" onclick="revScroll('rT1',1)">&#8250;</button></div></div></section>`;
     } else {
-      secs += `<section class="reviews"><div class="container"><div class="rating-hdr"><div class="rating-big">4.8</div><div class="rating-stars">★★★★★</div><div class="rating-cnt">Basado en +2.000 valoraciones verificadas</div></div><div class="r-grid">${rH}</div></div></section>`;
+      secs += `<section class="reviews"><div class="container"><div class="rating-hdr"><div class="rating-big">4.8</div><div class="rating-stars">★★★★★</div><div class="rating-cnt">Basado en +2.000 valoraciones verificadas</div></div><div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT1',-1)">&#8249;</button><div class="rev-track" id="rT1">${rH}</div><button class="rev-arr n" onclick="revScroll('rT1',1)">&#8250;</button></div></div></section>`;
     }
   }
 }
@@ -681,6 +693,9 @@ if (secSet.has('popup_social')) {
 
 // ── SCRIPT FAQ ────────────────────────────────────────────────────────────
 const faqScript = faqs.length ? `function tF(i){var el=document.getElementById('fi'+i);if(el)el.classList.toggle('open');}` : 'function tF(){}';
+// ── SCRIPT REVIEWS SCROLL ─────────────────────────────────────────────────
+const revScrollScript = `function revScroll(id,dir){var el=document.getElementById(id);if(el)el.scrollBy({left:dir*300,behavior:'smooth'});}`;
+
 
 // ── SCRIPT CARRUSEL ───────────────────────────────────────────────────────
 const carScript = (heroImgs.length > 1) ? `(function(){
@@ -738,7 +753,7 @@ const html = `<!DOCTYPE html>
 ${secs}
 <div class="cta-float hidden" id="ctaFloat"><a href="#cta">${ctaFloatBtn}</a></div>
 <footer><p>© ${year} ${NP}. Todos los derechos reservados.</p></footer>
-<script>${faqScript}${popScript}${carScript}${ctaScript}</script>
+<script>${faqScript}${popScript}${revScrollScript}${carScript}${ctaScript}</script>
 </body>
 </html>`;
 
