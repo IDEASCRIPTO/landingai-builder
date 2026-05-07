@@ -146,6 +146,14 @@ select{appearance:none;cursor:pointer}
 .csec.open .csec-body{display:block}
 .csec.open .arrow{transform:rotate(90deg)}
 .csec-body textarea{min-height:100px;font-size:.82rem}
+.csec-mv{display:flex;flex-direction:column;gap:2px;flex-shrink:0;margin-right:.1rem}
+.csec-arr{width:22px;height:17px;border:1px solid var(--bd2);background:var(--s2);color:var(--td);
+  font-size:.6rem;cursor:pointer;padding:0;border-radius:3px;
+  display:flex;align-items:center;justify-content:center;transition:.12s;
+  touch-action:manipulation;-webkit-tap-highlight-color:transparent}
+.csec-arr:hover:not([disabled]){background:var(--p);color:#fff;border-color:var(--p)}
+.csec-arr[disabled]{opacity:.2;cursor:default;pointer-events:none}
+.csec-mv-ph{width:22px;flex-shrink:0}
 
 /* ─── COLOR SWATCHES ────────────────────────── */
 .swatch-row{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.5rem}
@@ -1331,25 +1339,108 @@ function buildCopyEditor(){
   const orderedIds = (st.secs_order.length ? st.secs_order : SEC_LIST.map(s=>s.id))
     .filter(id => st.copy[id] !== undefined && (st.secs[id] || id === 'hero' || id === 'cta_final'));
 
+  const moveableIds = orderedIds.filter(id => {
+    const s = SEC_LIST.find(x => x.id === id);
+    return s && !s.always && !s.fixed;
+  });
+
   orderedIds.forEach(id => {
     if(!st.copy[id]) return;
+    const s = SEC_LIST.find(x => x.id === id);
+    const isMoveable = s && !s.always && !s.fixed;
+    const mIdx = moveableIds.indexOf(id);
+    const canUp   = isMoveable && mIdx > 0;
+    const canDown = isMoveable && mIdx < moveableIds.length - 1;
+
     const val = typeof st.copy[id] === 'object' ? JSON.stringify(st.copy[id], null, 2) : String(st.copy[id]);
     const div = document.createElement('div');
     div.className = 'csec';
     div.id = 'csec_' + id;
-    div.innerHTML = `
-      <div class="csec-head" onclick="toggleCS('${id}')">
-        <span class="csec-title">${icos[id]||'📝'} ${labels[id]||id}</span>
-        <div style="display:flex;align-items:center;gap:.5rem">
-          <button class="regen-btn" onclick="event.stopPropagation();regenSec('${id}')">↻ Regenerar</button>
-          <span class="arrow">▶</span>
-        </div>
-      </div>
-      <div class="csec-body">
-        <textarea id="copy_${id}" oninput="st.copy['${id}']=this.value">${escHtml(val)}</textarea>
-      </div>`;
+
+    // Head
+    const head = document.createElement('div');
+    head.className = 'csec-head';
+    head.addEventListener('click', () => toggleCS(id));
+
+    // Move buttons
+    if(isMoveable){
+      const mv = document.createElement('div');
+      mv.className = 'csec-mv';
+
+      const btnUp = document.createElement('button');
+      btnUp.className = 'csec-arr';
+      btnUp.textContent = '▲';
+      btnUp.type = 'button';
+      if(!canUp) btnUp.setAttribute('disabled','');
+      btnUp.addEventListener('click', e => { e.stopPropagation(); doMoveCsec(id, -1); });
+
+      const btnDn = document.createElement('button');
+      btnDn.className = 'csec-arr';
+      btnDn.textContent = '▼';
+      btnDn.type = 'button';
+      if(!canDown) btnDn.setAttribute('disabled','');
+      btnDn.addEventListener('click', e => { e.stopPropagation(); doMoveCsec(id, 1); });
+
+      mv.appendChild(btnUp);
+      mv.appendChild(btnDn);
+      head.appendChild(mv);
+    } else {
+      const ph = document.createElement('div');
+      ph.className = 'csec-mv-ph';
+      head.appendChild(ph);
+    }
+
+    // Title
+    const titleSpan = document.createElement('span');
+    titleSpan.className = 'csec-title';
+    titleSpan.textContent = (icos[id]||'📝') + ' ' + (labels[id]||id);
+    head.appendChild(titleSpan);
+
+    // Right controls
+    const right = document.createElement('div');
+    right.style.cssText = 'display:flex;align-items:center;gap:.5rem';
+
+    const regenBtn = document.createElement('button');
+    regenBtn.className = 'regen-btn';
+    regenBtn.textContent = '↻ Regenerar';
+    regenBtn.addEventListener('click', e => { e.stopPropagation(); regenSec(id); });
+
+    const arrow = document.createElement('span');
+    arrow.className = 'arrow';
+    arrow.textContent = '▶';
+
+    right.appendChild(regenBtn);
+    right.appendChild(arrow);
+    head.appendChild(right);
+
+    // Body
+    const body = document.createElement('div');
+    body.className = 'csec-body';
+    const ta = document.createElement('textarea');
+    ta.id = 'copy_' + id;
+    ta.value = val;
+    ta.addEventListener('input', () => { st.copy[id] = ta.value; });
+    body.appendChild(ta);
+
+    div.appendChild(head);
+    div.appendChild(body);
     ed.appendChild(div);
   });
+}
+
+function doMoveCsec(id, dir){
+  const moveableIds = st.secs_order.filter(i => {
+    const s = SEC_LIST.find(x => x.id === i);
+    return s && !s.always && !s.fixed;
+  });
+  const mIdx = moveableIds.indexOf(id);
+  const newMIdx = mIdx + dir;
+  if(newMIdx < 0 || newMIdx >= moveableIds.length) return;
+  const otherId = moveableIds[newMIdx];
+  const i1 = st.secs_order.indexOf(id);
+  const i2 = st.secs_order.indexOf(otherId);
+  [st.secs_order[i1], st.secs_order[i2]] = [st.secs_order[i2], st.secs_order[i1]];
+  buildCopyEditor();
 }
 
 function toggleCS(id){

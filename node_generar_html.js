@@ -315,8 +315,10 @@ const CSS_T2 = CSS_BASE + `
 .packs h2{text-align:center;font-size:1.05rem;font-weight:800;margin-bottom:14px}
 .packs-grid{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px}
 .packs-grid::-webkit-scrollbar{display:none}
-.pack-card{background:#fff;border-radius:10px;padding:14px 12px;border:2px solid #e5e7eb;text-align:center;position:relative;transition:.2s;min-width:140px;flex:1}
-.pack-card:hover,.pack-card.featured{border-color:${CP};box-shadow:0 4px 16px rgba(${colorRgb},.1)}
+.pack-card{background:#fff;border-radius:10px;padding:14px 12px;border:2px solid #e5e7eb;text-align:center;position:relative;transition:.2s;min-width:140px;flex:1;cursor:pointer}
+.pack-card:hover{border-color:${CP};box-shadow:0 4px 16px rgba(${colorRgb},.1)}
+.pack-card.selected{border-color:${CP};box-shadow:0 6px 24px rgba(${colorRgb},.2);background:rgba(${colorRgb},.04);transform:translateY(-2px)}
+.pack-card.featured{border-color:${CP}}
 .pack-badge{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:${CP};color:#fff;padding:2px 10px;border-radius:50px;font-size:.65rem;font-weight:700;white-space:nowrap}
 .pack-qty{font-size:.78rem;font-weight:600;color:#6b7280;margin-bottom:4px}
 .pack-price{font-size:1.5rem;font-weight:900;color:#111827;margin-bottom:2px}
@@ -828,6 +830,16 @@ window.addEventListener('scroll',update,{passive:true});
 setTimeout(update,400);
 })();`;
 
+// ── SCRIPT PACKS ─────────────────────────────────────────────────────────
+const packScript = `(function(){
+var cards=document.querySelectorAll('.pack-card');
+if(!cards.length)return;
+function sel(c){cards.forEach(function(x){x.classList.remove('selected');});c.classList.add('selected');}
+cards.forEach(function(c){c.addEventListener('click',function(){sel(c);});});
+var f=document.querySelector('.pack-card.featured');
+if(f)sel(f);else if(cards[1])sel(cards[1]);
+})();`;
+
 // ── HTML FINAL ────────────────────────────────────────────────────────────
 const html = `<!DOCTYPE html>
 <html lang="es">
@@ -842,7 +854,7 @@ const html = `<!DOCTYPE html>
 ${secs}
 <div class="cta-float hidden" id="ctaFloat"><a href="#cta">${ctaFloatBtn}</a></div>
 <footer><p>© ${year} ${NP}. Todos los derechos reservados.</p></footer>
-<script>${faqScript}${popScript}${revScrollScript}${carScript}${ctaScript}</script>
+<script>${faqScript}${popScript}${revScrollScript}${carScript}${ctaScript}${packScript}</script>
 </body>
 </html>`;
 
