@@ -34,12 +34,17 @@ function stars(n){ const s=Math.min(5,Math.max(1,n||5)); return '★'.repeat(s)+
 function toEmbedUrl(url){
   if(!url) return '';
   const iframe = url.match(/<iframe[^>]+src=["']([^"']+)["']/i);
-  if(iframe) return iframe[1];
-  if(/player\.vimeo\.com/.test(url)) return url;
+  if(iframe){
+    let src = iframe[1];
+    if(/vimeo/.test(src)) src += (src.includes('?')?'&':'?')+'autoplay=1&muted=1&loop=1';
+    else if(/youtube/.test(src)) src += (src.includes('?')?'&':'?')+'autoplay=1&mute=1&rel=0&modestbranding=1';
+    return src;
+  }
+  if(/player\.vimeo\.com/.test(url)) return url+(url.includes('?')?'&':'?')+'autoplay=1&muted=1&loop=1';
   const vim = url.match(/vimeo\.com\/(\d+)/);
-  if(vim) return 'https://player.vimeo.com/video/'+vim[1]+'?title=0&byline=0&portrait=0&badge=0';
+  if(vim) return `https://player.vimeo.com/video/${vim[1]}?autoplay=1&muted=1&loop=1&title=0&byline=0&portrait=0&badge=0`;
   const yt = url.match(/(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  if(yt) return 'https://www.youtube.com/embed/'+yt[1]+'?rel=0&modestbranding=1';
+  if(yt) return `https://www.youtube.com/embed/${yt[1]}?autoplay=1&mute=1&rel=0&modestbranding=1&loop=1&playlist=${yt[1]}`;
   return url;
 }
 
@@ -173,6 +178,23 @@ footer{background:#111827;color:rgba(255,255,255,.4);padding:28px;text-align:cen
 .rev-lee-comment{max-height:0;overflow:hidden;transition:max-height .4s ease,opacity .3s;opacity:0}
 .rev-lee-card.open .rev-lee-comment{max-height:200px;opacity:1}
 .rev-lee-text{font-size:.85rem;color:#374151;line-height:1.7;font-style:italic;padding-top:12px;margin-top:10px;border-top:1px solid #f3f4f6}
+/* ── Reviews Estilo 5: Mosaico ─── */
+.rev-mosaic{padding:70px 0}
+.rev-mosaic-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-top:32px}
+@media(max-width:700px){.rev-mosaic-grid{grid-template-columns:repeat(2,1fr)}}
+@media(max-width:440px){.rev-mosaic-grid{grid-template-columns:1fr}}
+.rev-mosaic-card{background:#fff;border-radius:14px;overflow:hidden;border:1px solid #f3f4f6;box-shadow:0 2px 10px rgba(0,0,0,.05);transition:box-shadow .2s}
+.rev-mosaic-card:hover{box-shadow:0 6px 24px rgba(0,0,0,.1)}
+.rev-mosaic-img{width:100%;aspect-ratio:${ratio_revs};object-fit:cover;display:block}
+.rev-mosaic-img-ph{width:100%;aspect-ratio:${ratio_revs};background:linear-gradient(135deg,${CP},rgba(${colorRgb},.25));display:flex;align-items:center;justify-content:center;font-size:2.5rem}
+.rev-mosaic-body{padding:14px 16px}
+.rev-mosaic-stars{color:#f59e0b;font-size:.88rem;margin-bottom:6px}
+.rev-mosaic-text{font-size:.84rem;color:#374151;line-height:1.65;font-style:italic;margin-bottom:12px}
+.rev-mosaic-foot{display:flex;align-items:center;gap:9px}
+.rev-mosaic-av{width:30px;height:30px;border-radius:50%;object-fit:cover;flex-shrink:0}
+.rev-mosaic-av-pl{width:30px;height:30px;border-radius:50%;background:linear-gradient(135deg,${CP},rgba(${colorRgb},.5));display:flex;align-items:center;justify-content:center;font-size:.72rem;font-weight:700;color:#fff;flex-shrink:0}
+.rev-mosaic-name{font-weight:700;font-size:.79rem;color:#111827}
+.rev-mosaic-ck{font-size:.7rem;color:#16a34a;font-weight:600}
 /* ── Reviews: horizontal scroll ─── */
 .rev-track-wrap{position:relative;margin-top:28px}
 .rev-track{display:flex;gap:16px;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;padding:4px 4px 16px;scroll-snap-type:x mandatory}
@@ -190,15 +212,27 @@ footer{background:#111827;color:rgba(255,255,255,.4);padding:28px;text-align:cen
 
 // Tema 1: Minimal blanco, hero centrado, antes/después, reviews con rating
 const CSS_T1 = CSS_BASE + `
-.hero{background:linear-gradient(135deg,${CP},rgba(${colorRgb},.65));padding:80px 0 60px;text-align:center;color:#fff}
+.hero{background:linear-gradient(135deg,${CP},rgba(${colorRgb},.65));padding:80px 0 60px;color:#fff}
 .hero-badge{display:inline-block;background:rgba(255,255,255,.2);padding:6px 18px;border-radius:50px;font-size:.8rem;font-weight:700;margin-bottom:16px;border:1px solid rgba(255,255,255,.3)}
 .hero h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;line-height:1.1;margin-bottom:14px}
-.hero-sub{font-size:1.05rem;opacity:.9;max-width:560px;margin:0 auto 24px}
+.hero-sub{font-size:1.05rem;opacity:.9;max-width:500px;margin-bottom:24px}
 .hero-price .curr{font-size:2.2rem;font-weight:900}
 .hero-price .prev{font-size:1rem;opacity:.6;text-decoration:line-through;margin-left:10px}
 .hero-price{margin-bottom:24px}
-.hero-trust{display:flex;justify-content:center;gap:20px;margin-top:28px;flex-wrap:wrap;font-size:.8rem;opacity:.85}
-.hero-img{display:block;max-width:460px;width:100%;margin:36px auto 0;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.hero-trust{display:flex;justify-content:flex-start;gap:20px;margin-top:28px;flex-wrap:wrap;font-size:.8rem;opacity:.85}
+.hero-img{display:block;width:100%;border-radius:18px;box-shadow:0 24px 60px rgba(0,0,0,.25)}
+.hero-2col{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center}
+.hero-img-col{min-width:0}
+.hero-img-col .car-wrap{max-width:100%;margin:0;border-radius:18px}
+.hero-centered{text-align:center}
+.hero-centered .hero-sub{margin:0 auto 24px}
+.hero-centered .hero-trust{justify-content:center}
+@media(max-width:760px){
+  .hero-2col{grid-template-columns:1fr;text-align:center}
+  .hero-img-col{order:-1;margin-bottom:22px}
+  .hero-text .hero-sub{margin:0 auto 24px;text-align:center}
+  .hero-text .hero-trust{justify-content:center}
+}
 .features{padding:70px 0;background:#f9fafb}
 .features-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:18px;margin-top:36px}
 .feat-card{background:#fff;border-radius:14px;padding:24px 18px;text-align:center;border:1px solid #f3f4f6;transition:.2s}
@@ -251,7 +285,7 @@ const CSS_T1 = CSS_BASE + `
 .cta-f p{opacity:.75;max-width:540px;margin:0 auto 28px}
 .cta-badges{display:flex;justify-content:center;gap:18px;margin-top:20px;flex-wrap:wrap;font-size:.8rem;opacity:.65}
 .escasez{margin-top:14px;font-size:.85rem;color:#f59e0b;font-weight:600}
-@media(max-width:680px){.container{padding:0 14px}.hero,.features,.problema,.ab-section,.reviews,.faq,.cta-f{padding:50px 0}.hero .container{display:flex;flex-direction:column;align-items:center}.hero .hero-img,.hero .car-wrap{order:-1;margin:0 0 18px!important;max-width:100%}}
+@media(max-width:680px){.container{padding:0 14px}.hero,.features,.problema,.ab-section,.reviews,.faq,.cta-f{padding:50px 0}}
 `;
 
 // Tema 2: Premium, hero 2col, packs, estadísticas, tabla comparativa
@@ -336,17 +370,29 @@ const CSS_T2 = CSS_BASE + `
 
 // Tema 3: Bold, hero oscuro, stats coloreadas, urgencia
 const CSS_T3 = CSS_BASE + `
-.hero{background:#0f0f1a;padding:80px 0 60px;text-align:center;color:#fff;position:relative;overflow:hidden}
+.hero{background:#0f0f1a;padding:80px 0 60px;color:#fff;position:relative;overflow:hidden}
 .hero::before{content:'';position:absolute;top:-80px;left:50%;transform:translateX(-50%);width:600px;height:500px;background:radial-gradient(circle,rgba(${colorRgb},.18) 0%,transparent 70%);pointer-events:none}
 .hero-badge{display:inline-block;background:#ef4444;color:#fff;padding:6px 16px;border-radius:4px;font-size:.76rem;font-weight:800;letter-spacing:.8px;text-transform:uppercase;margin-bottom:18px}
 .hero h1{font-size:clamp(2rem,5.5vw,3.6rem);font-weight:900;line-height:1.05;margin-bottom:16px;position:relative}
 .hero h1 em{font-style:normal;color:${CP}}
-.hero-sub{font-size:1rem;color:rgba(255,255,255,.7);max-width:560px;margin:0 auto 24px;line-height:1.8}
+.hero-sub{font-size:1rem;color:rgba(255,255,255,.7);max-width:500px;margin-bottom:24px;line-height:1.8}
 .hero-price .curr{font-size:2.2rem;font-weight:900;color:#fff}
 .hero-price .prev{font-size:1rem;color:rgba(255,255,255,.4);text-decoration:line-through;margin-left:9px}
 .hero-price{margin-bottom:24px}
-.hero-trust{display:flex;justify-content:center;gap:20px;margin-top:24px;flex-wrap:wrap;font-size:.78rem;color:rgba(255,255,255,.5)}
-.hero-img{display:block;max-width:500px;width:100%;margin:36px auto 0;border-radius:14px;box-shadow:0 28px 70px rgba(0,0,0,.5);position:relative}
+.hero-trust{display:flex;justify-content:flex-start;gap:20px;margin-top:24px;flex-wrap:wrap;font-size:.78rem;color:rgba(255,255,255,.5)}
+.hero-img{display:block;width:100%;border-radius:14px;box-shadow:0 28px 70px rgba(0,0,0,.5);position:relative}
+.hero-2col{display:grid;grid-template-columns:1fr 1fr;gap:52px;align-items:center;position:relative;z-index:1}
+.hero-img-col{min-width:0}
+.hero-img-col .car-wrap{max-width:100%;margin:0;border-radius:14px}
+.hero-centered{text-align:center}
+.hero-centered .hero-sub{margin:0 auto 24px}
+.hero-centered .hero-trust{justify-content:center}
+@media(max-width:760px){
+  .hero-2col{grid-template-columns:1fr;text-align:center}
+  .hero-img-col{order:-1;margin-bottom:22px}
+  .hero-text .hero-sub{margin:0 auto 24px;text-align:center}
+  .hero-text .hero-trust{justify-content:center}
+}
 .stats{padding:60px 0;background:#f9fafb}
 .stats-note{text-align:center;font-size:.78rem;color:#9ca3af;margin-bottom:32px}
 .stats-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
@@ -409,7 +455,7 @@ const CSS_T3 = CSS_BASE + `
 .cta-f h2{font-size:clamp(1.8rem,4.5vw,2.9rem);font-weight:900;line-height:1.1;margin-bottom:14px;position:relative}
 .cta-f p{opacity:.7;max-width:500px;margin:0 auto 26px;font-size:.98rem;position:relative}
 .escasez{margin-top:14px;font-size:.8rem;color:rgba(255,255,255,.45)}
-@media(max-width:680px){.container{padding:0 14px}.hero,.stats,.problema,.ab-section,.reviews,.faq,.cta-f{padding:44px 0}.hero .container{display:flex;flex-direction:column;align-items:center}.hero .hero-img,.hero .car-wrap{order:-1;margin:0 0 18px!important;max-width:100%}}
+@media(max-width:680px){.container{padding:0 14px}.hero,.stats,.problema,.ab-section,.reviews,.faq,.cta-f{padding:44px 0}}
 `;
 
 // ── SELECCIONAR CSS ───────────────────────────────────────────────────────
@@ -454,14 +500,27 @@ ${precioTag}
 </div>${imgCol}</div></div></section>`;
 } else {
   const badgeTag = hB ? `<div class="hero-badge">${esc(hB)}</div>` : (tema===3 ? '<div class="hero-badge">🔥 ÚLTIMAS UNIDADES</div>' : '');
-  secs += `<section class="hero"><div class="container">
-${badgeTag}
-<h1>${tema===3 ? `<em>${esc(hT.split(' ').slice(0,2).join(' '))}</em> ${esc(hT.split(' ').slice(2).join(' '))}` : esc(hT)}</h1>
+  const h1Content = tema===3 ? `<em>${esc(hT.split(' ').slice(0,2).join(' '))}</em> ${esc(hT.split(' ').slice(2).join(' '))}` : esc(hT);
+  if(heroImgTag){
+    secs += `<section class="hero"><div class="container"><div class="hero-2col">
+<div class="hero-text">
+${badgeTag}<h1>${h1Content}</h1>
 ${hS?`<p class="hero-sub">${esc(hS)}</p>`:''}
 ${precioTag}
 <a href="#cta" class="btn btn-p">${esc(hCta)}</a>
-${trustTag}${heroImgTag}
+${trustTag}
+</div>
+<div class="hero-img-col">${heroImgTag}</div>
+</div></div></section>`;
+  } else {
+    secs += `<section class="hero hero-centered"><div class="container">
+${badgeTag}<h1>${h1Content}</h1>
+${hS?`<p class="hero-sub">${esc(hS)}</p>`:''}
+${precioTag}
+<a href="#cta" class="btn btn-p">${esc(hCta)}</a>
+${trustTag}
 </div></section>`;
+  }
 }
 
 // STATS (Tema 2 y 3)
@@ -545,11 +604,11 @@ if (secSet.has('beneficios') && bens.length) {
 if (secSet.has('video') && vid.titulo) {
   const vUrl = toEmbedUrl(body.video_url||'');
   const vE = vUrl
-    ? `<div style="max-width:820px;margin:0 auto;border-radius:14px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.12)"><iframe src="${esc(vUrl)}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allowfullscreen loading="lazy"></iframe></div>`
-    : `<div style="max-width:820px;margin:0 auto;background:#0f0f1a;aspect-ratio:16/9;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:4rem">▶️</div>`;
-  secs += `<section style="padding:60px 0;text-align:center"><div class="container">
-<h2 class="sec-h" style="text-align:center;margin:0 auto 26px;max-width:700px">${esc(vid.titulo)}</h2>
-${vid.sub?`<p class="sec-p" style="text-align:center;margin:0 auto 26px;max-width:600px">${esc(vid.sub)}</p>`:''}
+    ? `<div style="max-width:820px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.5)"><iframe src="${esc(vUrl)}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
+    : `<div style="max-width:820px;margin:0 auto;background:#111;aspect-ratio:16/9;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:.6">▶️</div>`;
+  secs += `<section style="padding:70px 0;text-align:center;background:#0a0a0f"><div class="container">
+<h2 style="text-align:center;margin:0 auto 14px;max-width:700px;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;color:#fff">${esc(vid.titulo)}</h2>
+${vid.sub?`<p style="text-align:center;margin:0 auto 32px;max-width:600px;color:rgba(255,255,255,.6);font-size:.95rem;line-height:1.7">${esc(vid.sub)}</p>`:'<div style="margin-bottom:32px"></div>'}
 ${vE}</div></section>`;
 }
 
@@ -607,6 +666,20 @@ Leer reseña <svg width="12" height="12" viewBox="0 0 12 12" fill="none"><path d
 <h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que opinan nuestros clientes</h2>
 <p class="sec-p" style="text-align:center;margin:0 auto 16px;max-width:560px">+3.000 clientes satisfechos en toda la región</p>
 <div class="rev-track-wrap"><button class="rev-arr p" onclick="revScroll('rT4',-1)">&#8249;</button><div class="rev-track" id="rT4">${cards}</div><button class="rev-arr n" onclick="revScroll('rT4',1)">&#8250;</button></div></div></section>`;
+
+  } else if (reviews_estilo === 5) {
+    // ── MOSAICO: grid con imagen + texto completo ──
+    const cards = revs.map((r,i) => {
+      const img = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-mosaic-img" alt="">` : `<div class="rev-mosaic-img-ph">👤</div>`;
+      const av = fotos_reviews[i] ? `<img src="${esc(fotos_reviews[i])}" class="rev-mosaic-av" alt="">` : `<div class="rev-mosaic-av-pl">${(r.name||'C').charAt(0).toUpperCase()}</div>`;
+      return `<div class="rev-mosaic-card">${img}<div class="rev-mosaic-body"><div class="rev-mosaic-stars">${stars(r.stars)}</div><p class="rev-mosaic-text">"${esc(r.comment||'')}"</p><div class="rev-mosaic-foot">${av}<div><div class="rev-mosaic-name">${esc(r.name||'Cliente verificado')}</div><div class="rev-mosaic-ck">✓ Compra verificada${r.city?' · '+esc(r.city):''}</div></div></div></div></div>`;
+    }).join('');
+    const mHdr = tema===2
+      ? `<h2 class="sec-h" style="text-align:center;margin:0 auto 8px;max-width:700px">Lo que dicen nuestros clientes</h2><p class="sec-p" style="text-align:center;margin:0 auto 28px">+3.000 clientes satisfechos en toda la región</p>`
+      : tema===3
+      ? `<div class="reviews-hdr"><div class="r-big-stars">★★★★★</div><div class="r-big-score">4.8/5 · Basado en +2.000 valoraciones verificadas</div></div>`
+      : `<div class="rating-hdr"><div class="rating-big">4.8</div><div class="rating-stars">★★★★★</div><div class="rating-cnt">Basado en +2.000 valoraciones verificadas</div></div>`;
+    secs += `<section class="rev-mosaic"><div class="container">${mHdr}<div class="rev-mosaic-grid">${cards}</div></div></section>`;
 
   } else {
     // ── CLÁSICO: horizontal scroll ──

@@ -349,8 +349,9 @@ select{appearance:none;cursor:pointer}
 select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:var(--r2);padding:.55rem .8rem;color:var(--tx);font-size:.85rem;cursor:pointer;appearance:none}
 
 /* ─── REVIEWS ESTILO SELECTOR ───────────────── */
-.rev-sel-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.5rem;margin-top:.25rem}
-@media(max-width:580px){.rev-sel-grid{grid-template-columns:repeat(2,1fr)}}
+.rev-sel-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:.5rem;margin-top:.25rem}
+@media(max-width:680px){.rev-sel-grid{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:400px){.rev-sel-grid{grid-template-columns:repeat(2,1fr)}}
 .rev-sel-card{background:var(--s2);border:2px solid var(--bd2);border-radius:var(--r);padding:.65rem .4rem .55rem;cursor:pointer;text-align:center;transition:all .2s}
 .rev-sel-card.active{border-color:var(--p);background:var(--pl)}
 .rev-sel-card:hover:not(.active){border-color:var(--p)}
@@ -381,6 +382,13 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 .rp4 .rp4c-body{padding:3px;display:flex;flex-direction:column;gap:2px;flex:1}
 .rp4 .rp4c-line{height:2px;background:var(--bd2);border-radius:1px}
 .rp4 .rp4c-btn{height:4px;width:75%;background:var(--p);border-radius:1px;opacity:.8}
+
+/* mini preview — Mosaico (grid con foto) */
+.rp5{display:grid;grid-template-columns:1fr 1fr;gap:3px}
+.rp5 .rp5c{background:var(--s1);border:1px solid var(--bd2);border-radius:3px;overflow:hidden}
+.rp5 .rp5c-img{height:18px;background:linear-gradient(135deg,rgba(29,158,117,.5),rgba(29,158,117,.1))}
+.rp5 .rp5c-txt{height:3px;background:var(--bd2);border-radius:1px;margin:3px}
+.rp5 .rp5c-ln{height:2px;background:var(--bd2);border-radius:1px;margin:2px 3px}
 
 /* ─── RATIO SELECTOR ────────────────────────── */
 .ratio-row{display:flex;gap:.3rem;flex-wrap:wrap;margin-bottom:.5rem}
@@ -690,6 +698,17 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
           <div class="rev-sel-desc">Foto · leer más</div>
         </div>
 
+        <div class="rev-sel-card" id="rev_5" onclick="selectReviewsEstilo(5)">
+          <div class="rev-preview rp5">
+            <div class="rp5c"><div class="rp5c-img"></div><div class="rp5c-txt"></div><div class="rp5c-ln"></div></div>
+            <div class="rp5c"><div class="rp5c-img"></div><div class="rp5c-txt"></div><div class="rp5c-ln"></div></div>
+            <div class="rp5c"><div class="rp5c-img"></div><div class="rp5c-txt"></div><div class="rp5c-ln"></div></div>
+            <div class="rp5c"><div class="rp5c-img"></div><div class="rp5c-txt"></div><div class="rp5c-ln"></div></div>
+          </div>
+          <div class="rev-sel-name">Mosaico</div>
+          <div class="rev-sel-desc">Grid · fotos</div>
+        </div>
+
       </div>
     </div>
 
@@ -928,7 +947,7 @@ function buildRatioRow(key, containerId){
 /* ── REVIEWS ESTILO ──────────────────────────── */
 function selectReviewsEstilo(n){
   st.reviews_estilo = n;
-  [1,2,3,4].forEach(i => document.getElementById('rev_'+i)?.classList.toggle('active', i===n));
+  [1,2,3,4,5].forEach(i => document.getElementById('rev_'+i)?.classList.toggle('active', i===n));
 }
 
 /* ── HERO ESTILO ─────────────────────────────── */
@@ -1101,6 +1120,10 @@ async function generateCopy(){
   const paisCode = document.getElementById('s1_pais').value;
   const paisData = COUNTRIES[paisCode] || {};
 
+  const revQty = st.reviews_cantidad || 3;
+  const instrBase = document.getElementById('s1_instr').value.trim();
+  const instrFinal = [`Genera exactamente ${revQty} reviews de clientes diferentes.`, instrBase].filter(Boolean).join('\n');
+
   const payload = {
     accion: 'generar_copy',
     nombre_producto: nombre,
@@ -1108,12 +1131,12 @@ async function generateCopy(){
     beneficios: document.getElementById('s1_bens').value.trim(),
     publico_objetivo: document.getElementById('s1_pub').value.trim(),
     tono: document.getElementById('s1_tono').value,
-    instrucciones: document.getElementById('s1_instr').value.trim(),
+    instrucciones: instrFinal,
     pais: paisCode,
     pais_nombre: paisData.name || '',
     moneda: paisData.currency || '',
     secciones,
-    cantidad_reviews: st.reviews_cantidad || 3
+    cantidad_reviews: revQty
   };
 
   showOverlay('copy');
