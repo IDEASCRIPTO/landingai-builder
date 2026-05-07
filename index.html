@@ -348,6 +348,14 @@ select{appearance:none;cursor:pointer}
 .country-flag{font-size:1.1rem}
 select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:var(--r2);padding:.55rem .8rem;color:var(--tx);font-size:.85rem;cursor:pointer;appearance:none}
 
+/* ─── HERO ESTILO SELECTOR ──────────────────── */
+.hero-estilo-row{display:flex;gap:.4rem;margin-bottom:.6rem;flex-wrap:wrap}
+.estilo-btn{padding:.38rem .8rem;border-radius:var(--r2);border:1px solid var(--bd2);
+  background:var(--s2);font-size:.75rem;font-weight:600;cursor:pointer;color:var(--tm);
+  transition:.15s;font-family:inherit}
+.estilo-btn.active{background:var(--p);color:#fff;border-color:var(--p)}
+.estilo-btn:hover:not(.active){border-color:var(--p);color:var(--tx)}
+
 /* ─── AI IMAGE BTN ──────────────────────────── */
 .ai-img-btn{
   flex-shrink:0;height:30px;border:none;border-radius:6px;
@@ -595,16 +603,29 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 
     <!-- Imágenes -->
     <div class="card">
-      <div class="sec-title">🖼️ Imágenes</div>
+      <div class="sec-title">🖼️ Imágenes por sección</div>
 
-      <label class="lbl">URLs imágenes Hero</label>
+      <label class="lbl">Hero — estilo de imagen</label>
+      <div class="hero-estilo-row">
+        <button class="estilo-btn active" id="hEA" onclick="selectHeroEstilo('A')">🖼️ Estilo A · Una imagen</button>
+        <button class="estilo-btn" id="hEB" onclick="selectHeroEstilo('B')">🎠 Estilo B · Carrusel</button>
+      </div>
       <div id="heroUrls" class="url-list"></div>
-      <button class="btn btn-ghost mt1" onclick="addUrl('hero')" style="font-size:.78rem;padding:.35rem .7rem">+ Agregar URL</button>
+      <button class="btn btn-ghost mt1" id="heroAddBtn" onclick="addUrl('hero')" style="font-size:.78rem;padding:.35rem .7rem;display:none">+ Agregar imagen al carrusel</button>
 
-      <label class="lbl">URL imagen Problema</label>
+      <label class="lbl" style="margin-top:1rem">Imagen "Antes"</label>
+      <div id="antesUrl" class="url-list"></div>
+
+      <label class="lbl" style="margin-top:.6rem">Imagen "Después"</label>
+      <div id="despuesUrl" class="url-list"></div>
+
+      <label class="lbl" style="margin-top:1rem">Imagen Beneficios</label>
+      <div id="bensUrl" class="url-list"></div>
+
+      <label class="lbl" style="margin-top:1rem">Imagen Problema</label>
       <div id="probUrl" class="url-list"></div>
 
-      <label class="lbl">URLs imágenes Reviews</label>
+      <label class="lbl" style="margin-top:1rem">Imágenes Reviews</label>
       <div id="revsUrls" class="url-list"></div>
       <button class="btn btn-ghost mt1" onclick="addUrl('revs')" style="font-size:.78rem;padding:.35rem .7rem">+ Agregar URL</button>
     </div>
@@ -745,10 +766,14 @@ const st = {
   pais: '',
   secs: {},
   imgs: {
-    hero: {urls:['']},
-    prob: {url:''},
-    revs: {urls:['']}
+    hero:    {urls:['']},
+    prob:    {url:''},
+    revs:    {urls:['']},
+    antes:   {url:''},
+    despues: {url:''},
+    bens:    {url:''}
   },
+  hero_estilo: 'A',
   video_url: '', video_caption: '',
   style: {color:'#1D9E75', fuente:'Inter'},
   copy: null,
@@ -776,6 +801,16 @@ function selectTema(n){
   });
 }
 
+/* ── HERO ESTILO ─────────────────────────────── */
+function selectHeroEstilo(e){
+  st.hero_estilo = e;
+  document.getElementById('hEA')?.classList.toggle('active', e==='A');
+  document.getElementById('hEB')?.classList.toggle('active', e==='B');
+  const addBtn = document.getElementById('heroAddBtn');
+  if(addBtn) addBtn.style.display = e==='B' ? '' : 'none';
+  renderUrlList('hero');
+}
+
 /* ── COUNTRY ─────────────────────────────────── */
 function selectCountry(code){
   const c = COUNTRIES[code];
@@ -794,7 +829,10 @@ function init(){
   buildFonts();
   renderUrlList('hero');
   renderUrlList('revs');
-  renderProbUrl();
+  renderSingleUrl('prob');
+  renderSingleUrl('antes');
+  renderSingleUrl('despues');
+  renderSingleUrl('bens');
   updateColorUI(st.style.color);
 }
 
@@ -873,28 +911,37 @@ function buildFonts(){
 /* ── URL LISTS ───────────────────────────────── */
 function renderUrlList(key){
   const container = key === 'hero' ? document.getElementById('heroUrls') : document.getElementById('revsUrls');
+  if(!container) return;
   const urls = st.imgs[key].urls;
+  const isHeroA = key === 'hero' && st.hero_estilo === 'A';
+  const count = isHeroA ? 1 : urls.length;
   container.innerHTML = '';
-  urls.forEach((u, i) => {
+  for(let i = 0; i < count; i++){
+    const u = urls[i] || '';
     const row = document.createElement('div');
     row.className = 'url-item';
     row.innerHTML = `
       <input type="url" value="${u}" placeholder="https://..." oninput="st.imgs['${key}'].urls[${i}]=this.value"/>
       <button class="ai-img-btn" onclick="openAIImgModal('${key}',${i})">✨ IA</button>
-      ${urls.length > 1 ? `<button class="url-btn rem" onclick="removeUrl('${key}',${i})">✕</button>` : ''}
+      ${(!isHeroA && urls.length > 1) ? `<button class="url-btn rem" onclick="removeUrl('${key}',${i})">✕</button>` : ''}
     `;
     container.appendChild(row);
-  });
+  }
 }
 
-function renderProbUrl(){
-  const container = document.getElementById('probUrl');
+function renderSingleUrl(key){
+  const ids = {prob:'probUrl', antes:'antesUrl', despues:'despuesUrl', bens:'bensUrl'};
+  const container = document.getElementById(ids[key]);
+  if(!container) return;
+  const url = st.imgs[key]?.url || '';
   container.innerHTML = `
     <div class="url-item">
-      <input type="url" value="${st.imgs.prob.url}" placeholder="https://..." oninput="st.imgs.prob.url=this.value"/>
-      <button class="ai-img-btn" onclick="openAIImgModal('prob',0)">✨ IA</button>
+      <input type="url" value="${url}" placeholder="https://..." oninput="st.imgs['${key}'].url=this.value"/>
+      <button class="ai-img-btn" onclick="openAIImgModal('${key}',0)">✨ IA</button>
     </div>`;
 }
+
+function renderProbUrl(){ renderSingleUrl('prob'); }
 
 function addUrl(key){
   st.imgs[key].urls.push('');
@@ -1069,7 +1116,11 @@ async function generate(tipo_salida){
     video_url: document.getElementById('videoUrl').value.trim(),
     video_caption: document.getElementById('videoCaption').value.trim(),
     imagenes_hero: st.imgs.hero.urls.filter(u => u.trim()),
-    imagen_problema: document.getElementById('probUrl').querySelector('input')?.value.trim() || '',
+    imagen_problema: st.imgs.prob?.url?.trim() || '',
+    imagen_antes: st.imgs.antes?.url?.trim() || '',
+    imagen_despues: st.imgs.despues?.url?.trim() || '',
+    imagen_bens: st.imgs.bens?.url?.trim() || '',
+    hero_estilo: st.hero_estilo || 'A',
     imagenes_reviews: st.imgs.revs.urls.filter(u => u.trim())
   };
 
@@ -1248,13 +1299,15 @@ function updateStepBar(){
 
 /* ── RESET ───────────────────────────────────── */
 function resetAll(){
-  st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html';
-  st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']}};
+  st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html'; st.hero_estilo = 'A';
+  st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']},antes:{url:''},despues:{url:''},bens:{url:''}};
   ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_instr','videoUrl','videoCaption']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('copyEditor').innerHTML = '';
   buildSecGrid();
-  renderUrlList('hero'); renderUrlList('revs'); renderProbUrl();
+  renderUrlList('hero'); renderUrlList('revs');
+  renderSingleUrl('prob'); renderSingleUrl('antes'); renderSingleUrl('despues'); renderSingleUrl('bens');
+  selectHeroEstilo('A');
   nav(1);
 }
 
@@ -1294,7 +1347,14 @@ async function suggestAIPrompt(){
   loading.textContent = '⏳ Generando prompt con IA...';
   btnGen.disabled = true;
 
-  const secLabels = {hero:'hero (banner principal)', prob:'problema', revs:'reviews/testimonios'};
+  const secLabels = {
+    hero:'hero (banner principal del producto)',
+    prob:'el problema que resuelve el producto',
+    revs:'foto de cliente satisfecho (reviews/testimonios)',
+    antes:'resultado ANTES de usar el producto',
+    despues:'resultado DESPUÉS de usar el producto',
+    bens:'beneficios del producto'
+  };
   const payload = {
     accion: 'generar_prompt_imagen',
     seccion: secLabels[_aiImgTarget.key] || _aiImgTarget.key,
@@ -1348,9 +1408,9 @@ async function confirmAIImg(){
     if(!data.success || !data.url) throw new Error(data.error || 'No se recibió URL de imagen');
 
     const {key, idx} = _aiImgTarget;
-    if(key === 'prob'){
-      st.imgs.prob.url = data.url;
-      renderProbUrl();
+    if(['prob','antes','despues','bens'].includes(key)){
+      st.imgs[key].url = data.url;
+      renderSingleUrl(key);
     } else {
       st.imgs[key].urls[idx] = data.url;
       renderUrlList(key);
