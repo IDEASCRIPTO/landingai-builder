@@ -71,7 +71,53 @@ for (const sec of normalizedSecs) {
 const activeFmts = activeKeys.map(key => fmts[key]);
 const jsonExample = '{\\n  ' + activeFmts.join(',\\n  ') + '\\n}';
 
+const pais_nombre = body.pais_nombre || '';
 let prompt = '';
+
+if (accion === 'generar_ads') {
+  prompt = \`
+Eres experto en publicidad digital de alto rendimiento para Meta Ads (Facebook/Instagram) y TikTok Ads.
+
+Producto: \${nombre_producto}
+Descripción: \${descripcion}
+Beneficios clave: \${beneficios}
+Público objetivo: \${publico_objetivo}
+Tono: \${tono}
+País/Región: \${pais_nombre || 'Latinoamérica'}
+\${instrucciones ? 'Instrucciones adicionales:\\n' + instrucciones : ''}
+
+Genera 3 variantes de copy para Meta Ads y 3 para TikTok Ads.
+
+Responde SOLO con JSON válido, sin markdown ni explicación.
+
+Formato exacto:
+{
+  "meta": [
+    {"titular": "", "texto_principal": "", "descripcion": "", "cta": ""},
+    {"titular": "", "texto_principal": "", "descripcion": "", "cta": ""},
+    {"titular": "", "texto_principal": "", "descripcion": "", "cta": ""}
+  ],
+  "tiktok": [
+    {"hook": "", "copy": "", "cta": "", "hashtags": ["", "", "", "", ""]},
+    {"hook": "", "copy": "", "cta": "", "hashtags": ["", "", "", "", ""]},
+    {"hook": "", "copy": "", "cta": "", "hashtags": ["", "", "", "", ""]}
+  ]
+}
+
+Reglas:
+- meta.titular: máximo 40 caracteres, genera curiosidad o apunta al dolor principal
+- meta.texto_principal: 100-150 caracteres, conversacional y con prueba social o resultado
+- meta.descripcion: máximo 30 caracteres
+- meta.cta: 1-4 palabras (Comprar ahora, Ver precio, Quiero esto, etc.)
+- tiktok.hook: primeros 2-3 segundos, genera pausa inmediata. Empieza con: "POV:", "Si tienes [problema]...", "Nadie te dice que...", "Esto cambia todo si..."
+- tiktok.copy: conversacional, emojis, máximo 150 caracteres
+- tiktok.cta: máximo 8 palabras
+- tiktok.hashtags: exactamente 5 hashtags sin espacios internos
+- Cada variante debe tener un ángulo diferente: dolor, resultado, urgencia, curiosidad, social proof
+- Todo en español del país indicado
+\`;
+  return [{json: {prompt, accion, nombre_producto}}];
+}
 
 if (accion === 'regenerar_seccion' && seccion_regenerar && copy_actual) {
   const secKey = seccion_regenerar === 'testimonios' ? 'reviews' : seccion_regenerar;

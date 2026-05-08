@@ -710,6 +710,15 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
       <div id="copyEditor"></div>
     </div>
 
+    <!-- Ads PDF -->
+    <div class="card" id="adsCard" style="display:none">
+      <div class="sec-title">📢 Publicidad — Meta & TikTok Ads</div>
+      <p style="font-size:.82rem;color:var(--tm);margin-bottom:.9rem;line-height:1.6">Genera 3 variantes de copy listo para usar en Facebook, Instagram y TikTok Ads. Se descarga como PDF.</p>
+      <button class="btn btn-secondary btn-full" id="btnAdsPdf" onclick="generateAdsPDF()">
+        📥 Descargar Copy para Ads (PDF)
+      </button>
+    </div>
+
     <!-- Estilo -->
     <div class="card">
       <div class="sec-title">🎨 Estilo visual</div>
@@ -1422,6 +1431,107 @@ async function generateCopy(){
   }
 }
 
+/* ── ADS PDF ─────────────────────────────────── */
+async function generateAdsPDF(){
+  const nombre = document.getElementById('s1_nombre').value.trim();
+  if(!nombre){ toast('Falta el nombre del producto'); return; }
+  const btn = document.getElementById('btnAdsPdf');
+  const orig = btn.textContent;
+  btn.textContent = '⏳ Generando con IA...';
+  btn.disabled = true;
+  try {
+    const payload = {
+      accion: 'generar_ads',
+      nombre_producto: nombre,
+      descripcion: document.getElementById('s1_desc').value.trim(),
+      beneficios: document.getElementById('s1_bens').value.trim(),
+      publico_objetivo: document.getElementById('s1_pub').value.trim(),
+      tono: document.getElementById('s1_tono').value,
+      instrucciones: document.getElementById('s1_instr').value.trim(),
+      pais: document.getElementById('s1_pais').value,
+      pais_nombre: (COUNTRIES[document.getElementById('s1_pais').value]||{}).name || ''
+    };
+    const res = await fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
+    const data = await res.json();
+    if(!data.success || !data.ads) throw new Error(data.error || 'Error generando ads copy');
+    openAdsPrintWindow(nombre, data.ads);
+    toast('✓ PDF abierto — usa Guardar como PDF');
+  } catch(e){
+    toast('❌ ' + e.message, 4000);
+  } finally {
+    btn.textContent = orig;
+    btn.disabled = false;
+  }
+}
+
+function openAdsPrintWindow(nombre, ads){
+  const fecha = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
+  const meta = ads.meta || [];
+  const tiktok = ads.tiktok || [];
+  const e = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+
+  const html = `<!DOCTYPE html><html lang="es"><head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Copy Ads — ${e(nombre)}</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#fff;color:#111827;line-height:1.6}
+.header{background:linear-gradient(135deg,#1D9E75,#0f7a5c);color:#fff;padding:36px 48px}
+.header h1{font-size:22px;font-weight:800;margin-bottom:4px}
+.header p{font-size:13px;opacity:.75}
+.content{padding:32px 48px}
+.platform{display:flex;align-items:center;gap:10px;margin:36px 0 16px;padding-bottom:10px;border-bottom:3px solid}
+.pm{border-color:#1877F2}.pm h2{color:#1877F2;font-size:18px;font-weight:800}
+.pt{border-color:#010101}.pt h2{color:#010101;font-size:18px;font-weight:800}
+.ico{font-size:26px}
+.variant{background:#f9fafb;border:1px solid #e5e7eb;border-radius:12px;padding:18px 22px;margin-bottom:14px}
+.vnum{display:inline-block;background:#1D9E75;color:#fff;border-radius:20px;padding:2px 12px;font-size:11px;font-weight:700;margin-bottom:12px}
+.field{margin-bottom:10px}
+.flabel{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:2px}
+.fval{font-size:14px;color:#111827;line-height:1.5}
+.strong{font-weight:700}
+.tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:3px}
+.tag{background:#dbeafe;color:#1d4ed8;padding:2px 9px;border-radius:20px;font-size:12px;font-weight:600}
+.cta-pill{display:inline-block;background:#1D9E75;color:#fff;padding:4px 14px;border-radius:20px;font-size:13px;font-weight:700}
+.footer{margin-top:40px;padding-top:16px;border-top:1px solid #e5e7eb;text-align:center;font-size:12px;color:#9ca3af;padding-bottom:16px}
+.print-btn{position:fixed;bottom:20px;right:20px;background:#1D9E75;color:#fff;border:none;padding:13px 26px;border-radius:10px;font-size:14px;font-weight:700;cursor:pointer;box-shadow:0 4px 16px rgba(29,158,117,.4)}
+.print-btn:hover{background:#158a63}
+@media print{.print-btn{display:none}body{-webkit-print-color-adjust:exact;print-color-adjust:exact}}
+</style></head><body>
+<div class="header">
+  <h1>📢 Copy para Publicidad</h1>
+  <p>${e(nombre)} &nbsp;·&nbsp; Generado el ${fecha}</p>
+</div>
+<div class="content">
+  <div class="platform pm"><span class="ico">📘</span><h2>Meta Ads — Facebook &amp; Instagram</h2></div>
+  ${meta.map((v,i)=>`
+  <div class="variant">
+    <div class="vnum">Variante ${i+1}</div>
+    <div class="field"><div class="flabel">Titular</div><div class="fval strong">${e(v.titular)}</div></div>
+    <div class="field"><div class="flabel">Texto Principal</div><div class="fval">${e(v.texto_principal)}</div></div>
+    <div class="field"><div class="flabel">Descripción</div><div class="fval">${e(v.descripcion)}</div></div>
+    <div class="field"><div class="flabel">CTA</div><div class="fval"><span class="cta-pill">${e(v.cta)}</span></div></div>
+  </div>`).join('')}
+
+  <div class="platform pt"><span class="ico">🎵</span><h2>TikTok Ads</h2></div>
+  ${tiktok.map((v,i)=>`
+  <div class="variant">
+    <div class="vnum">Variante ${i+1}</div>
+    <div class="field"><div class="flabel">Hook — primeros 3 segundos</div><div class="fval strong">${e(v.hook)}</div></div>
+    <div class="field"><div class="flabel">Copy Principal</div><div class="fval">${e(v.copy)}</div></div>
+    <div class="field"><div class="flabel">CTA</div><div class="fval"><span class="cta-pill">${e(v.cta)}</span></div></div>
+    <div class="field"><div class="flabel">Hashtags</div><div class="fval"><div class="tags">${(v.hashtags||[]).map(h=>`<span class="tag">${e(h)}</span>`).join('')}</div></div></div>
+  </div>`).join('')}
+</div>
+<div class="footer">Generado con LandingAI Builder</div>
+<button class="print-btn" onclick="window.print()">📄 Guardar como PDF</button>
+</body></html>`;
+
+  const win = window.open('','_blank','width=860,height=900');
+  win.document.write(html);
+  win.document.close();
+}
+
 /* ── BUILD COPY EDITOR ───────────────────────── */
 const KV_FIELDS = {
   hero:      [{k:'titulo',l:'Título'},{k:'sub',l:'Subtítulo'},{k:'badge',l:'Badge'},{k:'cta',l:'Botón CTA'},{k:'precio',l:'Precio'},{k:'precio_antes',l:'Precio anterior'}],
@@ -1491,6 +1601,8 @@ function buildListBody(id, renderFn){
 function buildCopyEditor(){
   const ed = document.getElementById('copyEditor');
   ed.innerHTML = '';
+  const adsCard = document.getElementById('adsCard');
+  if(adsCard) adsCard.style.display = st.copy ? '' : 'none';
   if(!st.copy) return;
 
   const orderedIds = (st.secs_order.length ? st.secs_order : SEC_LIST.map(s=>s.id))
