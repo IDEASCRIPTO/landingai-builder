@@ -28,8 +28,9 @@ const ratio_despues= body.ratio_despues|| '1/1';
 const ratio_bens   = body.ratio_bens   || '4/3';
 const ratio_prob   = body.ratio_prob   || '4/3';
 const ratio_revs   = body.ratio_revs   || '1/1';
-const bens_estilo  = Number(body.bens_estilo)  || 1;
-const video_estilo = Number(body.video_estilo) || 1;
+const bens_estilo   = Number(body.bens_estilo)   || 1;
+const video_estilo  = Number(body.video_estilo)  || 1;
+const popup_estilo  = Number(body.popup_estilo)  || 1;
 const bg_color     = body.bg_color || '#ffffff';
 const video_url_2  = (body.video_url_2 || '').trim();
 const video_url_3  = (body.video_url_3 || '').trim();
@@ -137,12 +138,77 @@ body{font-family:'${fuente}',system-ui,sans-serif;background:${bg_color};color:#
 .btn-p:hover{box-shadow:0 10px 32px rgba(${colorRgb},.5)}
 .btn-w{background:#fff;color:${CP};border:2px solid ${CP}}
 footer{background:#111827;color:rgba(255,255,255,.4);padding:28px;text-align:center;font-size:.82rem}
-.pop{position:fixed;top:16px;right:16px;background:#fff;border-radius:10px;padding:10px 14px;box-shadow:0 4px 20px rgba(0,0,0,.15);max-width:220px;z-index:999;border-left:4px solid ${CP};display:none}
-.pop.vis{display:block;animation:slideIn .35s ease}
-@keyframes slideIn{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
-.pop-t{font-weight:700;font-size:.76rem;color:#111827;margin-bottom:2px}
-.pop-c{font-size:.71rem;color:${CP};font-weight:600}
-@media(max-width:480px){.pop{max-width:170px;right:8px;top:8px;padding:8px 10px}}
+/* ── Popup base ── */
+.ps{position:fixed;z-index:9999;font-family:inherit}
+/* 1: Pill social */
+.ps1{bottom:20px;left:20px;background:#fff;border-radius:50px;padding:9px 16px 9px 9px;box-shadow:0 4px 24px rgba(0,0,0,.13);display:flex;align-items:center;gap:9px;max-width:270px;transform:translateX(-120%);transition:.5s cubic-bezier(.34,1.56,.64,1)}
+.ps1.vis{transform:translateX(0)}
+.ps1-av{width:34px;height:34px;border-radius:50%;background:${CP};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
+.ps1-b{font-size:.72rem;color:#374151;line-height:1.4}
+.ps1-b b{font-weight:700;color:#111;display:block}
+/* 2: Urgencia top bar */
+.ps2{top:0;left:0;right:0;background:${CP};color:#fff;padding:10px 48px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;transform:translateY(-110%);transition:.4s ease}
+.ps2.vis{transform:translateY(0)}
+.ps2-tmr{background:rgba(0,0,0,.22);border-radius:4px;padding:3px 9px;font-weight:900;font-size:.86rem;font-variant-numeric:tabular-nums;letter-spacing:.5px}
+.ps2-btn{background:#fff;color:${CP};border-radius:50px;padding:5px 14px;font-size:.73rem;font-weight:700;text-decoration:none;white-space:nowrap}
+.ps2-x{position:absolute;right:14px;background:none;border:none;color:rgba(255,255,255,.75);font-size:1.3rem;cursor:pointer;top:50%;transform:translateY(-50%)}
+/* 3: Card descuento */
+.ps3{bottom:20px;right:20px;background:#fff;border-radius:14px;padding:17px 19px;box-shadow:0 8px 36px rgba(0,0,0,.14);max-width:228px;transform:translateY(130%);transition:.5s cubic-bezier(.34,1.56,.64,1)}
+.ps3.vis{transform:translateY(0)}
+.ps3-tag{background:${CP};color:#fff;border-radius:5px;padding:2px 8px;font-size:.63rem;font-weight:700;display:inline-block;margin-bottom:8px}
+.ps3-tit{font-size:.87rem;font-weight:800;color:#111827;margin-bottom:4px}
+.ps3-sub{font-size:.74rem;color:#6b7280;margin-bottom:11px;line-height:1.45}
+.ps3-cta{display:block;background:${CP};color:#fff;text-align:center;border-radius:8px;padding:9px;font-size:.76rem;font-weight:700;text-decoration:none}
+.ps3-x{position:absolute;top:9px;right:11px;background:none;border:none;color:#9ca3af;font-size:.9rem;cursor:pointer}
+/* 4: Reseña reciente */
+.ps4{bottom:20px;left:20px;background:#fff;border-radius:14px;padding:15px 17px;box-shadow:0 6px 28px rgba(0,0,0,.12);max-width:248px;border-left:4px solid #f59e0b;transform:translateX(-130%);transition:.5s cubic-bezier(.34,1.56,.64,1)}
+.ps4.vis{transform:translateX(0)}
+.ps4-stars{color:#f59e0b;font-size:.82rem;margin-bottom:5px}
+.ps4-q{font-size:.75rem;color:#374151;font-style:italic;line-height:1.5;margin-bottom:7px}
+.ps4-who{font-size:.69rem;color:#9ca3af;font-weight:600}
+.ps4-x{position:absolute;top:8px;right:9px;background:none;border:none;color:#9ca3af;font-size:.85rem;cursor:pointer}
+/* 5: Stock alert */
+.ps5{bottom:20px;left:50%;transform:translateX(-50%) translateY(160%);background:#fff7ed;border:1.5px solid #fbbf24;border-radius:50px;padding:11px 22px;box-shadow:0 4px 18px rgba(0,0,0,.1);white-space:nowrap;transition:.5s cubic-bezier(.34,1.56,.64,1)}
+.ps5.vis{transform:translateX(-50%) translateY(0)}
+.ps5-in{display:flex;align-items:center;gap:9px;font-size:.8rem;font-weight:700;color:#92400e}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.4}}
+.ps5-ic{animation:blink 1.6s infinite}
+/* 6: Badge pulsante */
+.ps6{bottom:24px;right:24px;width:64px;height:64px;border-radius:50%;background:${CP};display:flex;align-items:center;justify-content:center;text-align:center;text-decoration:none;animation:pulse6 2s infinite;transform:scale(0);transition:.4s cubic-bezier(.34,1.56,.64,1)}
+.ps6.vis{transform:scale(1)}
+@keyframes pulse6{0%{box-shadow:0 0 0 0 rgba(${colorRgb},.5)}70%{box-shadow:0 0 0 14px rgba(${colorRgb},0)}100%{box-shadow:0 0 0 0 rgba(${colorRgb},0)}}
+.ps6-t{color:#fff;font-size:.55rem;font-weight:800;line-height:1.3;padding:4px}
+/* 7: Banner top blanco */
+.ps7{top:0;left:0;right:0;background:#fff;border-bottom:2px solid ${CP};padding:11px 50px;display:flex;align-items:center;justify-content:center;gap:14px;flex-wrap:wrap;box-shadow:0 2px 12px rgba(0,0,0,.07);transform:translateY(-110%);transition:.4s ease}
+.ps7.vis{transform:translateY(0)}
+.ps7-txt{font-size:.82rem;font-weight:600;color:#111827}
+.ps7-btn{background:${CP};color:#fff;border-radius:50px;padding:6px 15px;font-size:.73rem;font-weight:700;text-decoration:none;white-space:nowrap}
+.ps7-x{position:absolute;right:14px;background:none;border:none;color:#9ca3af;font-size:1.2rem;cursor:pointer;top:50%;transform:translateY(-50%)}
+/* 8: Chat bubble */
+.ps8{bottom:24px;right:24px;max-width:252px;transform:scale(0) translate(40px,40px);transform-origin:bottom right;transition:.4s cubic-bezier(.34,1.56,.64,1)}
+.ps8.vis{transform:scale(1) translate(0,0)}
+.ps8-card{background:#fff;border-radius:16px 16px 4px 16px;box-shadow:0 8px 32px rgba(0,0,0,.14);padding:15px 17px}
+.ps8-hd{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.ps8-av{width:26px;height:26px;border-radius:50%;background:${CP};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.65rem;font-weight:700;flex-shrink:0}
+.ps8-nm{font-size:.71rem;font-weight:700;color:#111}
+.ps8-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;margin-left:auto;flex-shrink:0}
+.ps8-msg{font-size:.77rem;color:#374151;line-height:1.5;margin-bottom:11px}
+.ps8-cta{display:block;background:${CP};color:#fff;text-align:center;border-radius:8px;padding:8px;font-size:.74rem;font-weight:700;text-decoration:none}
+.ps8-x{position:absolute;top:8px;right:9px;background:none;border:none;color:#9ca3af;font-size:.85rem;cursor:pointer}
+/* 9: Contador social strip */
+.ps9{bottom:0;left:0;right:0;background:rgba(17,24,39,.88);color:#fff;padding:11px 20px;display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;backdrop-filter:blur(4px);transform:translateY(110%);transition:.5s ease}
+.ps9.vis{transform:translateY(0)}
+.ps9-dot{width:8px;height:8px;border-radius:50%;background:#22c55e;flex-shrink:0;box-shadow:0 0 6px #22c55e;animation:blink 1.8s infinite}
+.ps9-txt{font-size:.79rem;font-weight:600}
+.ps9-btn{background:${CP};color:#fff;border-radius:50px;padding:5px 14px;font-size:.71rem;font-weight:700;text-decoration:none;white-space:nowrap}
+/* 10: Tarjeta lateral */
+.ps10{top:50%;right:0;transform:translateY(-50%) translateX(110%);transition:.5s cubic-bezier(.34,1.56,.64,1);background:#fff;border-radius:14px 0 0 14px;box-shadow:-4px 0 28px rgba(0,0,0,.12);max-width:215px;padding:20px 20px}
+.ps10.vis{transform:translateY(-50%) translateX(0)}
+.ps10-tit{font-size:.9rem;font-weight:800;color:#111827;margin-bottom:6px}
+.ps10-sub{font-size:.76rem;color:#6b7280;line-height:1.5;margin-bottom:13px}
+.ps10-cta{display:block;background:${CP};color:#fff;text-align:center;border-radius:8px;padding:9px;font-size:.76rem;font-weight:700;text-decoration:none}
+.ps10-x{position:absolute;top:9px;right:11px;background:none;border:none;color:#9ca3af;font-size:.85rem;cursor:pointer}
+@media(max-width:480px){.ps3,.ps8,.ps6{right:12px;bottom:12px}.ps1,.ps4{left:10px;bottom:10px}.ps10{max-width:180px}}
 .car-wrap{position:relative;overflow:hidden;border-radius:14px;max-width:520px;margin:32px auto 0;touch-action:pan-y}
 .car-slides{display:flex;transition:transform .42s ease;will-change:transform}
 .car-slides img{width:100%;aspect-ratio:${ratio_hero};object-fit:cover;display:block;flex-shrink:0}
@@ -880,11 +946,68 @@ ${ctaFE?`<p class="escasez">⚡ ${esc(ctaFE)}</p>`:''}
   }
 }
 
-// POPUP
+// POPUP — 10 estilos
 if (secSet.has('popup_social')) {
-  const pT2 = esc(pop.titulo||'🔥 Oferta limitada'), pC = esc(pop.cta||hCta);
-  secs += `<div class="pop" id="pop"><div class="pop-t">${pT2}</div><div class="pop-c">${pC}</div></div>`;
-  popScript = `setTimeout(function(){var p=document.getElementById('pop');if(p)p.classList.add('vis');},4000);`;
+  const pT  = esc(pop.titulo || '🔥 Oferta limitada');
+  const pS  = esc(pop.sub    || '');
+  const pC  = esc(pop.cta    || hCta);
+  const noms = Array.isArray(pop.nombres) ? pop.nombres : [];
+  const nomsJson = JSON.stringify(noms.map(n=>({name:esc(n.name||'Cliente'),city:esc(n.city||'')})));
+  const NP2 = esc(NP).substring(0,18);
+
+  if (popup_estilo === 1) {
+    // Pill social rotante
+    const firstN = noms[0] ? esc(noms[0].name) : 'Alguien';
+    const firstC = noms[0] ? esc(noms[0].city) : '';
+    secs += `<div class="ps ps1" id="pop"><div class="ps1-av">🛒</div><div class="ps1-b"><b id="p1n">${firstN}</b><span id="p1c">${firstC ? 'de '+firstC+' ' : ''}acaba de ordenar</span></div></div>`;
+    popScript = `(function(){var p=document.getElementById('pop'),ns=${nomsJson},i=0;function show(){if(!ns.length)return;var n=ns[i%ns.length];document.getElementById('p1n').textContent=n.name;document.getElementById('p1c').textContent=(n.city?'de '+n.city+' ':'')+'acaba de ordenar';p.classList.add('vis');setTimeout(function(){p.classList.remove('vis');setTimeout(function(){i++;show();},1200);},6000);}setTimeout(show,3500);})();`;
+
+  } else if (popup_estilo === 2) {
+    // Urgencia top bar con countdown
+    secs += `<div class="ps ps2" id="pop"><span>⚡ ${pT}</span><div class="ps2-tmr" id="p2t">23:59:45</div><a href="${ctaUrl}"${ctaTarget} class="ps2-btn">${pC}</a><button class="ps2-x" onclick="this.parentNode.remove()">×</button></div>`;
+    popScript = `(function(){var p=document.getElementById('pop');if(!p)return;setTimeout(function(){p.classList.add('vis');},800);var s=86399;var t=document.getElementById('p2t');function tick(){s--;var h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sc=s%60;t.textContent=(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(sc<10?'0':'')+sc;if(s>0)setTimeout(tick,1000);}tick();})();`;
+
+  } else if (popup_estilo === 3) {
+    // Card descuento bottom-right
+    secs += `<div class="ps ps3" id="pop" style="position:fixed"><button class="ps3-x" onclick="this.parentNode.remove()">×</button><div class="ps3-tag">OFERTA ESPECIAL</div><div class="ps3-tit">${pT}</div>${pS?`<div class="ps3-sub">${pS}</div>`:''}<a href="${ctaUrl}"${ctaTarget} class="ps3-cta">${pC}</a></div>`;
+    popScript = `setTimeout(function(){var p=document.getElementById('pop');if(p)p.classList.add('vis');},4000);`;
+
+  } else if (popup_estilo === 4) {
+    // Reseña reciente — usa primer nombre como reviewer
+    const rev1 = noms[0] || {name:'Cliente verificado', city:''};
+    secs += `<div class="ps ps4" id="pop" style="position:fixed"><button class="ps4-x" onclick="this.parentNode.remove()">×</button><div class="ps4-stars">★★★★★</div><div class="ps4-q">"${pS||pT}"</div><div class="ps4-who">— ${esc(rev1.name)}${rev1.city?' · '+esc(rev1.city):''}</div></div>`;
+    popScript = `setTimeout(function(){var p=document.getElementById('pop');if(p)p.classList.add('vis');},5000);`;
+
+  } else if (popup_estilo === 5) {
+    // Stock alert bottom-center
+    secs += `<div class="ps ps5" id="pop"><div class="ps5-in"><span class="ps5-ic">⚠️</span><span>${pT}</span></div></div>`;
+    popScript = `setTimeout(function(){var p=document.getElementById('pop');if(p)p.classList.add('vis');},3000);`;
+
+  } else if (popup_estilo === 6) {
+    // Badge pulsante CTA
+    secs += `<a href="${ctaUrl}"${ctaTarget} class="ps ps6" id="pop"><div class="ps6-t">${pC}</div></a>`;
+    popScript = `setTimeout(function(){var p=document.getElementById('pop');if(p)p.classList.add('vis');},2000);`;
+
+  } else if (popup_estilo === 7) {
+    // Banner superior blanco
+    secs += `<div class="ps ps7" id="pop"><span class="ps7-txt">${pT}</span><a href="${ctaUrl}"${ctaTarget} class="ps7-btn">${pC}</a><button class="ps7-x" onclick="this.parentNode.remove()">×</button></div>`;
+    popScript = `setTimeout(function(){var p=document.getElementById('pop');if(p)p.classList.add('vis');},1500);`;
+
+  } else if (popup_estilo === 8) {
+    // Chat bubble
+    secs += `<div class="ps ps8" id="pop" style="position:fixed"><div class="ps8-card"><button class="ps8-x" onclick="this.closest('.ps8').remove()">×</button><div class="ps8-hd"><div class="ps8-av">${NP2.charAt(0)}</div><div class="ps8-nm">${NP2}</div><div class="ps8-dot"></div></div><div class="ps8-msg">${pT}${pS?' '+pS:''}</div><a href="${ctaUrl}"${ctaTarget} class="ps8-cta">${pC}</a></div></div>`;
+    popScript = `setTimeout(function(){var p=document.getElementById('pop');if(p)p.classList.add('vis');},4500);`;
+
+  } else if (popup_estilo === 9) {
+    // Contador social strip bottom
+    secs += `<div class="ps ps9" id="pop"><div class="ps9-dot"></div><span class="ps9-txt">${pT}</span><a href="${ctaUrl}"${ctaTarget} class="ps9-btn">${pC}</a></div>`;
+    popScript = `setTimeout(function(){var p=document.getElementById('pop');if(p)p.classList.add('vis');},3000);`;
+
+  } else {
+    // 10: Tarjeta lateral derecha
+    secs += `<div class="ps ps10" id="pop" style="position:fixed"><button class="ps10-x" onclick="this.parentNode.remove()">×</button><div class="ps10-tit">${pT}</div>${pS?`<div class="ps10-sub">${pS}</div>`:''}<a href="${ctaUrl}"${ctaTarget} class="ps10-cta">${pC}</a></div>`;
+    popScript = `setTimeout(function(){var p=document.getElementById('pop');if(p)p.classList.add('vis');},4000);`;
+  }
 }
 
 // ── SCRIPT FAQ ────────────────────────────────────────────────────────────

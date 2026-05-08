@@ -814,6 +814,23 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
       </div>
     </div>
 
+    <!-- Popup Estilo -->
+    <div class="card">
+      <div class="sec-title">🔔 Estilo de Popup Social</div>
+      <div class="estilo-row" style="flex-wrap:wrap;gap:.35rem">
+        <button class="estilo-btn active" id="popE1"  onclick="selectPopupEstilo(1)">💬 Pill social</button>
+        <button class="estilo-btn" id="popE2"  onclick="selectPopupEstilo(2)">⏱ Urgencia top</button>
+        <button class="estilo-btn" id="popE3"  onclick="selectPopupEstilo(3)">🏷 Descuento</button>
+        <button class="estilo-btn" id="popE4"  onclick="selectPopupEstilo(4)">⭐ Reseña</button>
+        <button class="estilo-btn" id="popE5"  onclick="selectPopupEstilo(5)">⚠️ Stock</button>
+        <button class="estilo-btn" id="popE6"  onclick="selectPopupEstilo(6)">🔴 Badge</button>
+        <button class="estilo-btn" id="popE7"  onclick="selectPopupEstilo(7)">📢 Banner top</button>
+        <button class="estilo-btn" id="popE8"  onclick="selectPopupEstilo(8)">💭 Chat</button>
+        <button class="estilo-btn" id="popE9"  onclick="selectPopupEstilo(9)">👥 Contador</button>
+        <button class="estilo-btn" id="popE10" onclick="selectPopupEstilo(10)">➡️ Lateral</button>
+      </div>
+    </div>
+
     <!-- Imágenes -->
     <div class="card">
       <div class="sec-title">🖼️ Imágenes por sección</div>
@@ -1012,6 +1029,7 @@ const st = {
   reviews_cantidad: 3,
   bens_estilo: 1,
   video_estilo: 1,
+  popup_estilo: 1,
   bg_color: '#ffffff',
   ratios: { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' },
   video_url: '', video_caption: '',
@@ -1082,6 +1100,12 @@ function selectVideoEstilo(n){
   [1,2,3,4].forEach(i => document.getElementById('vidE'+i)?.classList.toggle('active', i===n));
   const extra = document.getElementById('videoUrls2_3');
   if(extra) extra.style.display = n === 4 ? 'block' : 'none';
+}
+
+/* ── POPUP ESTILO ────────────────────────────── */
+function selectPopupEstilo(n){
+  st.popup_estilo = n;
+  for(let i=1;i<=10;i++) document.getElementById('popE'+i)?.classList.toggle('active', i===n);
 }
 
 /* ── BG COLOR ────────────────────────────────── */
@@ -1622,6 +1646,7 @@ async function generate(tipo_salida){
     cantidad_reviews: st.reviews_cantidad || 3,
     bens_estilo: st.bens_estilo || 1,
     video_estilo: st.video_estilo || 1,
+    popup_estilo: st.popup_estilo || 1,
     bg_color: st.bg_color || '#ffffff',
     ratio_hero:    st.ratios.hero,
     ratio_antes:   st.ratios.antes,
@@ -1821,8 +1846,8 @@ function updateStepBar(){
 /* ── RESET ───────────────────────────────────── */
 function resetAll(){
   st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html'; st.hero_estilo = 'A'; st.reviews_estilo = 1;
-  st.bens_estilo = 1; st.video_estilo = 1; st.bg_color = '#ffffff';
-  selectBensEstilo(1); selectVideoEstilo(1); selectBg('#ffffff', 'bgSw0');
+  st.bens_estilo = 1; st.video_estilo = 1; st.popup_estilo = 1; st.bg_color = '#ffffff';
+  selectBensEstilo(1); selectVideoEstilo(1); selectPopupEstilo(1); selectBg('#ffffff', 'bgSw0');
   st.secs = {}; st.secs_order = [];
   st.ratios = { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' };
   st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']},antes:{url:''},despues:{url:''},bens:{url:''}};
