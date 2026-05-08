@@ -43,20 +43,27 @@ const ctaTarget = ctaUrl.startsWith('#') ? '' : ' target="_blank" rel="noopener 
 
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function stars(n){ const s=Math.min(5,Math.max(1,n||5)); return '★'.repeat(s)+'☆'.repeat(5-s); }
+// REGLA: videos sin íconos ni links que saquen al usuario de la landing
+const YT_PARAMS = 'autoplay=1&mute=1&rel=0&modestbranding=1&iv_load_policy=3&loop=1';
+const VIM_PARAMS = 'autoplay=1&muted=1&loop=1&title=0&byline=0&portrait=0&badge=0&dnt=1';
 function toEmbedUrl(url){
   if(!url) return '';
   const iframe = url.match(/<iframe[^>]+src=["']([^"']+)["']/i);
   if(iframe){
     let src = iframe[1];
-    if(/vimeo/.test(src)) src += (src.includes('?')?'&':'?')+'autoplay=1&muted=1&loop=1';
-    else if(/youtube/.test(src)) src += (src.includes('?')?'&':'?')+'autoplay=1&mute=1&rel=0&modestbranding=1';
+    const sep = src.includes('?')?'&':'?';
+    if(/vimeo/.test(src)) src += sep+VIM_PARAMS;
+    else if(/youtube/.test(src)){
+      const ytId = src.match(/embed\/([a-zA-Z0-9_-]{11})/);
+      src += sep+YT_PARAMS+(ytId?'&playlist='+ytId[1]:'');
+    }
     return src;
   }
-  if(/player\.vimeo\.com/.test(url)) return url+(url.includes('?')?'&':'?')+'autoplay=1&muted=1&loop=1';
+  if(/player\.vimeo\.com/.test(url)) return url+(url.includes('?')?'&':'?')+VIM_PARAMS;
   const vim = url.match(/vimeo\.com\/(\d+)/);
-  if(vim) return `https://player.vimeo.com/video/${vim[1]}?autoplay=1&muted=1&loop=1&title=0&byline=0&portrait=0&badge=0`;
+  if(vim) return `https://player.vimeo.com/video/${vim[1]}?${VIM_PARAMS}`;
   const yt = url.match(/(?:youtube\.com\/watch\?(?:.*&)?v=|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  if(yt) return `https://www.youtube.com/embed/${yt[1]}?autoplay=1&mute=1&rel=0&modestbranding=1&loop=1&playlist=${yt[1]}`;
+  if(yt) return `https://www.youtube.com/embed/${yt[1]}?${YT_PARAMS}&playlist=${yt[1]}`;
   return url;
 }
 
@@ -139,13 +146,12 @@ body{font-family:'${fuente}',system-ui,sans-serif;background:${bg_color};color:#
 footer{background:#111827;color:rgba(255,255,255,.4);padding:28px;text-align:center;font-size:.82rem}
 /* ── Popup base ── */
 .ps{position:fixed;z-index:9999;font-family:inherit}
-/* 1: Pill social */
-.ps1{bottom:20px;left:20px;background:#fff;border-radius:50px;padding:9px 16px 9px 9px;box-shadow:0 4px 24px rgba(0,0,0,.13);display:flex;align-items:center;gap:9px;max-width:270px;transform:translateX(-120%);transition:.5s cubic-bezier(.34,1.56,.64,1)}
-.ps1.vis{transform:translateX(0)}
-.ps1-av{width:34px;height:34px;border-radius:50%;background:${CP};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.85rem;flex-shrink:0}
-.ps1-b{font-size:.72rem;color:#374151;line-height:1.4}
-.ps1-b b{font-weight:700;color:#111;display:block}
-@media(max-width:480px){.ps1{left:10px;bottom:10px}}
+/* REGLA: popup siempre en la parte superior, pill centrado que baja */
+.ps1{top:14px;left:50%;transform:translateX(-50%) translateY(calc(-100% - 20px));background:#fff;border-radius:50px;padding:9px 20px 9px 9px;box-shadow:0 4px 28px rgba(0,0,0,.15);display:flex;align-items:center;gap:10px;max-width:340px;width:max-content;transition:.5s cubic-bezier(.34,1.56,.64,1)}
+.ps1.vis{transform:translateX(-50%) translateY(0)}
+.ps1-av{width:30px;height:30px;border-radius:50%;background:${CP};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.8rem;flex-shrink:0}
+.ps1-b{font-size:.76rem;color:#374151;line-height:1.35;white-space:nowrap}
+@media(max-width:480px){.ps1{max-width:90vw;white-space:normal}.ps1-b{white-space:normal}}
 .car-wrap{position:relative;overflow:hidden;border-radius:14px;max-width:520px;margin:32px auto 0;touch-action:pan-y}
 .car-slides{display:flex;transition:transform .42s ease;will-change:transform}
 .car-slides img{width:100%;aspect-ratio:${ratio_hero};object-fit:cover;display:block;flex-shrink:0}
@@ -959,6 +965,8 @@ const html = `<!DOCTYPE html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="format-detection" content="telephone=no, email=no, address=no">
+<meta name="robots" content="noindex,nofollow">
 <title>${NP}</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <style>${css}</style>
@@ -967,7 +975,18 @@ const html = `<!DOCTYPE html>
 ${secs}
 <div class="cta-float hidden" id="ctaFloat"><a href="${ctaUrl}"${ctaTarget}>${ctaFloatBtn}</a></div>
 <footer><p>© ${year} ${NP}. Todos los derechos reservados.</p></footer>
-<script>${faqScript}${popScript}${revScrollScript}${carScript}${ctaScript}${packScript}</script>
+<script>${faqScript}${popScript}${revScrollScript}${carScript}${ctaScript}${packScript}
+/* REGLA: bloqueo de navegacion — ningun link puede sacar al usuario salvo CTAs */
+(function(){
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a');
+    if(!a)return;
+    if(a.classList.contains('btn')||a.closest('#ctaFloat')||a.closest('.ps1'))return;
+    e.preventDefault();e.stopPropagation();
+  },true);
+  history.pushState(null,'',location.href);
+  window.addEventListener('popstate',function(){history.pushState(null,'',location.href);});
+})();</script>
 </body>
 </html>`;
 
