@@ -29,6 +29,13 @@ const ratio_bens   = body.ratio_bens   || '4/3';
 const ratio_prob   = body.ratio_prob   || '4/3';
 const ratio_revs   = body.ratio_revs   || '1/1';
 
+// URL destino de todos los botones CTA
+const rawCtaUrl = (body.cta_url || '').trim();
+const ctaUrl = rawCtaUrl
+  ? (rawCtaUrl.startsWith('http') || rawCtaUrl.startsWith('//') ? rawCtaUrl : 'https://' + rawCtaUrl)
+  : '#cta';
+const ctaTarget = ctaUrl.startsWith('#') ? '' : ' target="_blank" rel="noopener noreferrer"';
+
 function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
 function stars(n){ const s=Math.min(5,Math.max(1,n||5)); return '★'.repeat(s)+'☆'.repeat(5-s); }
 function toEmbedUrl(url){
@@ -504,7 +511,7 @@ ${hB?`<div class="hero-badge">${esc(hB)}</div>`:''}
 </div>
 ${hS?`<p class="sec-p">${esc(hS)}</p>`:''}
 ${precioTag}
-<a href="#cta" class="btn btn-p">${esc(hCta)}</a>
+<a href="${ctaUrl}"${ctaTarget} class="btn btn-p">${esc(hCta)}</a>
 </div>${imgCol}</div></div></section>`;
 } else {
   const badgeTag = hB ? `<div class="hero-badge">${esc(hB)}</div>` : (tema===3 ? '<div class="hero-badge">🔥 ÚLTIMAS UNIDADES</div>' : '');
@@ -515,7 +522,7 @@ ${precioTag}
 ${badgeTag}<h1>${h1Content}</h1>
 ${hS?`<p class="hero-sub">${esc(hS)}</p>`:''}
 ${precioTag}
-<a href="#cta" class="btn btn-p">${esc(hCta)}</a>
+<a href="${ctaUrl}"${ctaTarget} class="btn btn-p">${esc(hCta)}</a>
 ${trustTag}
 </div>
 <div class="hero-img-col">${heroImgTag}</div>
@@ -525,7 +532,7 @@ ${trustTag}
 ${badgeTag}<h1>${h1Content}</h1>
 ${hS?`<p class="hero-sub">${esc(hS)}</p>`:''}
 ${precioTag}
-<a href="#cta" class="btn btn-p">${esc(hCta)}</a>
+<a href="${ctaUrl}"${ctaTarget} class="btn btn-p">${esc(hCta)}</a>
 ${trustTag}
 </div></section>`;
   }
@@ -562,7 +569,7 @@ ${p.badge?`<div class="pack-badge">${p.badge}</div>`:''}
 <div class="pack-qty">${p.qty}</div>
 <div class="pack-price">${i===0&&p.price?esc(p.price):'Consultar'}</div>
 <div class="pack-per">${p.per}</div>
-<a href="#cta" class="btn btn-p" style="width:100%;display:block;border-radius:8px;text-align:center">${esc(hCta)}</a>
+<a href="${ctaUrl}"${ctaTarget} class="btn btn-p" style="width:100%;display:block;border-radius:8px;text-align:center">${esc(hCta)}</a>
 </div>`).join('');
   secs += `<section class="packs"><div class="container"><h2>Elegí tu pack</h2><div class="packs-grid">${pH}</div></div></section>`;
 }
@@ -759,14 +766,14 @@ if (secSet.has('cta_final')) {
 <div class="cta-urgencia">⚡ ${ctaFE?esc(ctaFE):'ÚLTIMAS UNIDADES DISPONIBLES'}</div>
 <h2>${ctaFT}</h2>
 ${ctaFS?`<p>${ctaFS}</p>`:''}
-<a href="#" class="btn btn-p">${ctaFB}</a>
+<a href="${ctaUrl}"${ctaTarget} class="btn btn-p">${ctaFB}</a>
 <p class="escasez">✔ Envío gratis · ✔ Pago al recibir · ✔ Garantía 100%</p>
 </div></section>`;
   } else {
     secs += `<section class="cta-f" id="cta"><div class="container">
 <h2>${ctaFT}</h2>
 ${ctaFS?`<p>${ctaFS}</p>`:''}
-<a href="#" class="btn ${tema===2?'btn-w':'btn-p'}">${ctaFB}</a>
+<a href="${ctaUrl}"${ctaTarget} class="btn ${tema===2?'btn-w':'btn-p'}">${ctaFB}</a>
 ${ctaFE?`<p class="escasez">⚡ ${esc(ctaFE)}</p>`:''}
 <div class="cta-badges" style="display:flex;justify-content:center;gap:18px;margin-top:18px;flex-wrap:wrap;font-size:.8rem;opacity:.65">
   <span>✔ Envío gratis</span><span>✔ Pago al recibir</span><span>✔ Garantía incluida</span>
@@ -852,7 +859,7 @@ const html = `<!DOCTYPE html>
 </head>
 <body>
 ${secs}
-<div class="cta-float hidden" id="ctaFloat"><a href="#cta">${ctaFloatBtn}</a></div>
+<div class="cta-float hidden" id="ctaFloat"><a href="${ctaUrl}"${ctaTarget}>${ctaFloatBtn}</a></div>
 <footer><p>© ${year} ${NP}. Todos los derechos reservados.</p></footer>
 <script>${faqScript}${popScript}${revScrollScript}${carScript}${ctaScript}${packScript}</script>
 </body>

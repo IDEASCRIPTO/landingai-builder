@@ -645,6 +645,8 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
           <input type="text" id="s1_wa" placeholder="Ej: 5491112345678" id="s1_wa"/>
         </div>
       </div>
+      <label class="lbl" style="margin-top:.75rem">URL destino del CTA</label>
+      <input type="url" id="s1_cta_url" placeholder="https://tu-tienda.com/comprar  (vacío = scroll interno)"/>
     </div>
 
     <div class="card">
@@ -1512,6 +1514,7 @@ async function generate(tipo_salida){
     precio: document.getElementById('s1_precio').value.trim(),
     precio_antes: document.getElementById('s1_precio_antes').value.trim(),
     whatsapp: document.getElementById('s1_wa').value.trim(),
+    cta_url: document.getElementById('s1_cta_url').value.trim(),
     instrucciones: document.getElementById('s1_instr').value.trim(),
     color_principal: st.style.color,
     fuente: st.style.fuente,
@@ -1728,7 +1731,7 @@ function resetAll(){
   st.secs = {}; st.secs_order = [];
   st.ratios = { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' };
   st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']},antes:{url:''},despues:{url:''},bens:{url:''}};
-  ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_instr','videoUrl','videoCaption']
+  ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_cta_url','s1_instr','videoUrl','videoCaption']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('copyEditor').innerHTML = '';
   buildSecGrid();
