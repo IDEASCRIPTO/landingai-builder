@@ -18,6 +18,132 @@ if (!$data || !isset($data['accion'])) {
     exit;
 }
 
+/* ── SUPABASE AUTH ────────────────────────────────
+   Configura tu proyecto Supabase:
+   - SUPABASE_URL: URL de tu proyecto (ej: https://xxxx.supabase.co)
+   - Si no está configurado, el proxy funciona sin auth (modo dev)
+─────────────────────────────────────────────────── */
+$SUPABASE_URL = getenv('SUPABASE_URL') ?: '';
+$auth_enabled = !empty($SUPABASE_URL) && !str_contains($SUPABASE_URL, 'xxxx');
+$auth_user_id = null;
+$auth_plan    = 'free';
+
+if ($auth_enabled && !empty($data['_auth_token'])) {
+    $token = $data['_auth_token'];
+
+    // Validar token con Supabase
+    $ch = curl_init($SUPABASE_URL . '/auth/v1/user');
+    curl_setopt_array($ch, [
+        CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . $token, 'apikey: ' . (getenv('SUPABASE_ANON_KEY') ?: '')],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 8,
+        CURLOPT_SSL_VERIFYPEER => false,
+    ]);
+    $resp     = curl_exec($ch);
+    $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+    curl_close($ch);
+
+    if ($httpCode !== 200) {
+        echo json_encode(['success'=>false,'error'=>'Sesión inválida. Inicia sesión nuevamente.','code'=>401]);
+        exit;
+    }
+
+    $usr = json_decode($resp, true);
+    $auth_user_id = $usr['id'] ?? null;
+
+    // Obtener plan del usuario
+    if ($auth_user_id) {
+        $ch2 = curl_init($SUPABASE_URL . '/rest/v1/profiles?select=plan&id=eq.' . $auth_user_id);
+        curl_setopt_array($ch2, [
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Bearer ' . $token,
+                'apikey: ' . (getenv('SUPABASE_ANON_KEY') ?: ''),
+                'Accept: application/json',
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 6,
+            CURLOPT_SSL_VERIFYPEER => false,
+        ]);
+        $profResp = curl_exec($ch2);
+        curl_close($ch2);
+        $profiles = json_decode($profResp, true);
+        if (is_array($profiles) && !empty($profiles[0]['plan'])) {
+            $auth_plan = $profiles[0]['plan'];
+        }
+
+        // Verificar límite plan Free
+        if ($auth_plan === 'free') {
+            $accion = $data['accion'] ?? '';
+            if (in_array($accion, ['generar_html','generar_liquid'])) {
+                $month = date('Y-m');
+                $ch3 = curl_init($SUPABASE_URL . '/rest/v1/usage?select=count&user_id=eq.' . $auth_user_id . '&month=eq.' . $month);
+                curl_setopt_array($ch3, [
+                    CURLOPT_HTTPHEADER     => ['Authorization: Bearer '.$token,'apikey: '.(getenv('SUPABASE_ANON_KEY')?:''),'Accept: application/json'],
+                    CURLOPT_RETURNTRANSFER => true,
+                    CURLOPT_TIMEOUT        => 6,
+                    CURLOPT_SSL_VERIFYPEER => false,
+                ]);
+                $usageResp = curl_exec($ch3);
+                curl_close($ch3);
+                $usageArr = json_decode($usageResp, true);
+                $used = (is_array($usageArr) && !empty($usageArr[0])) ? (int)$usageArr[0]['count'] : 0;
+                if ($used >= 5) {
+                    echo json_encode(['success'=>false,'error'=>'Límite del plan Free alcanzado (5/mes). Haz upgrade a Pro para continuar.','upgrade'=>true]);
+                    exit;
+                }
+            }
+        }
+
+        // Incrementar contador de uso
+        $accion = $data['accion'] ?? '';
+        if (in_array($accion, ['generar_html','generar_liquid']) && $auth_user_id) {
+            $month = date('Y-m');
+            $upsertData = json_encode(['user_id'=>$auth_user_id,'month'=>$month,'count'=>1,'updated_at'=>date('c')]);
+            $ch4 = curl_init($SUPABASE_URL . '/rest/v1/usage');
+            curl_setopt_array($ch4, [
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => $upsertData,
+                CURLOPT_HTTPHEADER     => [
+                    'Authorization: Bearer '.$token,
+                    'apikey: '.(getenv('SUPABASE_ANON_KEY')?:''),
+                    'Content-Type: application/json',
+                    'Prefer: resolution=merge-duplicates',
+                ],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 6,
+                CURLOPT_SSL_VERIFYPEER => false,
+            ]);
+            // Upsert: si existe suma 1, si no crea con count=1
+            // Usamos RPC para incrementar atómicamente
+            $rpcData = json_encode(['p_user_id'=>$auth_user_id,'p_month'=>$month]);
+            curl_close($ch4);
+            // Llamada RPC increment_usage
+            $ch5 = curl_init($SUPABASE_URL . '/rest/v1/rpc/increment_usage');
+            curl_setopt_array($ch5, [
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => $rpcData,
+                CURLOPT_HTTPHEADER     => [
+                    'Authorization: Bearer '.$token,
+                    'apikey: '.(getenv('SUPABASE_ANON_KEY')?:''),
+                    'Content-Type: application/json',
+                ],
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_TIMEOUT        => 5,
+                CURLOPT_SSL_VERIFYPEER => false,
+            ]);
+            curl_exec($ch5);
+            curl_close($ch5);
+        }
+    }
+} elseif ($auth_enabled && empty($data['_auth_token'])) {
+    // Auth habilitado pero no hay token
+    echo json_encode(['success'=>false,'error'=>'Autenticación requerida.','code'=>401]);
+    exit;
+}
+
+// Limpiar campos de auth del payload antes de enviarlo a n8n
+unset($data['_auth_token'], $data['_user_id']);
+
 $base = 'https://duallegacy-ia-asistentes-n8n.aigmej.easypanel.host/webhook/';
 
 $routes = [

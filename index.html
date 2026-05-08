@@ -6,6 +6,7 @@
 <title>LandingAI Builder v2</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2" defer></script>
 <style>
 :root{
   --p:#1D9E75;--pd:#158a63;--pl:rgba(29,158,117,.13);
@@ -490,9 +491,149 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 .aim-box .aim-sub{font-size:.75rem;color:var(--tm);margin-bottom:.9rem}
 .aim-box textarea{min-height:80px;margin-bottom:.75rem}
 .aim-actions{display:flex;gap:.5rem;justify-content:flex-end}
+
+/* ─── AUTH OVERLAY ──────────────────────────── */
+.auth-overlay{position:fixed;inset:0;background:var(--bg);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem}
+.auth-card{background:var(--s1);border:1px solid var(--bd);border-radius:20px;padding:2.5rem 2rem;width:100%;max-width:410px;box-shadow:0 32px 80px rgba(0,0,0,.6)}
+.auth-brand{text-align:center;margin-bottom:1.8rem}
+.auth-brand-logo{font-size:2.4rem;margin-bottom:.5rem}
+.auth-brand h2{font-size:1.4rem;font-weight:800;color:var(--tx)}
+.auth-brand p{font-size:.79rem;color:var(--tm);margin-top:.3rem}
+.auth-tabs{display:flex;background:var(--s2);border-radius:10px;padding:3px;margin-bottom:1.4rem;gap:3px}
+.auth-tab{flex:1;padding:.5rem;border:none;background:none;color:var(--tm);font-size:.82rem;font-weight:600;border-radius:8px;cursor:pointer;transition:.15s;font-family:inherit}
+.auth-tab.active{background:var(--s3);color:var(--tx)}
+.auth-input{width:100%;padding:.7rem .85rem;background:var(--s2);border:1px solid var(--bd2);border-radius:8px;color:var(--tx);font-size:.88rem;font-family:inherit;margin-bottom:.7rem;transition:border-color .15s;box-sizing:border-box}
+.auth-input:focus{outline:none;border-color:var(--p)}
+.auth-input::placeholder{color:var(--td)}
+.auth-error{font-size:.78rem;margin-bottom:.5rem;min-height:18px;text-align:center}
+.auth-error.err{color:#f87171}
+.auth-error.ok{color:#4ade80}
+.auth-link{width:100%;background:none;border:none;color:var(--tm);font-size:.76rem;cursor:pointer;margin-top:.7rem;padding:.3rem;text-decoration:underline;font-family:inherit;display:block;text-align:center}
+.auth-link:hover{color:var(--tx)}
+.auth-divider{border-top:1px solid var(--bd);margin:1.3rem 0 1rem}
+.auth-plans{display:grid;grid-template-columns:1fr 1fr;gap:.6rem}
+.auth-plan{background:var(--s2);border:1px solid var(--bd2);border-radius:8px;padding:.65rem .9rem;text-align:center}
+.auth-plan.highlight{border-color:var(--p);background:var(--pl)}
+.auth-plan-name{font-size:.75rem;font-weight:700;color:var(--tx);margin-bottom:2px}
+.auth-plan-detail{font-size:.68rem;color:var(--tm)}
+/* ─── USER BAR ──────────────────────────────── */
+.sb-user{display:none;align-items:center;gap:.45rem;margin-left:auto;flex-shrink:0}
+.sb-user-email{font-size:.71rem;color:var(--tm);max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.plan-badge{padding:2px 8px;border-radius:20px;font-size:.63rem;font-weight:700;text-transform:uppercase;letter-spacing:.3px}
+.plan-free{background:rgba(107,114,128,.2);color:#9ca3af}
+.plan-pro{background:rgba(29,158,117,.2);color:var(--p)}
+.plan-agency{background:rgba(139,92,246,.2);color:#a78bfa}
+.sb-icon-btn{background:none;border:none;color:var(--tm);cursor:pointer;padding:.3rem .4rem;border-radius:6px;font-size:.82rem;transition:.12s;line-height:1}
+.sb-icon-btn:hover{background:var(--s2);color:var(--tx)}
+/* ─── SETTINGS MODAL ────────────────────────── */
+.settings-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:8500;display:flex;align-items:center;justify-content:center;padding:1rem;backdrop-filter:blur(4px)}
+.settings-card{background:var(--s1);border:1px solid var(--bd);border-radius:16px;width:100%;max-width:500px;max-height:88vh;overflow-y:auto}
+.settings-head{display:flex;align-items:center;justify-content:space-between;padding:1.2rem 1.5rem;border-bottom:1px solid var(--bd);position:sticky;top:0;background:var(--s1);z-index:1}
+.settings-head h3{font-size:.95rem;font-weight:700}
+.settings-x{background:none;border:none;color:var(--tm);font-size:1.3rem;cursor:pointer;line-height:1;padding:.2rem}
+.settings-body{padding:1.2rem 1.5rem}
+.stg-sec{margin-bottom:1.5rem}
+.stg-sec-title{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--tm);margin-bottom:.75rem;padding-bottom:.5rem;border-bottom:1px solid var(--bd)}
+.plan-box{background:var(--s2);border:1px solid var(--bd2);border-radius:10px;padding:1rem 1.1rem}
+.plan-box-name{font-size:.95rem;font-weight:800;margin-bottom:2px}
+.plan-box-detail{font-size:.76rem;color:var(--tm);margin-bottom:.8rem}
+.usage-track{background:var(--s3);border-radius:4px;height:5px;overflow:hidden;margin:5px 0 3px}
+.usage-fill{height:100%;background:var(--p);border-radius:4px;transition:.4s}
+.usage-txt{font-size:.7rem;color:var(--tm)}
+.ak-row{display:flex;align-items:center;gap:.5rem;margin-bottom:.55rem}
+.ak-ico{font-size:1rem;flex-shrink:0;width:22px;text-align:center}
+.ak-lbl{font-size:.78rem;font-weight:600;width:85px;flex-shrink:0;color:var(--tm)}
+.ak-saved{font-size:.7rem;color:var(--p);margin-top:.3rem;display:none}
 </style>
 </head>
 <body>
+
+<!-- ══ AUTH OVERLAY ════════════════════════════ -->
+<div id="authOverlay" class="auth-overlay" style="display:none">
+  <div class="auth-card">
+    <div class="auth-brand">
+      <div class="auth-brand-logo">⚡</div>
+      <h2>LandingAI Builder</h2>
+      <p>Crea landing pages de alta conversión con IA</p>
+    </div>
+    <div class="auth-tabs">
+      <button class="auth-tab active" id="authTabLogin" onclick="switchAuthTab('login')">Iniciar sesión</button>
+      <button class="auth-tab" id="authTabReg" onclick="switchAuthTab('register')">Crear cuenta</button>
+    </div>
+    <div id="authFormLogin">
+      <input type="email" id="authLoginEmail" class="auth-input" placeholder="correo@ejemplo.com" autocomplete="email">
+      <input type="password" id="authLoginPass" class="auth-input" placeholder="Contraseña" autocomplete="current-password">
+      <div id="authLoginErr" class="auth-error err"></div>
+      <button class="btn btn-primary btn-full" id="btnAuthLogin" onclick="handleLogin()">Iniciar sesión</button>
+      <button class="auth-link" onclick="switchAuthTab('register')">¿No tienes cuenta? Regístrate gratis</button>
+    </div>
+    <div id="authFormReg" style="display:none">
+      <input type="email" id="authRegEmail" class="auth-input" placeholder="correo@ejemplo.com" autocomplete="email">
+      <input type="password" id="authRegPass" class="auth-input" placeholder="Contraseña (mín. 6 caracteres)" autocomplete="new-password">
+      <div id="authRegErr" class="auth-error err"></div>
+      <button class="btn btn-primary btn-full" id="btnAuthReg" onclick="handleRegister()">Crear cuenta gratis</button>
+      <button class="auth-link" onclick="switchAuthTab('login')">¿Ya tienes cuenta? Inicia sesión</button>
+    </div>
+    <div class="auth-divider"></div>
+    <div class="auth-plans">
+      <div class="auth-plan">
+        <div class="auth-plan-name">🆓 Free</div>
+        <div class="auth-plan-detail">5 landings / mes</div>
+      </div>
+      <div class="auth-plan highlight">
+        <div class="auth-plan-name">⚡ Pro — $19/mes</div>
+        <div class="auth-plan-detail">Ilimitado · Sin marca</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SETTINGS MODAL ══════════════════════════ -->
+<div id="settingsOverlay" class="settings-overlay" style="display:none">
+  <div class="settings-card">
+    <div class="settings-head">
+      <h3>⚙️ Mi cuenta</h3>
+      <button class="settings-x" onclick="closeSettings()">✕</button>
+    </div>
+    <div class="settings-body">
+      <div class="stg-sec">
+        <div class="stg-sec-title">Plan actual</div>
+        <div class="plan-box">
+          <div class="plan-box-name" id="stgPlanName">Plan Free</div>
+          <div class="plan-box-detail" id="stgPlanDetail">5 landings por mes</div>
+          <div class="usage-track"><div class="usage-fill" id="usageFill" style="width:0%"></div></div>
+          <div class="usage-txt" id="usageTxt">0 / 5 landings este mes</div>
+          <button class="btn btn-primary btn-full" style="margin-top:.8rem;font-size:.82rem" id="btnUpgrade">⚡ Upgrade a Pro — $19/mes</button>
+        </div>
+      </div>
+      <div class="stg-sec">
+        <div class="stg-sec-title">Mis API Keys de IA</div>
+        <p style="font-size:.76rem;color:var(--tm);margin-bottom:.9rem;line-height:1.55">Conecta tus propias claves para usar tu crédito. Se guardan de forma segura.</p>
+        <div class="ak-row">
+          <span class="ak-ico">🤖</span><label class="ak-lbl">Anthropic</label>
+          <input type="password" id="keyAnthropic" class="cf-inp" placeholder="sk-ant-api03-..." style="flex:1">
+          <button class="btn btn-secondary" style="padding:.35rem .65rem;font-size:.73rem;white-space:nowrap" onclick="saveApiKey('anthropic')">Guardar</button>
+        </div>
+        <div class="ak-row">
+          <span class="ak-ico">🟢</span><label class="ak-lbl">OpenAI</label>
+          <input type="password" id="keyOpenai" class="cf-inp" placeholder="sk-proj-..." style="flex:1">
+          <button class="btn btn-secondary" style="padding:.35rem .65rem;font-size:.73rem;white-space:nowrap" onclick="saveApiKey('openai')">Guardar</button>
+        </div>
+        <div class="ak-row">
+          <span class="ak-ico">🔵</span><label class="ak-lbl">Gemini</label>
+          <input type="password" id="keyGemini" class="cf-inp" placeholder="AIzaSy..." style="flex:1">
+          <button class="btn btn-secondary" style="padding:.35rem .65rem;font-size:.73rem;white-space:nowrap" onclick="saveApiKey('gemini')">Guardar</button>
+        </div>
+        <div class="ak-saved" id="akSavedMsg">✓ API Key guardada correctamente</div>
+      </div>
+      <div class="stg-sec">
+        <div class="stg-sec-title">Cuenta</div>
+        <p style="font-size:.8rem;color:var(--tm)">Sesión: <span id="stgEmail" style="color:var(--tx);font-weight:600"></span></p>
+        <button class="btn btn-secondary btn-full" style="margin-top:.6rem;font-size:.82rem" onclick="handleLogout()">↪ Cerrar sesión</button>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- STEP BAR -->
 <div id="stepBar">
@@ -508,6 +649,12 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
     <div class="sb-div" id="sbDiv2"></div>
     <div class="sb-step" id="sbStep3" onclick="goStep(3)">
       <div class="sb-num">3</div><span>Resultado</span>
+    </div>
+    <div id="sbUser" class="sb-user">
+      <span id="sbUserEmail" class="sb-user-email"></span>
+      <span id="sbUserPlan" class="plan-badge plan-free">Free</span>
+      <button class="sb-icon-btn" title="Mi cuenta" onclick="openSettings()">⚙️</button>
+      <button class="sb-icon-btn" title="Cerrar sesión" onclick="handleLogout()">↪</button>
     </div>
   </div>
 </div>
@@ -973,6 +1120,191 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 <script>
 const PROXY = '/proxy.php';
 
+/* ══════════════════════════════════════════════
+   SUPABASE AUTH — Configuración
+   1. Crea tu proyecto en https://supabase.com
+   2. Ve a Project Settings → API
+   3. Reemplaza los valores de abajo
+   4. Corre supabase-schema.sql en el SQL Editor
+══════════════════════════════════════════════ */
+const SUPABASE_URL  = 'https://xxxx.supabase.co';  // ← Tu Project URL
+const SUPABASE_ANON = 'eyJhbGci_REEMPLAZAR';        // ← Tu anon/public key
+const AUTH_ENABLED  = !SUPABASE_URL.includes('xxxx');
+
+let _sb       = null;
+let _user     = null;
+let _profile  = null;
+let _authTok  = null;
+
+/* ── SUPABASE INIT ─────────────────────────── */
+function initSupabase(){
+  if(!AUTH_ENABLED) return;
+  try{ _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON); }
+  catch(e){ console.warn('Supabase init:', e); }
+}
+
+/* ── AUTH INIT ─────────────────────────────── */
+async function initAuth(){
+  if(!AUTH_ENABLED || !_sb){ updateUserBar(); return; }
+  try{
+    const { data:{ session } } = await _sb.auth.getSession();
+    if(session?.user){
+      _user = session.user;
+      _authTok = session.access_token;
+      await loadProfile();
+    } else {
+      showAuthModal();
+    }
+  } catch(e){ console.warn('initAuth:', e); }
+
+  _sb.auth.onAuthStateChange(async (ev, session) => {
+    if(ev === 'SIGNED_IN' && session?.user){
+      _user = session.user;
+      _authTok = session.access_token;
+      await loadProfile();
+      hideAuthModal();
+    } else if(ev === 'SIGNED_OUT'){
+      _user = null; _profile = null; _authTok = null;
+      showAuthModal();
+    }
+  });
+}
+
+function showAuthModal(){ document.getElementById('authOverlay').style.display = 'flex'; }
+function hideAuthModal(){ document.getElementById('authOverlay').style.display = 'none'; }
+
+function switchAuthTab(tab){
+  const login = tab === 'login';
+  document.getElementById('authTabLogin').classList.toggle('active', login);
+  document.getElementById('authTabReg').classList.toggle('active', !login);
+  document.getElementById('authFormLogin').style.display = login ? '' : 'none';
+  document.getElementById('authFormReg').style.display  = login ? 'none' : '';
+  document.getElementById('authLoginErr').textContent = '';
+  document.getElementById('authRegErr').textContent  = '';
+}
+
+async function handleLogin(){
+  const email = document.getElementById('authLoginEmail').value.trim();
+  const pass  = document.getElementById('authLoginPass').value;
+  const errEl = document.getElementById('authLoginErr');
+  const btn   = document.getElementById('btnAuthLogin');
+  if(!email || !pass){ errEl.textContent = 'Completa todos los campos'; return; }
+  btn.disabled = true; btn.textContent = 'Iniciando...'; errEl.textContent = '';
+  const { error } = await _sb.auth.signInWithPassword({ email, password: pass });
+  if(error){
+    errEl.textContent = error.message.includes('Invalid') ? 'Email o contraseña incorrectos' : error.message;
+  }
+  btn.disabled = false; btn.textContent = 'Iniciar sesión';
+}
+
+async function handleRegister(){
+  const email = document.getElementById('authRegEmail').value.trim();
+  const pass  = document.getElementById('authRegPass').value;
+  const errEl = document.getElementById('authRegErr');
+  const btn   = document.getElementById('btnAuthReg');
+  if(!email || !pass){ errEl.textContent = 'Completa todos los campos'; return; }
+  if(pass.length < 6){ errEl.textContent = 'Contraseña: mínimo 6 caracteres'; return; }
+  btn.disabled = true; btn.textContent = 'Creando...'; errEl.textContent = '';
+  const { error } = await _sb.auth.signUp({ email, password: pass });
+  if(error){
+    errEl.textContent = error.message;
+  } else {
+    errEl.className = 'auth-error ok';
+    errEl.textContent = '✓ Cuenta creada. Revisa tu email para confirmar.';
+  }
+  btn.disabled = false; btn.textContent = 'Crear cuenta gratis';
+}
+
+async function handleLogout(){
+  closeSettings();
+  if(_sb) await _sb.auth.signOut();
+}
+
+async function loadProfile(){
+  if(!_sb || !_user) return;
+  try{
+    const { data } = await _sb.from('profiles').select('*').eq('id', _user.id).single();
+    _profile = data;
+  } catch(e){ _profile = null; }
+  updateUserBar();
+}
+
+function updateUserBar(){
+  const bar = document.getElementById('sbUser');
+  if(!bar) return;
+  if(!AUTH_ENABLED || !_user){ bar.style.display = 'none'; return; }
+  bar.style.display = 'flex';
+  const plan = _profile?.plan || 'free';
+  document.getElementById('sbUserEmail').textContent = _user.email;
+  const pb = document.getElementById('sbUserPlan');
+  pb.textContent = {free:'Free', pro:'Pro ⚡', agency:'Agency 🏢'}[plan] || 'Free';
+  pb.className = `plan-badge plan-${plan}`;
+}
+
+/* ── SETTINGS ──────────────────────────────── */
+function openSettings(){
+  if(!_user){ showAuthModal(); return; }
+  document.getElementById('settingsOverlay').style.display = 'flex';
+  document.getElementById('stgEmail').textContent = _user.email;
+  const plan = _profile?.plan || 'free';
+  document.getElementById('stgPlanName').textContent = {free:'Plan Free 🆓', pro:'Plan Pro ⚡', agency:'Plan Agency 🏢'}[plan];
+  document.getElementById('stgPlanDetail').textContent = {free:'5 landings · 3 Ads PDFs por mes', pro:'Ilimitado · Sin marca de agua', agency:'Ilimitado · Multi-cliente · White label'}[plan];
+  const upgradeBtn = document.getElementById('btnUpgrade');
+  if(upgradeBtn) upgradeBtn.style.display = plan === 'free' ? '' : 'none';
+  loadUsage();
+  loadApiKeys();
+}
+function closeSettings(){ document.getElementById('settingsOverlay').style.display = 'none'; }
+
+async function loadUsage(){
+  if(!_sb || !_user) return;
+  const month = new Date().toISOString().slice(0,7);
+  try{
+    const { data } = await _sb.from('usage').select('count').eq('user_id',_user.id).eq('month',month).single();
+    const used  = data?.count || 0;
+    const limit = (_profile?.plan === 'free') ? 5 : Infinity;
+    const pct   = limit === Infinity ? 5 : Math.min(100, Math.round(used/limit*100));
+    document.getElementById('usageFill').style.width = pct + '%';
+    document.getElementById('usageTxt').textContent  = `${used} / ${limit === Infinity ? '∞' : limit} landings este mes`;
+  } catch(e){}
+}
+
+async function loadApiKeys(){
+  if(!_sb || !_user) return;
+  try{
+    const { data } = await _sb.from('api_keys').select('provider').eq('user_id',_user.id);
+    if(!data) return;
+    ['Anthropic','Openai','Gemini'].forEach(p => {
+      const has = data.some(k => k.provider === p.toLowerCase());
+      const inp = document.getElementById('key'+p);
+      if(inp && has) inp.placeholder = '●●●●●●●●●● (guardada)';
+    });
+  } catch(e){}
+}
+
+async function saveApiKey(provider){
+  const idMap = {anthropic:'keyAnthropic', openai:'keyOpenai', gemini:'keyGemini'};
+  const inp = document.getElementById(idMap[provider]);
+  if(!inp) return;
+  const key = inp.value.trim();
+  if(!key){ toast('Ingresa una API Key'); return; }
+  if(!_sb || !_user){ toast('No hay sesión activa'); return; }
+  const { error } = await _sb.from('api_keys').upsert(
+    { user_id:_user.id, provider, key_encrypted:key },
+    { onConflict:'user_id,provider' }
+  );
+  if(error){ toast('❌ ' + error.message); return; }
+  inp.value = '';
+  inp.placeholder = '●●●●●●●●●● (guardada)';
+  const msg = document.getElementById('akSavedMsg');
+  if(msg){ msg.style.display='block'; setTimeout(()=>msg.style.display='none', 3000); }
+  toast('✓ API Key guardada');
+}
+
+function getAuthPayload(){
+  return AUTH_ENABLED && _authTok ? { _auth_token: _authTok, _user_id: _user?.id } : {};
+}
+
 const SEC_LIST = [
   {id:'hero',         ico:'🖼️', name:'Hero',           def:true,  always:true},
   {id:'problema',     ico:'😤', name:'Problema',        def:true},
@@ -1405,7 +1737,8 @@ async function generateCopy(){
     pais_nombre: paisData.name || '',
     moneda: paisData.currency || '',
     secciones,
-    cantidad_reviews: revQty
+    cantidad_reviews: revQty,
+    ...getAuthPayload()
   };
 
   showOverlay('copy');
@@ -1834,7 +2167,8 @@ async function generate(tipo_salida){
     ratio_bens:    st.ratios.bens,
     ratio_prob:    st.ratios.prob,
     ratio_revs:    st.ratios.revs,
-    imagenes_reviews: st.imgs.revs.urls.filter(u => u.trim())
+    imagenes_reviews: st.imgs.revs.urls.filter(u => u.trim()),
+    ...getAuthPayload()
   };
 
   st.last_tipo = tipo_salida;
@@ -2172,7 +2506,9 @@ function escHtml(s){
 }
 
 /* ── BOOT ────────────────────────────────────── */
+initSupabase();
 init();
+initAuth();
 </script>
 </body>
 </html>
