@@ -31,6 +31,8 @@ const ratio_revs   = body.ratio_revs   || '1/1';
 const bens_estilo  = Number(body.bens_estilo)  || 1;
 const video_estilo = Number(body.video_estilo) || 1;
 const bg_color     = body.bg_color || '#ffffff';
+const video_url_2  = (body.video_url_2 || '').trim();
+const video_url_3  = (body.video_url_3 || '').trim();
 
 // URL destino de todos los botones CTA
 const rawCtaUrl = (body.cta_url || '').trim();
@@ -319,6 +321,14 @@ const CSS_T1 = CSS_BASE + `
 .bens-num-txt p{font-size:.88rem;color:#6b7280;line-height:1.65}
 /* ── Video Estilo 2: Claro ── */
 .vid-light{padding:70px 0;background:${bg_color === '#ffffff' || bg_color === '#fff' ? '#f8fafc' : bg_color};text-align:center}
+/* ── Video Estilo 4: Carrusel 9:16 ── */
+.vid-carousel{padding:70px 0;text-align:center}
+.vid-carousel-track{display:flex;gap:16px;overflow-x:auto;scrollbar-width:none;padding:8px 20px 16px;scroll-snap-type:x mandatory;-webkit-overflow-scrolling:touch;max-width:900px;margin:28px auto 0}
+.vid-carousel-track::-webkit-scrollbar{display:none}
+.vid-carousel-item{flex:0 0 280px;scroll-snap-align:center;border-radius:16px;overflow:hidden;box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.vid-carousel-item iframe{width:100%;aspect-ratio:9/16;border:none;display:block}
+.vid-carousel-ph{width:100%;aspect-ratio:9/16;background:#111;display:flex;align-items:center;justify-content:center;font-size:3rem;opacity:.5}
+@media(max-width:680px){.vid-carousel-item{flex:0 0 72vw}}
 /* ── Video Estilo 3: Split ── */
 .vid-split{padding:70px 0}
 .vid-split-inner{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
@@ -694,6 +704,20 @@ ${vid.sub?`<p>${esc(vid.sub)}</p>`:''}
 </div>
 <div>${vE}</div>
 </div></div></section>`;
+  } else if (video_estilo === 4) {
+    // Estilo Carrusel 9:16 — hasta 3 videos portrait
+    const urls = [body.video_url||'', video_url_2, video_url_3].map(u => toEmbedUrl(u)).filter(Boolean);
+    const slides = (urls.length ? urls : ['','','']).slice(0,3).map(u =>
+      `<div class="vid-carousel-item">${u
+        ? `<iframe src="${esc(u)}" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe>`
+        : '<div class="vid-carousel-ph">▶️</div>'
+      }</div>`
+    ).join('');
+    secHtml['video'] = `<section class="vid-carousel"><div class="container">
+<h2 class="sec-h" style="text-align:center;margin:0 auto 0;max-width:700px">${esc(vid.titulo)}</h2>
+${vid.sub?`<p class="sec-p" style="text-align:center;margin:8px auto 0;max-width:580px">${esc(vid.sub)}</p>`:''}
+<div class="vid-carousel-track">${slides}</div>
+</div></section>`;
   } else {
     // Estilo 1: Oscuro (default)
     const vE = vUrl

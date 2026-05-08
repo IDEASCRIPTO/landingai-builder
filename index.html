@@ -413,10 +413,14 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 .estilo-btn.active{background:var(--p);color:#fff;border-color:var(--p)}
 .estilo-btn:hover:not(.active){border-color:var(--p);color:var(--tx)}
 /* ─── BG COLOR SWATCHES ──────────────────────── */
-.bg-sw-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:.5rem}
-.bg-sw{width:28px;height:28px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:.15s;flex-shrink:0}
-.bg-sw.active{border-color:var(--p);box-shadow:0 0 0 2px var(--pl)}
-.bg-sw-custom{width:28px;height:28px;border-radius:7px;cursor:pointer;border:1px solid var(--bd2);padding:0;overflow:hidden;flex-shrink:0}
+.bg-sw-row{display:flex;gap:10px;flex-wrap:wrap;margin-top:.6rem;align-items:flex-end}
+.bg-sw-item{display:flex;flex-direction:column;align-items:center;gap:4px;cursor:pointer}
+.bg-sw{width:40px;height:40px;border-radius:8px;border:2px solid transparent;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.15);transition:.15s;flex-shrink:0}
+.bg-sw-item.active .bg-sw{border-color:var(--p);box-shadow:inset 0 0 0 1px rgba(0,0,0,.1),0 0 0 3px var(--pl)}
+.bg-sw-lbl{font-size:.6rem;color:var(--td);font-weight:500;text-align:center;line-height:1.2;max-width:42px}
+.bg-sw-custom{width:40px;height:40px;border-radius:8px;cursor:pointer;
+  border:1px solid var(--bd2);padding:0;overflow:hidden;flex-shrink:0}
 
 /* ─── AI IMAGE BTN ──────────────────────────── */
 .ai-img-btn{
@@ -710,11 +714,34 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 
       <label class="lbl" style="margin-top:1.2rem">Color de fondo</label>
       <div class="bg-sw-row">
-        <div class="bg-sw active" id="bgSw0" style="background:#ffffff;border-color:#e5e7eb" title="Blanco" onclick="selectBg('#ffffff','bgSw0')"></div>
-        <div class="bg-sw" id="bgSw1" style="background:#f8fafc" title="Gris claro" onclick="selectBg('#f8fafc','bgSw1')"></div>
-        <div class="bg-sw" id="bgSw2" style="background:#fdf6ee" title="Cálido" onclick="selectBg('#fdf6ee','bgSw2')"></div>
-        <div class="bg-sw" id="bgSw3" style="background:#f0fdf4" title="Verde suave" onclick="selectBg('#f0fdf4','bgSw3')"></div>
-        <input type="color" class="bg-sw-custom" id="bgColorPicker" value="#ffffff" title="Personalizado" oninput="selectBg(this.value,null)"/>
+        <div class="bg-sw-item active" id="bgSw0" onclick="selectBg('#ffffff','bgSw0')">
+          <div class="bg-sw" style="background:#ffffff"></div>
+          <span class="bg-sw-lbl">Blanco</span>
+        </div>
+        <div class="bg-sw-item" id="bgSw1" onclick="selectBg('#f1f5f9','bgSw1')">
+          <div class="bg-sw" style="background:#f1f5f9"></div>
+          <span class="bg-sw-lbl">Gris</span>
+        </div>
+        <div class="bg-sw-item" id="bgSw2" onclick="selectBg('#fdf6ee','bgSw2')">
+          <div class="bg-sw" style="background:#fdf6ee"></div>
+          <span class="bg-sw-lbl">Cálido</span>
+        </div>
+        <div class="bg-sw-item" id="bgSw3" onclick="selectBg('#eff6ff','bgSw3')">
+          <div class="bg-sw" style="background:#eff6ff"></div>
+          <span class="bg-sw-lbl">Azul</span>
+        </div>
+        <div class="bg-sw-item" id="bgSw4" onclick="selectBg('#fdf4ff','bgSw4')">
+          <div class="bg-sw" style="background:#fdf4ff"></div>
+          <span class="bg-sw-lbl">Lila</span>
+        </div>
+        <div class="bg-sw-item" id="bgSw5" onclick="selectBg('#0f172a','bgSw5')">
+          <div class="bg-sw" style="background:#0f172a"></div>
+          <span class="bg-sw-lbl">Oscuro</span>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
+          <input type="color" class="bg-sw-custom" id="bgColorPicker" value="#ffffff" title="Personalizado" oninput="selectBg(this.value,null)"/>
+          <span class="bg-sw-lbl">Custom</span>
+        </div>
       </div>
 
       <label class="lbl" style="margin-top:1.2rem">Beneficios — estilo</label>
@@ -729,6 +756,7 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
         <button class="estilo-btn active" id="vidE1" onclick="selectVideoEstilo(1)">🌑 Oscuro</button>
         <button class="estilo-btn" id="vidE2" onclick="selectVideoEstilo(2)">☀️ Claro</button>
         <button class="estilo-btn" id="vidE3" onclick="selectVideoEstilo(3)">↔️ Split</button>
+        <button class="estilo-btn" id="vidE4" onclick="selectVideoEstilo(4)">📱 Carrusel 9:16</button>
       </div>
     </div>
 
@@ -831,9 +859,15 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
     <!-- Video -->
     <div class="card" id="videoCard">
       <div class="sec-title">🎬 Video</div>
-      <label class="lbl">URL del video (YouTube / MP4)</label>
+      <label class="lbl">URL del video (YouTube / Vimeo)</label>
       <input type="url" id="videoUrl" placeholder="https://youtube.com/watch?v=..."/>
-      <label class="lbl">Texto/caption del video</label>
+      <div id="videoUrls2_3" style="display:none">
+        <label class="lbl" style="margin-top:.6rem">Video 2</label>
+        <input type="url" id="videoUrl2" placeholder="https://youtube.com/watch?v=..."/>
+        <label class="lbl" style="margin-top:.6rem">Video 3</label>
+        <input type="url" id="videoUrl3" placeholder="https://youtube.com/watch?v=..."/>
+      </div>
+      <label class="lbl" style="margin-top:.6rem">Texto/caption del video</label>
       <input type="text" id="videoCaption" placeholder="Mira cómo funciona en 60 segundos"/>
     </div>
 
@@ -1045,11 +1079,13 @@ function selectBensEstilo(n){
 /* ── VIDEO ESTILO ────────────────────────────── */
 function selectVideoEstilo(n){
   st.video_estilo = n;
-  [1,2,3].forEach(i => document.getElementById('vidE'+i)?.classList.toggle('active', i===n));
+  [1,2,3,4].forEach(i => document.getElementById('vidE'+i)?.classList.toggle('active', i===n));
+  const extra = document.getElementById('videoUrls2_3');
+  if(extra) extra.style.display = n === 4 ? 'block' : 'none';
 }
 
 /* ── BG COLOR ────────────────────────────────── */
-const BG_IDS = ['bgSw0','bgSw1','bgSw2','bgSw3'];
+const BG_IDS = ['bgSw0','bgSw1','bgSw2','bgSw3','bgSw4','bgSw5'];
 function selectBg(hex, activeId){
   st.bg_color = hex;
   BG_IDS.forEach(id => document.getElementById(id)?.classList.toggle('active', id === activeId));
@@ -1573,6 +1609,8 @@ async function generate(tipo_salida){
     copy_editado,
     secciones_activas,
     video_url: document.getElementById('videoUrl').value.trim(),
+    video_url_2: document.getElementById('videoUrl2').value.trim(),
+    video_url_3: document.getElementById('videoUrl3').value.trim(),
     video_caption: document.getElementById('videoCaption').value.trim(),
     imagenes_hero: st.imgs.hero.urls.filter(u => u.trim()),
     imagen_problema: st.imgs.prob?.url?.trim() || '',
@@ -1784,11 +1822,11 @@ function updateStepBar(){
 function resetAll(){
   st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html'; st.hero_estilo = 'A'; st.reviews_estilo = 1;
   st.bens_estilo = 1; st.video_estilo = 1; st.bg_color = '#ffffff';
-  selectBensEstilo(1); selectVideoEstilo(1); selectBg('#ffffff','bgSw0');
+  selectBensEstilo(1); selectVideoEstilo(1); selectBg('#ffffff', 'bgSw0');
   st.secs = {}; st.secs_order = [];
   st.ratios = { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' };
   st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']},antes:{url:''},despues:{url:''},bens:{url:''}};
-  ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_cta_url','s1_instr','videoUrl','videoCaption']
+  ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_cta_url','s1_instr','videoUrl','videoUrl2','videoUrl3','videoCaption']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   document.getElementById('copyEditor').innerHTML = '';
   buildSecGrid();
