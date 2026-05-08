@@ -405,13 +405,18 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 .ratio-btn.active{background:var(--p);color:#fff;border-color:var(--p)}
 .ratio-btn:hover:not(.active){border-color:var(--p);color:var(--tx)}
 
-/* ─── HERO ESTILO SELECTOR ──────────────────── */
-.hero-estilo-row{display:flex;gap:.4rem;margin-bottom:.6rem;flex-wrap:wrap}
+/* ─── ESTILO SELECTORS ───────────────────────── */
+.hero-estilo-row,.estilo-row{display:flex;gap:.4rem;margin-top:.4rem;flex-wrap:wrap}
 .estilo-btn{padding:.38rem .8rem;border-radius:var(--r2);border:1px solid var(--bd2);
   background:var(--s2);font-size:.75rem;font-weight:600;cursor:pointer;color:var(--tm);
   transition:.15s;font-family:inherit}
 .estilo-btn.active{background:var(--p);color:#fff;border-color:var(--p)}
 .estilo-btn:hover:not(.active){border-color:var(--p);color:var(--tx)}
+/* ─── BG COLOR SWATCHES ──────────────────────── */
+.bg-sw-row{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:.5rem}
+.bg-sw{width:28px;height:28px;border-radius:7px;cursor:pointer;border:2px solid transparent;transition:.15s;flex-shrink:0}
+.bg-sw.active{border-color:var(--p);box-shadow:0 0 0 2px var(--pl)}
+.bg-sw-custom{width:28px;height:28px;border-radius:7px;cursor:pointer;border:1px solid var(--bd2);padding:0;overflow:hidden;flex-shrink:0}
 
 /* ─── AI IMAGE BTN ──────────────────────────── */
 .ai-img-btn{
@@ -702,6 +707,29 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 
       <label class="lbl" style="margin-top:1rem">Fuente</label>
       <div class="font-grid" id="fontGrid"></div>
+
+      <label class="lbl" style="margin-top:1.2rem">Color de fondo</label>
+      <div class="bg-sw-row">
+        <div class="bg-sw active" id="bgSw0" style="background:#ffffff;border-color:#e5e7eb" title="Blanco" onclick="selectBg('#ffffff','bgSw0')"></div>
+        <div class="bg-sw" id="bgSw1" style="background:#f8fafc" title="Gris claro" onclick="selectBg('#f8fafc','bgSw1')"></div>
+        <div class="bg-sw" id="bgSw2" style="background:#fdf6ee" title="Cálido" onclick="selectBg('#fdf6ee','bgSw2')"></div>
+        <div class="bg-sw" id="bgSw3" style="background:#f0fdf4" title="Verde suave" onclick="selectBg('#f0fdf4','bgSw3')"></div>
+        <input type="color" class="bg-sw-custom" id="bgColorPicker" value="#ffffff" title="Personalizado" oninput="selectBg(this.value,null)"/>
+      </div>
+
+      <label class="lbl" style="margin-top:1.2rem">Beneficios — estilo</label>
+      <div class="estilo-row">
+        <button class="estilo-btn active" id="bensE1" onclick="selectBensEstilo(1)">📦 Cards</button>
+        <button class="estilo-btn" id="bensE2" onclick="selectBensEstilo(2)">✅ Lista</button>
+        <button class="estilo-btn" id="bensE3" onclick="selectBensEstilo(3)">🔢 Numerado</button>
+      </div>
+
+      <label class="lbl" style="margin-top:1.2rem">Video — estilo</label>
+      <div class="estilo-row">
+        <button class="estilo-btn active" id="vidE1" onclick="selectVideoEstilo(1)">🌑 Oscuro</button>
+        <button class="estilo-btn" id="vidE2" onclick="selectVideoEstilo(2)">☀️ Claro</button>
+        <button class="estilo-btn" id="vidE3" onclick="selectVideoEstilo(3)">↔️ Split</button>
+      </div>
     </div>
 
     <!-- Reviews Estilo -->
@@ -948,6 +976,9 @@ const st = {
   hero_estilo: 'A',
   reviews_estilo: 1,
   reviews_cantidad: 3,
+  bens_estilo: 1,
+  video_estilo: 1,
+  bg_color: '#ffffff',
   ratios: { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' },
   video_url: '', video_caption: '',
   style: {color:'#1D9E75', fuente:'Inter'},
@@ -1003,6 +1034,27 @@ function buildRatioRow(key, containerId){
 function selectReviewsEstilo(n){
   st.reviews_estilo = n;
   [1,2,3,4,5].forEach(i => document.getElementById('rev_'+i)?.classList.toggle('active', i===n));
+}
+
+/* ── BENS ESTILO ─────────────────────────────── */
+function selectBensEstilo(n){
+  st.bens_estilo = n;
+  [1,2,3].forEach(i => document.getElementById('bensE'+i)?.classList.toggle('active', i===n));
+}
+
+/* ── VIDEO ESTILO ────────────────────────────── */
+function selectVideoEstilo(n){
+  st.video_estilo = n;
+  [1,2,3].forEach(i => document.getElementById('vidE'+i)?.classList.toggle('active', i===n));
+}
+
+/* ── BG COLOR ────────────────────────────────── */
+const BG_IDS = ['bgSw0','bgSw1','bgSw2','bgSw3'];
+function selectBg(hex, activeId){
+  st.bg_color = hex;
+  BG_IDS.forEach(id => document.getElementById(id)?.classList.toggle('active', id === activeId));
+  const picker = document.getElementById('bgColorPicker');
+  if(picker) picker.value = hex;
 }
 
 /* ── HERO ESTILO ─────────────────────────────── */
@@ -1530,6 +1582,9 @@ async function generate(tipo_salida){
     hero_estilo: st.hero_estilo || 'A',
     reviews_estilo: st.reviews_estilo || 1,
     cantidad_reviews: st.reviews_cantidad || 3,
+    bens_estilo: st.bens_estilo || 1,
+    video_estilo: st.video_estilo || 1,
+    bg_color: st.bg_color || '#ffffff',
     ratio_hero:    st.ratios.hero,
     ratio_antes:   st.ratios.antes,
     ratio_despues: st.ratios.despues,
@@ -1728,6 +1783,8 @@ function updateStepBar(){
 /* ── RESET ───────────────────────────────────── */
 function resetAll(){
   st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html'; st.hero_estilo = 'A'; st.reviews_estilo = 1;
+  st.bens_estilo = 1; st.video_estilo = 1; st.bg_color = '#ffffff';
+  selectBensEstilo(1); selectVideoEstilo(1); selectBg('#ffffff','bgSw0');
   st.secs = {}; st.secs_order = [];
   st.ratios = { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' };
   st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']},antes:{url:''},despues:{url:''},bens:{url:''}};

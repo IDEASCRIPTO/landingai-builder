@@ -28,6 +28,9 @@ const ratio_despues= body.ratio_despues|| '1/1';
 const ratio_bens   = body.ratio_bens   || '4/3';
 const ratio_prob   = body.ratio_prob   || '4/3';
 const ratio_revs   = body.ratio_revs   || '1/1';
+const bens_estilo  = Number(body.bens_estilo)  || 1;
+const video_estilo = Number(body.video_estilo) || 1;
+const bg_color     = body.bg_color || '#ffffff';
 
 // URL destino de todos los botones CTA
 const rawCtaUrl = (body.cta_url || '').trim();
@@ -121,7 +124,7 @@ const CSS_BASE = `
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 :root{--p:${CP}}
 html{overflow-x:hidden}
-body{font-family:'${fuente}',system-ui,sans-serif;background:#fff;color:#111827;line-height:1.6}
+body{font-family:'${fuente}',system-ui,sans-serif;background:${bg_color};color:#111827;line-height:1.6}
 .container{max-width:1100px;margin:0 auto;padding:0 20px}
 .sec-label{display:inline-block;background:rgba(${colorRgb},.1);color:${CP};padding:5px 14px;border-radius:50px;font-size:.72rem;font-weight:700;letter-spacing:.5px;text-transform:uppercase;margin-bottom:10px}
 .sec-h{font-size:clamp(1.6rem,3.5vw,2.4rem);font-weight:800;line-height:1.2;margin-bottom:14px}
@@ -299,6 +302,29 @@ const CSS_T1 = CSS_BASE + `
 .cta-badges{display:flex;justify-content:center;gap:18px;margin-top:20px;flex-wrap:wrap;font-size:.8rem;opacity:.65}
 .escasez{margin-top:14px;font-size:.85rem;color:#f59e0b;font-weight:600}
 @media(max-width:680px){.container{padding:0 14px}.hero,.features,.problema,.ab-section,.reviews,.faq,.cta-f{padding:50px 0}}
+/* ── Beneficios Estilo 2: Lista checkmarks ── */
+.bens-list{padding:70px 0}
+.bens-list-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:32px}
+.bens-list-item{display:flex;align-items:flex-start;gap:14px;padding:18px 20px;background:${bg_color === '#ffffff' || bg_color === '#fff' ? '#f9fafb' : 'rgba(0,0,0,.04)'};border-radius:12px}
+.bens-ck{width:30px;height:30px;border-radius:50%;background:${CP};color:#fff;display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;flex-shrink:0;margin-top:1px}
+.bens-list-txt h3{font-size:.93rem;font-weight:700;margin-bottom:4px}
+.bens-list-txt p{font-size:.82rem;color:#6b7280;line-height:1.55}
+@media(max-width:580px){.bens-list-grid{grid-template-columns:1fr}}
+/* ── Beneficios Estilo 3: Numerado ── */
+.bens-num{padding:70px 0}
+.bens-num-list{display:flex;flex-direction:column;gap:26px;margin-top:36px;max-width:780px;margin-left:auto;margin-right:auto}
+.bens-num-item{display:flex;align-items:flex-start;gap:22px;padding:24px 28px;border-left:3px solid ${CP};background:${bg_color === '#ffffff' || bg_color === '#fff' ? '#f9fafb' : 'rgba(0,0,0,.04)'};border-radius:0 12px 12px 0}
+.bens-num-n{font-size:2.4rem;font-weight:900;color:${CP};line-height:1;flex-shrink:0;min-width:36px}
+.bens-num-txt h3{font-size:1rem;font-weight:700;margin-bottom:6px}
+.bens-num-txt p{font-size:.88rem;color:#6b7280;line-height:1.65}
+/* ── Video Estilo 2: Claro ── */
+.vid-light{padding:70px 0;background:${bg_color === '#ffffff' || bg_color === '#fff' ? '#f8fafc' : bg_color};text-align:center}
+/* ── Video Estilo 3: Split ── */
+.vid-split{padding:70px 0}
+.vid-split-inner{display:grid;grid-template-columns:1fr 1fr;gap:48px;align-items:center}
+.vid-split-txt h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;margin-bottom:14px}
+.vid-split-txt p{font-size:.95rem;color:#6b7280;line-height:1.75;margin-bottom:24px}
+@media(max-width:700px){.vid-split-inner{grid-template-columns:1fr}.vid-split-txt{text-align:center}.vid-split-txt .btn{width:100%;display:block;text-align:center}}
 `;
 
 // Tema 2: Premium, hero 2col, packs, estadísticas, tabla comparativa
@@ -610,26 +636,74 @@ if (secSet.has('ab')) {
 
 // BENEFICIOS
 if (secSet.has('beneficios') && bens.length) {
-  const bH = bens.map(b => `<div class="feat-card">
+  const titulo = `¿Por qué elegir ${esc(NP)}?`;
+  if (bens_estilo === 2) {
+    // Lista con checkmarks
+    const items = bens.map(b => `<div class="bens-list-item">
+<div class="bens-ck">✓</div>
+<div class="bens-list-txt"><h3>${esc(b.t||'')}</h3><p>${esc(b.d||'')}</p></div>
+</div>`).join('');
+    secHtml['beneficios'] = `<section class="bens-list"><div class="container">
+<h2 class="sec-h" style="text-align:center;margin:0 auto 0;max-width:700px">${titulo}</h2>
+<div class="bens-list-grid">${items}</div></div></section>`;
+  } else if (bens_estilo === 3) {
+    // Numerado
+    const items = bens.map((b,i) => `<div class="bens-num-item">
+<div class="bens-num-n">${String(i+1).padStart(2,'0')}</div>
+<div class="bens-num-txt"><h3>${esc(b.t||'')}</h3><p>${esc(b.d||'')}</p></div>
+</div>`).join('');
+    secHtml['beneficios'] = `<section class="bens-num"><div class="container">
+<h2 class="sec-h" style="text-align:center;margin:0 auto 0;max-width:700px">${titulo}</h2>
+<div class="bens-num-list">${items}</div></div></section>`;
+  } else {
+    // Estilo 1: Cards (default)
+    const cards = bens.map(b => `<div class="feat-card">
 <div class="feat-ico">${b.e||'✅'}</div>
 <h3>${esc(b.t||'')}</h3>
 <p>${esc(b.d||'')}</p>
 </div>`).join('');
-  secHtml['beneficios'] = `<section class="features" style="padding:60px 0${tema===2||tema===3?';background:#fff':''}"><div class="container">
-<h2 class="sec-h" style="text-align:center;margin:0 auto 32px;max-width:700px">¿Por qué elegir ${esc(NP)}?</h2>
-<div class="features-grid">${bH}</div></div></section>`;
+    secHtml['beneficios'] = `<section class="features" style="padding:60px 0${tema===2||tema===3?';background:#fff':''}"><div class="container">
+<h2 class="sec-h" style="text-align:center;margin:0 auto 32px;max-width:700px">${titulo}</h2>
+<div class="features-grid">${cards}</div></div></section>`;
+  }
 }
 
 // VIDEO
 if (secSet.has('video') && vid.titulo) {
   const vUrl = toEmbedUrl(body.video_url||'');
-  const vE = vUrl
-    ? `<div style="max-width:820px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.5)"><iframe src="${esc(vUrl)}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
-    : `<div style="max-width:820px;margin:0 auto;background:#111;aspect-ratio:16/9;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:.6">▶️</div>`;
-  secHtml['video'] = `<section style="padding:70px 0;text-align:center;background:#0a0a0f"><div class="container">
+  if (video_estilo === 2) {
+    // Estilo Claro
+    const vE = vUrl
+      ? `<div style="max-width:860px;margin:0 auto;border-radius:14px;overflow:hidden;box-shadow:0 8px 36px rgba(0,0,0,.1)"><iframe src="${esc(vUrl)}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
+      : `<div style="max-width:860px;margin:0 auto;background:#f3f4f6;aspect-ratio:16/9;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:4rem">▶️</div>`;
+    secHtml['video'] = `<section class="vid-light"><div class="container">
+<h2 class="sec-h" style="text-align:center;margin:0 auto 12px;max-width:700px">${esc(vid.titulo)}</h2>
+${vid.sub?`<p class="sec-p" style="text-align:center;margin:0 auto 32px;max-width:580px">${esc(vid.sub)}</p>`:'<div style="margin-bottom:32px"></div>'}
+${vE}</div></section>`;
+  } else if (video_estilo === 3) {
+    // Estilo Split
+    const vE = vUrl
+      ? `<div style="border-radius:14px;overflow:hidden;box-shadow:0 12px 40px rgba(0,0,0,.12)"><iframe src="${esc(vUrl)}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
+      : `<div style="background:#111;aspect-ratio:16/9;border-radius:14px;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:.6">▶️</div>`;
+    secHtml['video'] = `<section class="vid-split"><div class="container"><div class="vid-split-inner">
+<div class="vid-split-txt">
+<span class="sec-label">En acción</span>
+<h2 class="vid-split-txt h2" style="font-size:clamp(1.5rem,3vw,2.1rem);font-weight:800;margin-bottom:14px">${esc(vid.titulo)}</h2>
+${vid.sub?`<p>${esc(vid.sub)}</p>`:''}
+<a href="${ctaUrl}"${ctaTarget} class="btn btn-p" style="margin-top:${vid.sub?'0':'8px'}">${esc(hCta)}</a>
+</div>
+<div>${vE}</div>
+</div></div></section>`;
+  } else {
+    // Estilo 1: Oscuro (default)
+    const vE = vUrl
+      ? `<div style="max-width:820px;margin:0 auto;border-radius:18px;overflow:hidden;box-shadow:0 24px 80px rgba(0,0,0,.5)"><iframe src="${esc(vUrl)}" style="width:100%;aspect-ratio:16/9;border:none;display:block" allow="autoplay; fullscreen; picture-in-picture" allowfullscreen loading="lazy"></iframe></div>`
+      : `<div style="max-width:820px;margin:0 auto;background:#111;aspect-ratio:16/9;border-radius:18px;display:flex;align-items:center;justify-content:center;font-size:4rem;opacity:.6">▶️</div>`;
+    secHtml['video'] = `<section style="padding:70px 0;text-align:center;background:#0a0a0f"><div class="container">
 <h2 style="text-align:center;margin:0 auto 14px;max-width:700px;font-size:clamp(1.5rem,3vw,2.2rem);font-weight:800;color:#fff">${esc(vid.titulo)}</h2>
 ${vid.sub?`<p style="text-align:center;margin:0 auto 32px;max-width:600px;color:rgba(255,255,255,.6);font-size:.95rem;line-height:1.7">${esc(vid.sub)}</p>`:'<div style="margin-bottom:32px"></div>'}
 ${vE}</div></section>`;
+  }
 }
 
 // REVIEWS
