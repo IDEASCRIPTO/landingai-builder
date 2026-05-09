@@ -117,10 +117,12 @@ function parseAiCopyResponse(array $resp): array {
    - SUPABASE_URL: URL de tu proyecto (ej: https://xxxx.supabase.co)
    - Si no está configurado, el proxy funciona sin auth (modo dev)
 ─────────────────────────────────────────────────── */
-$SUPABASE_URL = getenv('SUPABASE_URL') ?: '';
-$auth_enabled = !empty($SUPABASE_URL) && !str_contains($SUPABASE_URL, 'xxxx');
-$auth_user_id = null;
-$auth_plan    = 'free';
+$SUPABASE_URL      = getenv('SUPABASE_URL') ?: '';
+$SUPABASE_ANON_KEY = getenv('SUPABASE_ANON_KEY') ?: 'sb_publishable_aOtEsxOOgBqL05kQ8eMIDQ_WHF7rw54';
+$SUPABASE_SVC_KEY  = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '';
+$auth_enabled      = !empty($SUPABASE_URL) && !str_contains($SUPABASE_URL, 'xxxx');
+$auth_user_id      = null;
+$auth_plan         = 'free';
 
 if ($auth_enabled && !empty($data['_auth_token'])) {
     $token = $data['_auth_token'];
@@ -128,7 +130,7 @@ if ($auth_enabled && !empty($data['_auth_token'])) {
     // Validar token con Supabase
     $ch = curl_init($SUPABASE_URL . '/auth/v1/user');
     curl_setopt_array($ch, [
-        CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . $token, 'apikey: ' . (getenv('SUPABASE_ANON_KEY') ?: '')],
+        CURLOPT_HTTPHEADER     => ['Authorization: Bearer ' . $token, 'apikey: ' . $SUPABASE_ANON_KEY],
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_TIMEOUT        => 8,
         CURLOPT_SSL_VERIFYPEER => false,
@@ -156,7 +158,7 @@ if ($auth_enabled && !empty($data['_auth_token'])) {
         curl_setopt_array($ch2, [
             CURLOPT_HTTPHEADER     => [
                 'Authorization: Bearer ' . $token,
-                'apikey: ' . (getenv('SUPABASE_ANON_KEY') ?: ''),
+                'apikey: ' . $SUPABASE_ANON_KEY,
                 'Accept: application/json',
             ],
             CURLOPT_RETURNTRANSFER => true,
@@ -177,7 +179,7 @@ if ($auth_enabled && !empty($data['_auth_token'])) {
                 $month = date('Y-m');
                 $ch3 = curl_init($SUPABASE_URL . '/rest/v1/usage?select=count&user_id=eq.' . $auth_user_id . '&month=eq.' . $month);
                 curl_setopt_array($ch3, [
-                    CURLOPT_HTTPHEADER     => ['Authorization: Bearer '.$token,'apikey: '.(getenv('SUPABASE_ANON_KEY')?:''),'Accept: application/json'],
+                    CURLOPT_HTTPHEADER     => ['Authorization: Bearer '.$token,'apikey: '.$SUPABASE_ANON_KEY,'Accept: application/json'],
                     CURLOPT_RETURNTRANSFER => true,
                     CURLOPT_TIMEOUT        => 6,
                     CURLOPT_SSL_VERIFYPEER => false,
@@ -204,7 +206,7 @@ if ($auth_enabled && !empty($data['_auth_token'])) {
                 CURLOPT_POSTFIELDS     => $upsertData,
                 CURLOPT_HTTPHEADER     => [
                     'Authorization: Bearer '.$token,
-                    'apikey: '.(getenv('SUPABASE_ANON_KEY')?:''),
+                    'apikey: '.$SUPABASE_ANON_KEY,
                     'Content-Type: application/json',
                     'Prefer: resolution=merge-duplicates',
                 ],
@@ -223,7 +225,7 @@ if ($auth_enabled && !empty($data['_auth_token'])) {
                 CURLOPT_POSTFIELDS     => $rpcData,
                 CURLOPT_HTTPHEADER     => [
                     'Authorization: Bearer '.$token,
-                    'apikey: '.(getenv('SUPABASE_ANON_KEY')?:''),
+                    'apikey: '.$SUPABASE_ANON_KEY,
                     'Content-Type: application/json',
                 ],
                 CURLOPT_RETURNTRANSFER => true,
@@ -248,8 +250,8 @@ unset($data['_auth_token'], $data['_user_id']);
    save_api_key: upsert de la key del usuario
    load_api_keys: retorna lista de proveedores guardados
 ─────────────────────────────────────────────────────────────── */
-$_svcKey  = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '';
-$_sbApiK  = $_svcKey ?: (getenv('SUPABASE_ANON_KEY') ?: '');
+$_svcKey  = $SUPABASE_SVC_KEY;
+$_sbApiK  = $_svcKey ?: $SUPABASE_ANON_KEY;
 $_sbAuth  = $_svcKey ? 'Bearer ' . $_svcKey : 'Bearer ' . ($token ?? '');
 
 if (($data['accion'] ?? '') === 'save_api_key') {
@@ -344,9 +346,9 @@ if (in_array($accion_actual, $AI_ACTIONS)) {
         $data['_provider'] = $provider;
     } elseif ($auth_enabled && $auth_user_id && !empty($token)) {
         // Usuario normal: traer todas las keys del usuario y filtrar por proveedor en PHP
-        $serviceRoleKey = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '';
+        $serviceRoleKey = $SUPABASE_SVC_KEY;
         $sbAuthHeader   = $serviceRoleKey ? 'Bearer ' . $serviceRoleKey : 'Bearer ' . $token;
-        $sbApiKey       = $serviceRoleKey ?: (getenv('SUPABASE_ANON_KEY') ?: '');
+        $sbApiKey       = $serviceRoleKey ?: $SUPABASE_ANON_KEY;
 
         $chK = curl_init($SUPABASE_URL . '/rest/v1/api_keys?select=provider,key_enc&user_id=eq.' . rawurlencode($auth_user_id));
         curl_setopt_array($chK, [
@@ -432,9 +434,9 @@ if ($accion_actual === 'generar_imagen') {
         $sysKeyMap = ['openai'=>'OPENAI_API_KEY', 'fal'=>'FAL_API_KEY', 'gemini'=>'GEMINI_API_KEY'];
         $imgApiKey = getenv($sysKeyMap[$imgKeyProvider] ?? 'OPENAI_API_KEY') ?: '';
     } else {
-        $serviceRoleKey = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '';
+        $serviceRoleKey = $SUPABASE_SVC_KEY;
         $sbAuth = $serviceRoleKey ? 'Bearer '.$serviceRoleKey : 'Bearer '.$token;
-        $sbKey  = $serviceRoleKey ?: (getenv('SUPABASE_ANON_KEY') ?: '');
+        $sbKey  = $serviceRoleKey ?: $SUPABASE_ANON_KEY;
         $chImg  = curl_init($SUPABASE_URL.'/rest/v1/api_keys?select=provider,key_enc&user_id=eq.'.rawurlencode($auth_user_id));
         curl_setopt_array($chImg, [CURLOPT_HTTPHEADER=>['Authorization: '.$sbAuth,'apikey: '.$sbKey,'Accept: application/json'], CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>6, CURLOPT_SSL_VERIFYPEER=>false]);
         $kResp = curl_exec($chImg); curl_close($chImg);
