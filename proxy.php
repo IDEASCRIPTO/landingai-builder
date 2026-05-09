@@ -291,9 +291,20 @@ $url = $routes[$accion];
    Solución: n8n devuelve solo el prompt, proxy.php hace la llamada AI con curl.
 ──────────────────────────────────────────────────────────────────────────────── */
 $COPY_ACTIONS = ['generar_copy', 'regenerar_seccion', 'generar_ads'];
-if (in_array($accion_actual, $COPY_ACTIONS) && !empty($data['_api_key'])) {
-    $apiKey      = $data['_api_key'];
-    $aiProvider  = $data['_provider'] ?? 'anthropic';
+if (in_array($accion_actual, $COPY_ACTIONS)) {
+    $apiKey     = $data['_api_key'] ?? '';
+    $aiProvider = $data['_provider'] ?? $provider;
+
+    if (empty($apiKey)) {
+        $provName = ['anthropic'=>'Anthropic','openai'=>'OpenAI','gemini'=>'Gemini'][$aiProvider] ?? $aiProvider;
+        echo json_encode([
+            'success'  => false,
+            'error'    => 'Necesitas configurar tu API key de ' . $provName . ' en Configuración (⚙️).',
+            'code'     => 'NO_API_KEY',
+            'provider' => $aiProvider,
+        ]);
+        exit;
+    }
 
     // Paso 1: pedir prompt a n8n (no llama AI, solo genera el prompt)
     $ch1 = curl_init($url);
