@@ -145,26 +145,35 @@ if ($auth_enabled && !empty($data['_auth_token'])) {
 unset($data['_auth_token'], $data['_user_id']);
 
 /* ── API KEY ROUTING ──────────────────────────────────────────
-   ADMIN_EMAIL   → usuario dueño, usa keys del sistema (env vars)
-   Otros usuarios → deben tener su propia Anthropic API key en Supabase
-   Acciones que requieren IA: generar_copy, regenerar_seccion, generar_ads,
-                               generar_html, generar_liquid
+   ADMIN_EMAIL → dueño, usa keys del sistema (env vars de EasyPanel)
+   Otros       → deben tener su propia key del proveedor elegido
+   Proveedores soportados: anthropic, openai, gemini
 ─────────────────────────────────────────────────────────────── */
 $ADMIN_EMAIL   = getenv('ADMIN_EMAIL') ?: '';
 $AI_ACTIONS    = ['generar_copy','regenerar_seccion','generar_ads','generar_html','generar_liquid'];
 $accion_actual = $data['accion'] ?? '';
+$provider      = in_array($data['_provider'] ?? '', ['anthropic','openai','gemini'])
+                    ? $data['_provider']
+                    : 'anthropic';
+unset($data['_provider']);
+
+$SYSTEM_KEYS = [
+    'anthropic' => getenv('ANTHROPIC_API_KEY') ?: '',
+    'openai'    => getenv('OPENAI_API_KEY')    ?: '',
+    'gemini'    => getenv('GEMINI_API_KEY')    ?: '',
+];
 
 if (in_array($accion_actual, $AI_ACTIONS)) {
     $user_email = $auth_user_id ? ($usr['email'] ?? '') : '';
     $is_admin   = !empty($ADMIN_EMAIL) && strtolower($user_email) === strtolower($ADMIN_EMAIL);
 
-    if ($is_admin) {
-        // Admin usa las keys del sistema configuradas en EasyPanel
-        $data['_api_key']      = getenv('ANTHROPIC_API_KEY') ?: '';
-        $data['_openai_key']   = getenv('OPENAI_API_KEY') ?: '';
+    if ($is_admin || !$auth_enabled) {
+        // Admin o modo dev: usa keys del sistema
+        $data['_api_key']  = $SYSTEM_KEYS[$provider];
+        $data['_provider'] = $provider;
     } elseif ($auth_enabled && $auth_user_id && !empty($token)) {
-        // Usuario normal: buscar su Anthropic key en Supabase
-        $chK = curl_init($SUPABASE_URL . '/rest/v1/api_keys?select=key_enc&user_id=eq.' . $auth_user_id . '&provider=eq.anthropic&limit=1');
+        // Usuario normal: buscar su key del proveedor elegido en Supabase
+        $chK = curl_init($SUPABASE_URL . '/rest/v1/api_keys?select=key_enc&user_id=eq.' . $auth_user_id . '&provider=eq.' . $provider . '&limit=1');
         curl_setopt_array($chK, [
             CURLOPT_HTTPHEADER     => [
                 'Authorization: Bearer ' . $token,
@@ -177,21 +186,21 @@ if (in_array($accion_actual, $AI_ACTIONS)) {
         ]);
         $keyResp = curl_exec($chK);
         curl_close($chK);
-        $keyArr = json_decode($keyResp, true);
+        $keyArr       = json_decode($keyResp, true);
         $user_api_key = (is_array($keyArr) && !empty($keyArr[0]['key_enc'])) ? $keyArr[0]['key_enc'] : '';
 
         if (empty($user_api_key)) {
+            $provName = ['anthropic'=>'Anthropic','openai'=>'OpenAI','gemini'=>'Gemini'][$provider] ?? $provider;
             echo json_encode([
-                'success' => false,
-                'error'   => 'Necesitas configurar tu API key de Anthropic en Configuración (⚙️) para generar contenido.',
-                'code'    => 'NO_API_KEY',
+                'success'  => false,
+                'error'    => 'Necesitas configurar tu API key de ' . $provName . ' en Configuración (⚙️).',
+                'code'     => 'NO_API_KEY',
+                'provider' => $provider,
             ]);
             exit;
         }
-        $data['_api_key'] = $user_api_key;
-    } elseif (!$auth_enabled) {
-        // Modo dev sin auth: usa key del sistema
-        $data['_api_key'] = getenv('ANTHROPIC_API_KEY') ?: '';
+        $data['_api_key']  = $user_api_key;
+        $data['_provider'] = $provider;
     }
 }
 

@@ -567,6 +567,10 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
 .ak-ico{font-size:1rem;flex-shrink:0;width:22px;text-align:center}
 .ak-lbl{font-size:.78rem;font-weight:600;width:85px;flex-shrink:0;color:var(--tm)}
 .ak-saved{font-size:.7rem;color:var(--p);margin-top:.3rem;display:none}
+.model-selector{display:flex;gap:.5rem;margin-bottom:.5rem}
+.model-btn{flex:1;padding:.4rem .3rem;border-radius:10px;border:1px solid var(--bd);background:var(--s2);color:var(--tm);font-size:.74rem;font-weight:600;cursor:pointer;transition:.15s}
+.model-btn.active{border-color:var(--p);background:var(--pl);color:var(--p)}
+.model-info{font-size:.71rem;color:var(--tm);text-align:center;margin-bottom:.3rem}
 </style>
 </head>
 <body>
@@ -628,6 +632,16 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
           <div class="usage-txt" id="usageTxt">0 / 5 landings este mes</div>
           <button class="btn btn-primary btn-full" style="margin-top:.8rem;font-size:.82rem" id="btnUpgrade">⚡ Upgrade a Pro — $19/mes</button>
         </div>
+      </div>
+      <div class="stg-sec">
+        <div class="stg-sec-title">Modelo de IA activo</div>
+        <p style="font-size:.76rem;color:var(--tm);margin-bottom:.8rem;line-height:1.5">Elige con qué IA quieres generar tu landing. Necesitas tener la API Key del modelo seleccionado.</p>
+        <div class="model-selector">
+          <button class="model-btn active" id="mbAnthropic" onclick="selectModel('anthropic')">🤖 Anthropic</button>
+          <button class="model-btn" id="mbOpenai"    onclick="selectModel('openai')">🟢 OpenAI</button>
+          <button class="model-btn" id="mbGemini"    onclick="selectModel('gemini')">🔵 Gemini</button>
+        </div>
+        <div class="model-info" id="modelInfo">Claude Haiku — rápido y preciso</div>
       </div>
       <div class="stg-sec">
         <div class="stg-sec-title">Mis API Keys de IA</div>
@@ -1304,6 +1318,26 @@ function updateUserBar(){
 }
 
 /* ── SETTINGS ──────────────────────────────── */
+const MODEL_INFO = {
+  anthropic: 'Claude Haiku — rápido y preciso',
+  openai:    'GPT-4o Mini — versátil y potente',
+  gemini:    'Gemini 1.5 Flash — rápido y eficiente'
+};
+
+function selectModel(provider){
+  localStorage.setItem('_ai_provider', provider);
+  ['Anthropic','Openai','Gemini'].forEach(p => {
+    const btn = document.getElementById('mb' + p);
+    if(btn) btn.classList.toggle('active', p.toLowerCase() === provider);
+  });
+  const info = document.getElementById('modelInfo');
+  if(info) info.textContent = MODEL_INFO[provider] || '';
+}
+
+function getActiveProvider(){
+  return localStorage.getItem('_ai_provider') || 'anthropic';
+}
+
 function openSettings(){
   if(!_user){ showAuthModal(); return; }
   document.getElementById('settingsOverlay').style.display = 'flex';
@@ -1313,6 +1347,7 @@ function openSettings(){
   document.getElementById('stgPlanDetail').textContent = {free:'5 landings · 3 Ads PDFs por mes', pro:'Ilimitado · Sin marca de agua', agency:'Ilimitado · Multi-cliente · White label'}[plan];
   const upgradeBtn = document.getElementById('btnUpgrade');
   if(upgradeBtn) upgradeBtn.style.display = plan === 'free' ? '' : 'none';
+  selectModel(getActiveProvider());
   loadUsage();
   loadApiKeys();
 }
@@ -1352,7 +1387,7 @@ async function saveApiKey(provider){
   if(!key){ toast('Ingresa una API Key'); return; }
   if(!_sb || !_user){ toast('No hay sesión activa'); return; }
   const { error } = await _sb.from('api_keys').upsert(
-    { user_id:_user.id, provider, key_encrypted:key },
+    { user_id:_user.id, provider, key_enc:key },
     { onConflict:'user_id,provider' }
   );
   if(error){ toast('❌ ' + error.message); return; }
@@ -1364,7 +1399,8 @@ async function saveApiKey(provider){
 }
 
 function getAuthPayload(){
-  return AUTH_ENABLED && _authTok ? { _auth_token: _authTok, _user_id: _user?.id } : {};
+  const base = AUTH_ENABLED && _authTok ? { _auth_token: _authTok, _user_id: _user?.id } : {};
+  return { ...base, _provider: getActiveProvider() };
 }
 
 const SEC_LIST = [
@@ -2557,12 +2593,14 @@ async function confirmAIImg(){
 
 /* ── TOAST ───────────────────────────────────── */
 function showNoApiKeyAlert(){
-  const msg = '🔑 Necesitas agregar tu API key de Anthropic para generar contenido.\n\nVe a Configuración (⚙️) → API Keys → Anthropic y pega tu key.';
-  if(confirm(msg + '\n\n¿Abrir Configuración ahora?')){
+  const p     = getActiveProvider();
+  const names = { anthropic:'Anthropic', openai:'OpenAI', gemini:'Gemini' };
+  const ids   = { anthropic:'keyAnthropic', openai:'keyOpenai', gemini:'keyGemini' };
+  const name  = names[p] || p;
+  if(confirm('🔑 Necesitas agregar tu API key de ' + name + ' para generar contenido.\n\nVe a Configuración (⚙️) → API Keys → ' + name + ' y pega tu key.\n\n¿Abrir Configuración ahora?')){
     openSettings();
-    // Hacer scroll al campo de Anthropic dentro del panel
     setTimeout(() => {
-      const el = document.getElementById('akAnthropic');
+      const el = document.getElementById(ids[p]);
       if(el){ el.focus(); el.scrollIntoView({behavior:'smooth',block:'center'}); }
     }, 300);
   }
