@@ -1240,10 +1240,11 @@ const SUPABASE_URL  = 'https://jsrbfuwjkqwzhjdsbicg.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_aOtEsxOOgBqL05kQ8eMIDQ_WHF7rw54';
 const AUTH_ENABLED  = !SUPABASE_URL.includes('xxxx');
 
-let _sb       = null;
-let _user     = null;
-let _profile  = null;
-let _authTok  = null;
+let _sb             = null;
+let _user           = null;
+let _profile        = null;
+let _authTok        = null;
+let _savedProviders = new Set();
 
 /* ── SUPABASE INIT ─────────────────────────── */
 function initSupabase(){
@@ -1261,6 +1262,7 @@ async function initAuth(){
       _user = session.user;
       _authTok = session.access_token;
       await loadProfile();
+      loadApiKeys();
     } else {
       showAuthModal();
     }
@@ -1271,6 +1273,7 @@ async function initAuth(){
       _user = session.user;
       _authTok = session.access_token;
       await loadProfile();
+      loadApiKeys();
       hideAuthModal();
     } else if(ev === 'SIGNED_OUT'){
       _user = null; _profile = null; _authTok = null;
@@ -1484,35 +1487,57 @@ async function loadUsage(){
 }
 
 async function loadApiKeys(){
-  if(!_sb || !_user) return;
+  if(!_authTok) return;
   try{
-    const { data } = await _sb.from('api_keys').select('provider').eq('user_id',_user.id);
-    if(!data) return;
+    const res  = await fetch(PROXY, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({accion:'load_api_keys', _auth_token:_authTok, _user_id:_user?.id})
+    });
+    const json = await res.json();
+    if(!json.success || !Array.isArray(json.providers)) return;
+    _savedProviders = new Set(json.providers);
     ['Anthropic','Openai','Gemini','Fal'].forEach(p => {
-      const has = data.some(k => k.provider === p.toLowerCase());
+      const has = json.providers.includes(p.toLowerCase());
       const inp = document.getElementById('key'+p);
       if(inp && has) inp.placeholder = '●●●●●●●●●● (guardada)';
     });
   } catch(e){}
 }
 
+function _akMsg(text, ok){
+  const el = document.getElementById('akSavedMsg');
+  if(el){
+    el.textContent = text;
+    el.style.color = ok ? 'var(--p)' : '#e53e3e';
+    el.style.display = 'block';
+    clearTimeout(el._t);
+    el._t = setTimeout(()=>{ el.style.display='none'; }, 5000);
+  }
+}
+
 async function saveApiKey(provider){
   const idMap = {anthropic:'keyAnthropic', openai:'keyOpenai', gemini:'keyGemini', fal:'keyFal'};
   const inp = document.getElementById(idMap[provider]);
-  if(!inp) return;
+  if(!inp){ _akMsg('❌ Campo no encontrado: ' + provider, false); return; }
   const key = inp.value.trim();
-  if(!key){ toast('Ingresa una API Key'); return; }
-  if(!_sb || !_user){ toast('No hay sesión activa'); return; }
-  const { error } = await _sb.from('api_keys').upsert(
-    { user_id:_user.id, provider, key_enc:key },
-    { onConflict:'user_id,provider' }
-  );
-  if(error){ toast('❌ ' + error.message); return; }
-  inp.value = '';
-  inp.placeholder = '●●●●●●●●●● (guardada)';
-  const msg = document.getElementById('akSavedMsg');
-  if(msg){ msg.style.display='block'; setTimeout(()=>msg.style.display='none', 3000); }
-  toast('✓ API Key guardada');
+  if(!key){ _akMsg('⚠️ Escribe la API Key antes de guardar', false); return; }
+  if(!_authTok){ _akMsg('⚠️ Sesión no activa — recarga la página', false); return; }
+  _akMsg('⏳ Guardando...', true);
+  try{
+    const res  = await fetch(PROXY, {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({accion:'save_api_key', _auth_token:_authTok, _user_id:_user?.id, provider, key_enc:key})
+    });
+    if(!res.ok){ _akMsg('❌ Error HTTP ' + res.status + ' — revisa el servidor', false); return; }
+    const json = await res.json();
+    if(!json.success){ _akMsg('❌ ' + (json.error || 'Error al guardar'), false); return; }
+    inp.value = '';
+    inp.placeholder = '●●●●●●●●●● (guardada)';
+    _savedProviders.add(provider);
+    _akMsg('✓ API Key guardada correctamente', true);
+  } catch(e){ _akMsg('❌ ' + e.message, false); }
 }
 
 function getAuthPayload(){
@@ -1964,7 +1989,7 @@ async function generateCopy(){
     const data = await res.json();
 
     if(!data.success){
-      if(data.code === 'NO_API_KEY'){ hideOverlay(); showNoApiKeyAlert(); return; }
+      if(data.code === 'NO_API_KEY'){ hideOverlay(); console.error('[NO_API_KEY]', data); handleNoApiKey(data.provider); return; }
       throw new Error(data.error || data.message || 'Error generando copy');
     }
     st.copy = data.copy;
@@ -2403,7 +2428,7 @@ async function generate(tipo_salida){
     const data = await res.json();
 
     if(!data.success){
-      if(data.code === 'NO_API_KEY'){ hideOverlay(); showNoApiKeyAlert(); return; }
+      if(data.code === 'NO_API_KEY'){ hideOverlay(); console.error('[NO_API_KEY]', data); handleNoApiKey(data.provider); return; }
       throw new Error(data.error || data.message || 'Error generando la landing');
     }
     if(!data.html){
@@ -2716,15 +2741,33 @@ async function confirmAIImg(){
 }
 
 /* ── TOAST ───────────────────────────────────── */
-function showNoApiKeyAlert(){
-  const p     = getActiveProvider();
+function handleNoApiKey(neededProvider){
+  neededProvider = neededProvider || getActiveProvider();
+  const provNames = {anthropic:'Anthropic', openai:'OpenAI', gemini:'Gemini'};
+  const alt = ['anthropic','openai','gemini'].find(p => p !== neededProvider && _savedProviders.has(p));
+  if(alt){
+    selectModel(alt);
+    toast('💡 Cambiado a ' + (provNames[alt]||alt) + '. Pulsa Generar Copy de nuevo.', 5000);
+  } else {
+    showNoApiKeyAlert(neededProvider);
+  }
+}
+
+function showNoApiKeyAlert(provider){
+  provider = provider || getActiveProvider();
   const names = { anthropic:'Anthropic', openai:'OpenAI', gemini:'Gemini' };
   const ids   = { anthropic:'keyAnthropic', openai:'keyOpenai', gemini:'keyGemini' };
-  const name  = names[p] || p;
-  if(confirm('🔑 Necesitas agregar tu API key de ' + name + ' para generar contenido.\n\nVe a Configuración (⚙️) → API Keys → ' + name + ' y pega tu key.\n\n¿Abrir Configuración ahora?')){
+  const name  = names[provider] || provider;
+  const alts  = ['anthropic','openai','gemini'].filter(p => p !== provider && _savedProviders.has(p));
+  let msg = '🔑 Necesitas la API key de ' + name + ' para generar contenido.\n\nVe a Configuración (⚙️) → API Keys → ' + name + ' y pega tu key.';
+  if(alts.length){
+    msg += '\n\n💡 Ya tienes key guardada de: ' + alts.map(p => names[p]).join(', ') + '.\nPuedes cambiar el modelo activo en Configuración → IA para Copy.';
+  }
+  msg += '\n\n¿Abrir Configuración ahora?';
+  if(confirm(msg)){
     openSettings();
     setTimeout(() => {
-      const el = document.getElementById(ids[p]);
+      const el = document.getElementById(ids[provider]);
       if(el){ el.focus(); el.scrollIntoView({behavior:'smooth',block:'center'}); }
     }, 300);
   }

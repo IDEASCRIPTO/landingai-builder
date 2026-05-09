@@ -243,6 +243,78 @@ if ($auth_enabled && !empty($data['_auth_token'])) {
 // Limpiar campos de auth del payload antes de enviarlo a n8n
 unset($data['_auth_token'], $data['_user_id']);
 
+/* ── API KEY MANAGEMENT (save / load) ────────────────────────
+   Usa service_role para bypass RLS completo.
+   save_api_key: upsert de la key del usuario
+   load_api_keys: retorna lista de proveedores guardados
+─────────────────────────────────────────────────────────────── */
+$_svcKey  = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '';
+$_sbApiK  = $_svcKey ?: (getenv('SUPABASE_ANON_KEY') ?: '');
+$_sbAuth  = $_svcKey ? 'Bearer ' . $_svcKey : 'Bearer ' . ($token ?? '');
+
+if (($data['accion'] ?? '') === 'save_api_key') {
+    if (!$auth_enabled || !$auth_user_id) {
+        echo json_encode(['success'=>false,'error'=>'Autenticación requerida.']);
+        exit;
+    }
+    $prov   = $data['provider'] ?? '';
+    $keyVal = $data['key_enc']  ?? '';
+    if (!in_array($prov, ['anthropic','openai','gemini','fal']) || empty($keyVal)) {
+        echo json_encode(['success'=>false,'error'=>'Proveedor o key inválidos.']);
+        exit;
+    }
+    $body = json_encode([['user_id'=>$auth_user_id,'provider'=>$prov,'key_enc'=>$keyVal]]);
+    $chS  = curl_init($SUPABASE_URL . '/rest/v1/api_keys');
+    curl_setopt_array($chS, [
+        CURLOPT_POST           => true,
+        CURLOPT_POSTFIELDS     => $body,
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: ' . $_sbAuth,
+            'apikey: ' . $_sbApiK,
+            'Content-Type: application/json',
+            'Prefer: resolution=merge-duplicates,return=minimal',
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 8,
+        CURLOPT_SSL_VERIFYPEER => false,
+    ]);
+    $sResp = curl_exec($chS);
+    $sErr  = curl_error($chS);
+    $sCode = curl_getinfo($chS, CURLINFO_HTTP_CODE);
+    curl_close($chS);
+    if ($sErr || $sCode >= 400) {
+        echo json_encode(['success'=>false,'error'=>$sErr ?: 'Error ' . $sCode . ': ' . substr($sResp, 0, 200)]);
+    } else {
+        echo json_encode(['success'=>true]);
+    }
+    exit;
+}
+
+if (($data['accion'] ?? '') === 'load_api_keys') {
+    if (!$auth_enabled || !$auth_user_id) {
+        echo json_encode(['success'=>true,'providers'=>[]]);
+        exit;
+    }
+    $chL = curl_init($SUPABASE_URL . '/rest/v1/api_keys?select=provider&user_id=eq.' . $auth_user_id);
+    curl_setopt_array($chL, [
+        CURLOPT_HTTPHEADER     => [
+            'Authorization: ' . $_sbAuth,
+            'apikey: ' . $_sbApiK,
+            'Accept: application/json',
+        ],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_TIMEOUT        => 6,
+        CURLOPT_SSL_VERIFYPEER => false,
+    ]);
+    $lResp = curl_exec($chL);
+    $lErr  = curl_error($chL);
+    curl_close($chL);
+    $lArr  = json_decode($lResp, true);
+    $provs = (is_array($lArr) && !$lErr) ? array_column($lArr, 'provider') : [];
+    echo json_encode(['success'=>true,'providers'=>$provs]);
+    exit;
+}
+
 /* ── API KEY ROUTING ──────────────────────────────────────────
    ADMIN_EMAIL → dueño, usa keys del sistema (env vars de EasyPanel)
    Otros       → deben tener su propia key del proveedor elegido
@@ -271,15 +343,12 @@ if (in_array($accion_actual, $AI_ACTIONS)) {
         $data['_api_key']  = $SYSTEM_KEYS[$provider];
         $data['_provider'] = $provider;
     } elseif ($auth_enabled && $auth_user_id && !empty($token)) {
-        // Usuario normal: buscar su key del proveedor elegido en Supabase
-        // Usa service_role si está disponible (bypass RLS); si no, usa el JWT del usuario
+        // Usuario normal: traer todas las keys del usuario y filtrar por proveedor en PHP
         $serviceRoleKey = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '';
-        $sbAuthHeader   = $serviceRoleKey
-            ? 'Bearer ' . $serviceRoleKey
-            : 'Bearer ' . $token;
-        $sbApiKey = $serviceRoleKey ?: (getenv('SUPABASE_ANON_KEY') ?: '');
+        $sbAuthHeader   = $serviceRoleKey ? 'Bearer ' . $serviceRoleKey : 'Bearer ' . $token;
+        $sbApiKey       = $serviceRoleKey ?: (getenv('SUPABASE_ANON_KEY') ?: '');
 
-        $chK = curl_init($SUPABASE_URL . '/rest/v1/api_keys?select=key_enc&user_id=eq.' . $auth_user_id . '&provider=eq.' . $provider . '&limit=1');
+        $chK = curl_init($SUPABASE_URL . '/rest/v1/api_keys?select=provider,key_enc&user_id=eq.' . rawurlencode($auth_user_id));
         curl_setopt_array($chK, [
             CURLOPT_HTTPHEADER     => [
                 'Authorization: ' . $sbAuthHeader,
@@ -290,16 +359,25 @@ if (in_array($accion_actual, $AI_ACTIONS)) {
             CURLOPT_TIMEOUT        => 6,
             CURLOPT_SSL_VERIFYPEER => false,
         ]);
-        $keyResp = curl_exec($chK);
+        $keyResp    = curl_exec($chK);
         $keyCurlErr = curl_error($chK);
+        $keyHttpCode = curl_getinfo($chK, CURLINFO_HTTP_CODE);
         curl_close($chK);
+
         $keyArr       = json_decode($keyResp, true);
-        $user_api_key = (is_array($keyArr) && !empty($keyArr[0]['key_enc'])) ? $keyArr[0]['key_enc'] : '';
+        $user_api_key = '';
+        if (is_array($keyArr)) {
+            foreach ($keyArr as $row) {
+                if (($row['provider'] ?? '') === $provider && !empty($row['key_enc'])) {
+                    $user_api_key = $row['key_enc'];
+                    break;
+                }
+            }
+        }
 
         if (empty($user_api_key)) {
             $provName = ['anthropic'=>'Anthropic','openai'=>'OpenAI','gemini'=>'Gemini'][$provider] ?? $provider;
-            // Debug: incluir respuesta de Supabase para diagnosticar el problema
-            $sbDebug = $keyCurlErr ?: (substr($keyResp ?: '', 0, 300));
+            $sbDebug  = $keyCurlErr ?: ('HTTP ' . $keyHttpCode . ' | rows=' . (is_array($keyArr) ? count($keyArr) : 'null') . ' | ' . substr($keyResp ?: '', 0, 200));
             echo json_encode([
                 'success'  => false,
                 'error'    => 'Necesitas configurar tu API key de ' . $provName . ' en Configuración (⚙️).',
@@ -357,11 +435,19 @@ if ($accion_actual === 'generar_imagen') {
         $serviceRoleKey = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '';
         $sbAuth = $serviceRoleKey ? 'Bearer '.$serviceRoleKey : 'Bearer '.$token;
         $sbKey  = $serviceRoleKey ?: (getenv('SUPABASE_ANON_KEY') ?: '');
-        $chImg  = curl_init($SUPABASE_URL.'/rest/v1/api_keys?select=key_enc&user_id=eq.'.$auth_user_id.'&provider=eq.'.$imgKeyProvider.'&limit=1');
+        $chImg  = curl_init($SUPABASE_URL.'/rest/v1/api_keys?select=provider,key_enc&user_id=eq.'.rawurlencode($auth_user_id));
         curl_setopt_array($chImg, [CURLOPT_HTTPHEADER=>['Authorization: '.$sbAuth,'apikey: '.$sbKey,'Accept: application/json'], CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>6, CURLOPT_SSL_VERIFYPEER=>false]);
         $kResp = curl_exec($chImg); curl_close($chImg);
         $kArr  = json_decode($kResp, true);
-        $imgApiKey = (is_array($kArr) && !empty($kArr[0]['key_enc'])) ? $kArr[0]['key_enc'] : '';
+        $imgApiKey = '';
+        if (is_array($kArr)) {
+            foreach ($kArr as $row) {
+                if (($row['provider'] ?? '') === $imgKeyProvider && !empty($row['key_enc'])) {
+                    $imgApiKey = $row['key_enc'];
+                    break;
+                }
+            }
+        }
     }
 
     if (empty($imgApiKey)) {
