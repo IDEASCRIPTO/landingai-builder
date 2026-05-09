@@ -18,6 +18,56 @@ if (!$data || !isset($data['accion'])) {
     exit;
 }
 
+/* ── AI DIRECTO: llama a la API del proveedor con PHP curl (evita bug n8n HTTP body) ── */
+function callAiDirect(string $provider, string $apiKey, string $prompt): array {
+    if ($provider === 'openai') {
+        $url  = 'https://api.openai.com/v1/chat/completions';
+        $body = json_encode(['model'=>'gpt-4o-mini','max_tokens'=>4000,'messages'=>[['role'=>'user','content'=>$prompt]]]);
+        $hdrs = ['Content-Type: application/json','Authorization: Bearer '.$apiKey];
+    } elseif ($provider === 'gemini') {
+        $url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='.$apiKey;
+        $body = json_encode(['contents'=>[['parts'=>[['text'=>$prompt]]]]]);
+        $hdrs = ['Content-Type: application/json'];
+    } else {
+        $url  = 'https://api.anthropic.com/v1/messages';
+        $body = json_encode(['model'=>'claude-sonnet-4-6','max_tokens'=>4000,'messages'=>[['role'=>'user','content'=>$prompt]]]);
+        $hdrs = ['Content-Type: application/json','x-api-key: '.$apiKey,'anthropic-version: 2023-06-01'];
+    }
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_POST=>true, CURLOPT_POSTFIELDS=>$body, CURLOPT_HTTPHEADER=>$hdrs,
+        CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>120, CURLOPT_SSL_VERIFYPEER=>false,
+    ]);
+    $resp = curl_exec($ch);
+    $err  = curl_error($ch);
+    curl_close($ch);
+    if ($err) return ['__curl_error'=>$err];
+    return json_decode($resp, true) ?: ['__curl_error'=>'Respuesta no es JSON'];
+}
+
+/* Misma lógica que el nodo n8n "Parsear Respuesta Claude" */
+function parseAiCopyResponse(array $resp): array {
+    if (isset($resp['__curl_error'])) return ['error'=>$resp['__curl_error']];
+    if (isset($resp['error']) && !isset($resp['content']) && !isset($resp['choices']) && !isset($resp['candidates'])) {
+        return ['error'=> $resp['error']['message'] ?? json_encode($resp['error'])];
+    }
+    $text = '';
+    if (!empty($resp['choices'][0]['message'])) {
+        $text = $resp['choices'][0]['message']['content'] ?? '';
+    } elseif (!empty($resp['candidates'][0]['content']['parts'])) {
+        $text = $resp['candidates'][0]['content']['parts'][0]['text'] ?? '';
+    } elseif (!empty($resp['content'][0])) {
+        $text = $resp['content'][0]['text'] ?? '';
+    }
+    $copy = json_decode($text, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $s = strpos($text, '{'); $e = strrpos($text, '}');
+        if ($s !== false && $e > $s) $copy = json_decode(substr($text, $s, $e - $s + 1), true);
+        if (!$copy) $copy = ['raw' => $text];
+    }
+    return ['copy' => $copy, 'raw_text' => $text];
+}
+
 /* ── SUPABASE AUTH ────────────────────────────────
    Configura tu proyecto Supabase:
    - SUPABASE_URL: URL de tu proyecto (ej: https://xxxx.supabase.co)
@@ -224,6 +274,60 @@ if (!isset($routes[$accion])) {
 
 set_time_limit(300);
 $url = $routes[$accion];
+
+/* ── ACCIONES COPY: n8n genera el prompt, PHP llama AI directamente ─────────────
+   n8n ya no tiene acceso al HTTP body dinámico por un bug de n8n (double-encoding).
+   Solución: n8n devuelve solo el prompt, proxy.php hace la llamada AI con curl.
+──────────────────────────────────────────────────────────────────────────────── */
+$COPY_ACTIONS = ['generar_copy', 'regenerar_seccion', 'generar_ads'];
+if (in_array($accion_actual, $COPY_ACTIONS) && !empty($data['_api_key'])) {
+    $apiKey      = $data['_api_key'];
+    $aiProvider  = $data['_provider'] ?? 'anthropic';
+
+    // Paso 1: pedir prompt a n8n (no llama AI, solo genera el prompt)
+    $ch1 = curl_init($url);
+    curl_setopt_array($ch1, [
+        CURLOPT_POST=>true, CURLOPT_POSTFIELDS=>json_encode($data),
+        CURLOPT_HTTPHEADER=>['Content-Type: application/json'],
+        CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>30,
+        CURLOPT_CONNECTTIMEOUT=>10, CURLOPT_SSL_VERIFYPEER=>false,
+    ]);
+    $n8nRaw  = curl_exec($ch1);
+    $n8nErr  = curl_error($ch1);
+    curl_close($ch1);
+
+    if ($n8nErr || empty($n8nRaw)) {
+        echo json_encode(['success'=>false,'error'=>$n8nErr ?: 'Sin respuesta de n8n (prompt)']);
+        exit;
+    }
+    $n8nData = json_decode($n8nRaw, true);
+    if (is_array($n8nData) && isset($n8nData[0])) $n8nData = $n8nData[0];
+    $prompt = $n8nData['prompt'] ?? '';
+
+    if (empty($prompt)) {
+        echo json_encode(['success'=>false,'error'=>'n8n no retornó un prompt válido','raw'=>substr($n8nRaw,0,200)]);
+        exit;
+    }
+
+    // Paso 2: llamar AI directamente con PHP curl
+    $aiResp = callAiDirect($aiProvider, $apiKey, $prompt);
+
+    // Paso 3: parsear respuesta (misma lógica que nodo n8n "Parsear Respuesta Claude")
+    $parsed = parseAiCopyResponse($aiResp);
+
+    if (isset($parsed['error'])) {
+        echo json_encode(['success'=>false,'error'=>$parsed['error']]);
+        exit;
+    }
+
+    $copy = $parsed['copy'] ?? [];
+    if (is_array($copy) && (isset($copy['meta']) || isset($copy['tiktok']))) {
+        echo json_encode(['success'=>true,'ads'=>$copy]);
+    } else {
+        echo json_encode(['success'=>true,'copy'=>$copy]);
+    }
+    exit;
+}
 
 $payload = json_encode($data);
 
