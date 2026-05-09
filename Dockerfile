@@ -1,7 +1,10 @@
 ﻿FROM php:8.2-apache
 
 # curl necesario para proxy.php
-RUN docker-php-ext-install curl && a2enmod rewrite
+RUN apt-get update && apt-get install -y libcurl4-openssl-dev && \
+    docker-php-ext-install curl && \
+    a2enmod rewrite && \
+    rm -rf /var/lib/apt/lists/*
 
 # Copiar archivos públicos
 COPY index.html   /var/www/html/index.html
