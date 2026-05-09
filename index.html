@@ -927,7 +927,25 @@ function ytBannerSvg(){ return '<svg class="yt-icon" viewBox="0 0 24 24" fill="#
     <!-- Ads PDF -->
     <div class="card" id="adsCard" style="display:none">
       <div class="sec-title">📢 Publicidad — Meta & TikTok Ads</div>
-      <p style="font-size:.82rem;color:var(--tm);margin-bottom:.9rem;line-height:1.6">Genera 3 variantes de copy listo para usar en Facebook, Instagram y TikTok Ads. Se descarga como PDF.</p>
+      <p style="font-size:.82rem;color:var(--tm);margin-bottom:.9rem;line-height:1.6">Genera copy listo para usar en Facebook, Instagram y TikTok Ads. Se descarga como PDF.</p>
+      <div style="display:flex;gap:.7rem;margin-bottom:.8rem;flex-wrap:wrap">
+        <div style="flex:1;min-width:120px">
+          <label style="font-size:.73rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Variantes</label>
+          <select id="adsCantidad" class="cf-inp" style="padding:.35rem .5rem;font-size:.8rem">
+            <option value="1">1 variante</option>
+            <option value="2">2 variantes</option>
+            <option value="3" selected>3 variantes</option>
+          </select>
+        </div>
+        <div style="flex:2;min-width:180px">
+          <label style="font-size:.73rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Estilo de copy</label>
+          <select id="adsEstilo" class="cf-inp" style="padding:.35rem .5rem;font-size:.8rem">
+            <option value="emojis">😎 Con emojis</option>
+            <option value="lista">📋 Lista de puntos</option>
+            <option value="titulo_desc_cta" selected>🎯 Título + Descripción + CTA</option>
+          </select>
+        </div>
+      </div>
       <button class="btn btn-secondary btn-full" id="btnAdsPdf" onclick="generateAdsPDF()">
         📥 Descargar Copy para Ads (PDF)
       </button>
@@ -1881,7 +1899,9 @@ async function generateAdsPDF(){
       tono: document.getElementById('s1_tono').value,
       instrucciones: document.getElementById('s1_instr').value.trim(),
       pais: document.getElementById('s1_pais').value,
-      pais_nombre: (COUNTRIES[document.getElementById('s1_pais').value]||{}).name || ''
+      pais_nombre: (COUNTRIES[document.getElementById('s1_pais').value]||{}).name || '',
+      cantidad_variantes: parseInt(document.getElementById('adsCantidad')?.value || '3'),
+      estilo_copy: document.getElementById('adsEstilo')?.value || 'titulo_desc_cta'
     };
     const res = await fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
     const data = await res.json();
@@ -1962,6 +1982,7 @@ body{font-family:-apple-system,'Segoe UI',Arial,sans-serif;background:#fff;color
   const win = window.open('','_blank','width=860,height=900');
   win.document.write(html);
   win.document.close();
+  win.onload = () => setTimeout(() => win.print(), 400);
 }
 
 /* ── BUILD COPY EDITOR ───────────────────────── */

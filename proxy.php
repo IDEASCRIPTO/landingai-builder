@@ -417,4 +417,9 @@ if ($liquid && substr_count($liquid, '{{ product.price | money }}') > 50) {
     exit;
 }
 
+// Para generar_imagen: si n8n retorna url pero sin success, agregarlo
+if (!isset($parsed['success']) && isset($parsed['url']) && !empty($parsed['url'])) {
+    $parsed['success'] = true;
+}
+
 echo json_encode($parsed);
