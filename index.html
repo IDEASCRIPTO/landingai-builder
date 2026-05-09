@@ -2642,6 +2642,7 @@ async function suggestAIPrompt(){
     bens:'beneficios del producto'
   };
   const payload = {
+    ...getAuthPayload(),
     accion: 'generar_prompt_imagen',
     seccion: secLabels[_aiImgTarget.key] || _aiImgTarget.key,
     nombre_producto: document.getElementById('s1_nombre')?.value?.trim() || '',
@@ -2685,6 +2686,7 @@ async function confirmAIImg(){
 
   try {
     const payload = {
+      ...getAuthPayload(),
       accion: 'generar_imagen',
       prompt,
       nombre_producto: document.getElementById('s1_nombre').value.trim(),
