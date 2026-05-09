@@ -94,7 +94,12 @@ if ($auth_enabled && !empty($data['_auth_token'])) {
     curl_close($ch);
 
     if ($httpCode !== 200) {
-        echo json_encode(['success'=>false,'error'=>'Sesión inválida. Inicia sesión nuevamente.','code'=>401]);
+        echo json_encode([
+            'success' => false,
+            'error'   => 'Sesión inválida. Inicia sesión nuevamente.',
+            'code'    => 401,
+            '_debug'  => ['http_code' => $httpCode, 'url' => $SUPABASE_URL . '/auth/v1/user', 'resp' => substr($resp ?: '', 0, 200)],
+        ]);
         exit;
     }
 
