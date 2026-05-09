@@ -1382,6 +1382,7 @@ async function loadApiKeys(){
 async function saveApiKey(provider){
   const idMap = {anthropic:'keyAnthropic', openai:'keyOpenai', gemini:'keyGemini'};
   const inp = document.getElementById(idMap[provider]);
+  alert('DEBUG saveApiKey\nprovider: ' + provider + '\ninp existe: ' + !!inp + '\nkey chars: ' + (inp?.value?.trim()?.length||0) + '\n_user: ' + (_user?.id||'NULL') + '\n_sb: ' + !!_sb);
   if(!inp) return;
   const key = inp.value.trim();
   if(!key){ toast('Ingresa una API Key'); return; }
