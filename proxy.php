@@ -18,6 +18,50 @@ if (!$data || !isset($data['accion'])) {
     exit;
 }
 
+/* ── IMAGEN DIRECTO: DALL-E 3 / Flux / Google Imagen ─────────────────────────────── */
+function callImageDirect(string $imgProvider, string $apiKey, string $prompt): array {
+    if ($imgProvider === 'flux') {
+        $url  = 'https://fal.run/fal-ai/flux/schnell';
+        $body = json_encode(['prompt'=>$prompt,'image_size'=>'landscape_4_3','num_inference_steps'=>4,'num_images'=>1,'enable_safety_checker'=>true]);
+        $hdrs = ['Content-Type: application/json', 'Authorization: Key ' . $apiKey];
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [CURLOPT_POST=>true, CURLOPT_POSTFIELDS=>$body, CURLOPT_HTTPHEADER=>$hdrs, CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>60, CURLOPT_SSL_VERIFYPEER=>false]);
+        $resp = curl_exec($ch); $err = curl_error($ch); curl_close($ch);
+        if ($err) return ['__error'=>$err];
+        $r = json_decode($resp, true);
+        $url_img = $r['images'][0]['url'] ?? null;
+        return $url_img ? ['url'=>$url_img] : ['__error'=>'Flux no retornó imagen: '.substr($resp,0,200)];
+
+    } elseif ($imgProvider === 'imagen') {
+        $url  = 'https://generativelanguage.googleapis.com/v1beta/models/imagen-3.0-generate-002:predict?key=' . $apiKey;
+        $body = json_encode(['instances'=>[['prompt'=>$prompt]],'parameters'=>['sampleCount'=>1]]);
+        $hdrs = ['Content-Type: application/json'];
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [CURLOPT_POST=>true, CURLOPT_POSTFIELDS=>$body, CURLOPT_HTTPHEADER=>$hdrs, CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>60, CURLOPT_SSL_VERIFYPEER=>false]);
+        $resp = curl_exec($ch); $err = curl_error($ch); curl_close($ch);
+        if ($err) return ['__error'=>$err];
+        $r = json_decode($resp, true);
+        if (isset($r['error'])) return ['__error'=>$r['error']['message'] ?? json_encode($r['error'])];
+        $b64 = $r['predictions'][0]['bytesBase64Encoded'] ?? null;
+        $mime = $r['predictions'][0]['mimeType'] ?? 'image/png';
+        return $b64 ? ['url'=>'data:'.$mime.';base64,'.$b64] : ['__error'=>'Imagen no retornó datos: '.substr($resp,0,200)];
+
+    } else {
+        // DALL-E 3 (default)
+        $url  = 'https://api.openai.com/v1/images/generations';
+        $body = json_encode(['model'=>'dall-e-3','prompt'=>$prompt,'n'=>1,'size'=>'1024x1024']);
+        $hdrs = ['Content-Type: application/json', 'Authorization: Bearer ' . $apiKey];
+        $ch = curl_init($url);
+        curl_setopt_array($ch, [CURLOPT_POST=>true, CURLOPT_POSTFIELDS=>$body, CURLOPT_HTTPHEADER=>$hdrs, CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>60, CURLOPT_SSL_VERIFYPEER=>false]);
+        $resp = curl_exec($ch); $err = curl_error($ch); curl_close($ch);
+        if ($err) return ['__error'=>$err];
+        $r = json_decode($resp, true);
+        if (isset($r['error'])) return ['__error'=>$r['error']['message'] ?? json_encode($r['error'])];
+        $url_img = $r['data'][0]['url'] ?? null;
+        return $url_img ? ['url'=>$url_img] : ['__error'=>'DALL-E no retornó URL: '.substr($resp,0,200)];
+    }
+}
+
 /* ── AI DIRECTO: llama a la API del proveedor con PHP curl (evita bug n8n HTTP body) ── */
 function callAiDirect(string $provider, string $apiKey, string $prompt): array {
     if ($provider === 'openai') {
@@ -290,6 +334,50 @@ if (!isset($routes[$accion])) {
 
 set_time_limit(300);
 $url = $routes[$accion];
+
+/* ── GENERAR IMAGEN: PHP llama API de imagen directamente (DALL-E / Flux / Google Imagen) ── */
+if ($accion_actual === 'generar_imagen') {
+    $imgProvider = $data['_imagen_provider'] ?? 'dalle';
+    $prompt      = $data['prompt'] ?? '';
+
+    if (empty($prompt)) {
+        echo json_encode(['success'=>false,'error'=>'Falta el prompt de la imagen']);
+        exit;
+    }
+
+    // Obtener la API key del proveedor de imagen
+    $imgKeyMap = ['dalle'=>'openai', 'flux'=>'fal', 'imagen'=>'gemini'];
+    $imgKeyProvider = $imgKeyMap[$imgProvider] ?? 'openai';
+
+    // Admin usa key del sistema; usuario usa su key de Supabase
+    if ($is_admin || !$auth_enabled) {
+        $sysKeyMap = ['openai'=>'OPENAI_API_KEY', 'fal'=>'FAL_API_KEY', 'gemini'=>'GEMINI_API_KEY'];
+        $imgApiKey = getenv($sysKeyMap[$imgKeyProvider] ?? 'OPENAI_API_KEY') ?: '';
+    } else {
+        $serviceRoleKey = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '';
+        $sbAuth = $serviceRoleKey ? 'Bearer '.$serviceRoleKey : 'Bearer '.$token;
+        $sbKey  = $serviceRoleKey ?: (getenv('SUPABASE_ANON_KEY') ?: '');
+        $chImg  = curl_init($SUPABASE_URL.'/rest/v1/api_keys?select=key_enc&user_id=eq.'.$auth_user_id.'&provider=eq.'.$imgKeyProvider.'&limit=1');
+        curl_setopt_array($chImg, [CURLOPT_HTTPHEADER=>['Authorization: '.$sbAuth,'apikey: '.$sbKey,'Accept: application/json'], CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>6, CURLOPT_SSL_VERIFYPEER=>false]);
+        $kResp = curl_exec($chImg); curl_close($chImg);
+        $kArr  = json_decode($kResp, true);
+        $imgApiKey = (is_array($kArr) && !empty($kArr[0]['key_enc'])) ? $kArr[0]['key_enc'] : '';
+    }
+
+    if (empty($imgApiKey)) {
+        $provNames = ['openai'=>'OpenAI (para DALL-E)', 'fal'=>'fal.ai (para Flux)', 'gemini'=>'Gemini (para Google Imagen)'];
+        echo json_encode(['success'=>false,'error'=>'Necesitas configurar tu API key de '.($provNames[$imgKeyProvider]??$imgKeyProvider).' en Configuración (⚙️).','code'=>'NO_API_KEY']);
+        exit;
+    }
+
+    $imgResult = callImageDirect($imgProvider, $imgApiKey, $prompt);
+    if (isset($imgResult['__error'])) {
+        echo json_encode(['success'=>false,'error'=>$imgResult['__error']]);
+        exit;
+    }
+    echo json_encode(['success'=>true,'url'=>$imgResult['url']]);
+    exit;
+}
 
 /* ── ACCIONES COPY: n8n genera el prompt, PHP llama AI directamente ─────────────
    n8n ya no tiene acceso al HTTP body dinámico por un bug de n8n (double-encoding).

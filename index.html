@@ -634,14 +634,24 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
         </div>
       </div>
       <div class="stg-sec">
-        <div class="stg-sec-title">Modelo de IA activo</div>
-        <p style="font-size:.76rem;color:var(--tm);margin-bottom:.8rem;line-height:1.5">Elige con qué IA quieres generar tu landing. Necesitas tener la API Key del modelo seleccionado.</p>
+        <div class="stg-sec-title">IA para Copy</div>
+        <p style="font-size:.76rem;color:var(--tm);margin-bottom:.8rem;line-height:1.5">Elige con qué IA quieres generar el texto de tu landing.</p>
         <div class="model-selector">
           <button class="model-btn active" id="mbAnthropic" onclick="selectModel('anthropic')">🤖 Anthropic</button>
           <button class="model-btn" id="mbOpenai"    onclick="selectModel('openai')">🟢 OpenAI</button>
           <button class="model-btn" id="mbGemini"    onclick="selectModel('gemini')">🔵 Gemini</button>
         </div>
         <div class="model-info" id="modelInfo">Claude Haiku — rápido y preciso</div>
+      </div>
+      <div class="stg-sec">
+        <div class="stg-sec-title">IA para Imágenes</div>
+        <p style="font-size:.76rem;color:var(--tm);margin-bottom:.8rem;line-height:1.5">Elige con qué IA quieres generar las imágenes. Cada una usa su propia API Key.</p>
+        <div class="model-selector">
+          <button class="model-btn" id="imgBtnDalle"  onclick="selectImageModel('dalle')">🎨 DALL-E 3</button>
+          <button class="model-btn" id="imgBtnFlux"   onclick="selectImageModel('flux')">⚡ Flux</button>
+          <button class="model-btn" id="imgBtnImagen" onclick="selectImageModel('imagen')">🔵 Imagen</button>
+        </div>
+        <div class="model-info" id="imgModelInfo">DALL-E 3 — alta calidad, usa key OpenAI</div>
       </div>
       <div class="stg-sec">
         <div class="stg-sec-title">Mis API Keys de IA</div>
@@ -660,6 +670,11 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
           <span class="ak-ico">🔵</span><label class="ak-lbl">Gemini</label>
           <input type="password" id="keyGemini" class="cf-inp" placeholder="AIzaSy..." style="flex:1">
           <button class="btn btn-secondary" style="padding:.35rem .65rem;font-size:.73rem;white-space:nowrap" onclick="saveApiKey('gemini')">Guardar</button>
+        </div>
+        <div class="ak-row">
+          <span class="ak-ico">⚡</span><label class="ak-lbl">fal.ai</label>
+          <input type="password" id="keyFal" class="cf-inp" placeholder="key-..." style="flex:1">
+          <button class="btn btn-secondary" style="padding:.35rem .65rem;font-size:.73rem;white-space:nowrap" onclick="saveApiKey('fal')">Guardar</button>
         </div>
         <div class="ak-saved" id="akSavedMsg">✓ API Key guardada correctamente</div>
       </div>
@@ -1342,6 +1357,30 @@ const MODEL_INFO = {
   gemini:    'Gemini 1.5 Flash — rápido y eficiente'
 };
 
+const IMG_MODEL_INFO = {
+  dalle:  'DALL-E 3 — alta calidad, usa key OpenAI',
+  flux:   'Flux Schnell — económico y rápido, usa key fal.ai',
+  imagen: 'Google Imagen 3 — fotorrealista, usa key Gemini'
+};
+
+// Mapeo: clave de imagen → sección de copy correspondiente
+const IMG_KEY_TO_SEC = {
+  bens:    'beneficios',
+  prob:    'problema',
+  hero:    'hero',
+  revs:    'reviews',
+  antes:   'ab',
+  despues: 'ab'
+};
+
+// Mapeo: sección → clave de imagen en st.imgs
+const SEC_TO_IMG_KEY = {
+  beneficios: 'bens',
+  problema:   'prob',
+  hero:       'hero',
+  reviews:    'revs'
+};
+
 function selectModel(provider){
   localStorage.setItem('_ai_provider', provider);
   ['Anthropic','Openai','Gemini'].forEach(p => {
@@ -1356,6 +1395,65 @@ function getActiveProvider(){
   return localStorage.getItem('_ai_provider') || 'anthropic';
 }
 
+function selectImageModel(provider){
+  localStorage.setItem('_img_provider', provider);
+  ['Dalle','Flux','Imagen'].forEach(p => {
+    const btn = document.getElementById('imgBtn' + p);
+    if(btn) btn.classList.toggle('active', p.toLowerCase() === provider);
+  });
+  const info = document.getElementById('imgModelInfo');
+  if(info) info.textContent = IMG_MODEL_INFO[provider] || '';
+}
+
+function getActiveImageProvider(){
+  return localStorage.getItem('_img_provider') || 'dalle';
+}
+
+function autoCompleteSection(imgKey){
+  const secId = IMG_KEY_TO_SEC[imgKey];
+  if(!secId || !st.copy || !st.copy[secId]) return;
+  const secEl = document.getElementById('csec_' + secId);
+  if(!secEl) return;
+  // Resaltar seccion brevemente como completa
+  secEl.style.transition = 'box-shadow .3s';
+  secEl.style.boxShadow = '0 0 0 2px #22c55e';
+  setTimeout(() => { secEl.style.boxShadow = ''; }, 2000);
+  // Actualizar thumbnail en el header
+  updateSecThumbnail(secId);
+  // Scroll suave hacia la sección
+  secEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function getSecImgUrl(secId){
+  const key = SEC_TO_IMG_KEY[secId];
+  if(!key || !st.imgs) return null;
+  const imgObj = st.imgs[key];
+  if(!imgObj) return null;
+  return imgObj.url || imgObj.urls?.[0] || null;
+}
+
+function updateSecThumbnail(secId){
+  const secEl = document.getElementById('csec_' + secId);
+  if(!secEl) return;
+  const url = getSecImgUrl(secId);
+  const head = secEl.querySelector('.csec-head');
+  if(!head) return;
+  let thumb = head.querySelector('.csec-thumb');
+  if(url){
+    if(!thumb){
+      thumb = document.createElement('img');
+      thumb.className = 'csec-thumb';
+      thumb.style.cssText = 'width:30px;height:30px;border-radius:4px;object-fit:cover;flex-shrink:0;margin-left:.3rem';
+      const ts = head.querySelector('.csec-title');
+      if(ts) ts.parentNode.insertBefore(thumb, ts.nextSibling);
+    }
+    thumb.src = url;
+    thumb.title = 'Imagen generada ✓';
+  } else if(thumb){
+    thumb.remove();
+  }
+}
+
 function openSettings(){
   if(!_user){ showAuthModal(); return; }
   document.getElementById('settingsOverlay').style.display = 'flex';
@@ -1366,6 +1464,7 @@ function openSettings(){
   const upgradeBtn = document.getElementById('btnUpgrade');
   if(upgradeBtn) upgradeBtn.style.display = plan === 'free' ? '' : 'none';
   selectModel(getActiveProvider());
+  selectImageModel(getActiveImageProvider());
   loadUsage();
   loadApiKeys();
 }
@@ -1389,7 +1488,7 @@ async function loadApiKeys(){
   try{
     const { data } = await _sb.from('api_keys').select('provider').eq('user_id',_user.id);
     if(!data) return;
-    ['Anthropic','Openai','Gemini'].forEach(p => {
+    ['Anthropic','Openai','Gemini','Fal'].forEach(p => {
       const has = data.some(k => k.provider === p.toLowerCase());
       const inp = document.getElementById('key'+p);
       if(inp && has) inp.placeholder = '●●●●●●●●●● (guardada)';
@@ -1398,7 +1497,7 @@ async function loadApiKeys(){
 }
 
 async function saveApiKey(provider){
-  const idMap = {anthropic:'keyAnthropic', openai:'keyOpenai', gemini:'keyGemini'};
+  const idMap = {anthropic:'keyAnthropic', openai:'keyOpenai', gemini:'keyGemini', fal:'keyFal'};
   const inp = document.getElementById(idMap[provider]);
   if(!inp) return;
   const key = inp.value.trim();
@@ -2588,7 +2687,8 @@ async function confirmAIImg(){
     const payload = {
       accion: 'generar_imagen',
       prompt,
-      nombre_producto: document.getElementById('s1_nombre').value.trim()
+      nombre_producto: document.getElementById('s1_nombre').value.trim(),
+      _imagen_provider: getActiveImageProvider()
     };
     const res  = await fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
     const data = await res.json();
@@ -2604,6 +2704,7 @@ async function confirmAIImg(){
     }
     closeAIImgModal();
     toast('✅ Imagen generada y cargada');
+    autoCompleteSection(key);
   } catch(e){
     toast('❌ ' + e.message, 4000);
   } finally {
