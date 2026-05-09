@@ -225,10 +225,12 @@ if (!isset($routes[$accion])) {
 set_time_limit(300);
 $url = $routes[$accion];
 
+$payload = json_encode($data);
+
 $ch = curl_init($url);
 curl_setopt_array($ch, [
     CURLOPT_POST           => true,
-    CURLOPT_POSTFIELDS     => $raw,
+    CURLOPT_POSTFIELDS     => $payload,
     CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
     CURLOPT_RETURNTRANSFER => true,
     CURLOPT_TIMEOUT        => 290,
