@@ -21,6 +21,27 @@ html{scroll-behavior:smooth}
 body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--tx);min-height:100vh;padding-bottom:80px;-webkit-font-smoothing:antialiased}
 
 /* ─── STEP BAR ─────────────────────────────── */
+/* ── BANNER YOUTUBE ── */
+.yt-banner{
+  display:flex;align-items:center;gap:.9rem;
+  background:linear-gradient(90deg,rgba(255,0,0,.08),rgba(255,0,0,.03));
+  border-bottom:1px solid rgba(255,0,0,.15);
+  padding:.65rem 1.4rem;cursor:pointer;transition:background .2s;
+  max-width:100%;
+}
+.yt-banner:hover{background:linear-gradient(90deg,rgba(255,0,0,.15),rgba(255,0,0,.07));}
+.yt-icon{width:28px;height:28px;flex-shrink:0;}
+.yt-banner-text{display:flex;flex-direction:column;flex:1;min-width:0;}
+.yt-banner-title{font-size:.82rem;font-weight:700;color:var(--tx);}
+.yt-banner-sub{font-size:.73rem;color:var(--tm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.yt-banner-cta{
+  flex-shrink:0;background:#FF0000;color:#fff;
+  font-size:.72rem;font-weight:700;padding:.35rem .8rem;
+  border-radius:20px;white-space:nowrap;
+}
+.yt-banner:hover .yt-banner-cta{background:#cc0000;}
+@media(max-width:480px){.yt-banner-sub{display:none}.yt-banner-cta{font-size:.68rem;padding:.3rem .6rem;}}
+/* ────────────────── */
 #stepBar{
   position:sticky;top:0;z-index:90;
   background:rgba(13,13,18,.96);backdrop-filter:blur(14px);
@@ -657,6 +678,20 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
       <button class="sb-icon-btn" title="Cerrar sesión" onclick="handleLogout()">↪</button>
     </div>
   </div>
+</div>
+
+<!-- ══ BANNER YOUTUBE ══════════════════════════
+     Para cambiar el link del canal edita YT_CHANNEL_URL
+     Para cambiar el texto edita los spans dentro del banner
+═══════════════════════════════════════════════ -->
+<script>const YT_CHANNEL_URL = 'https://youtube.com/@ideas_digitalycripto';</script>
+<div class="yt-banner" onclick="window.open(YT_CHANNEL_URL,'_blank')">
+  <svg class="yt-icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.5 6.2s-.2-1.6-.9-2.3c-.9-.9-1.9-.9-2.3-1C17.4 2.7 12 2.7 12 2.7s-5.4 0-8.3.2c-.5.1-1.5.1-2.3 1-.7.7-.9 2.3-.9 2.3S.3 8 .3 9.8v1.7c0 1.8.2 3.6.2 3.6s.2 1.6.9 2.3c.9.9 2 .9 2.5 1 1.8.2 7.6.2 7.6.2s5.4 0 8.3-.3c.5-.1 1.5-.1 2.3-1 .7-.7.9-2.3.9-2.3s.2-1.8.2-3.6V9.8c0-1.8-.2-3.6-.2-3.6zM9.7 15.5V8l6.3 3.8-6.3 3.7z"/></svg>
+  <div class="yt-banner-text">
+    <span class="yt-banner-title">¿Cómo usar LandingAI Builder?</span>
+    <span class="yt-banner-sub">Mira los tutoriales en nuestro canal de YouTube →</span>
+  </div>
+  <span class="yt-banner-cta">Ver tutoriales</span>
 </div>
 
 <!-- MAIN -->
