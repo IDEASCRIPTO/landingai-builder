@@ -1811,6 +1811,7 @@ async function generateCopy(){
     const data = await res.json();
 
     if(!data.success){
+      if(data.code === 'NO_API_KEY'){ hideOverlay(); showNoApiKeyAlert(); return; }
       throw new Error(data.error || data.message || 'Error generando copy');
     }
     st.copy = data.copy;
@@ -2246,6 +2247,7 @@ async function generate(tipo_salida){
     const data = await res.json();
 
     if(!data.success){
+      if(data.code === 'NO_API_KEY'){ hideOverlay(); showNoApiKeyAlert(); return; }
       throw new Error(data.error || data.message || 'Error generando la landing');
     }
     if(!data.html){
@@ -2554,6 +2556,18 @@ async function confirmAIImg(){
 }
 
 /* ── TOAST ───────────────────────────────────── */
+function showNoApiKeyAlert(){
+  const msg = '🔑 Necesitas agregar tu API key de Anthropic para generar contenido.\n\nVe a Configuración (⚙️) → API Keys → Anthropic y pega tu key.';
+  if(confirm(msg + '\n\n¿Abrir Configuración ahora?')){
+    openSettings();
+    // Hacer scroll al campo de Anthropic dentro del panel
+    setTimeout(() => {
+      const el = document.getElementById('akAnthropic');
+      if(el){ el.focus(); el.scrollIntoView({behavior:'smooth',block:'center'}); }
+    }, 300);
+  }
+}
+
 function toast(msg, ms=2500){
   const t = document.getElementById('toast');
   t.textContent = msg;

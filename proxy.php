@@ -144,6 +144,57 @@ if ($auth_enabled && !empty($data['_auth_token'])) {
 // Limpiar campos de auth del payload antes de enviarlo a n8n
 unset($data['_auth_token'], $data['_user_id']);
 
+/* ── API KEY ROUTING ──────────────────────────────────────────
+   ADMIN_EMAIL   → usuario dueño, usa keys del sistema (env vars)
+   Otros usuarios → deben tener su propia Anthropic API key en Supabase
+   Acciones que requieren IA: generar_copy, regenerar_seccion, generar_ads,
+                               generar_html, generar_liquid
+─────────────────────────────────────────────────────────────── */
+$ADMIN_EMAIL   = getenv('ADMIN_EMAIL') ?: '';
+$AI_ACTIONS    = ['generar_copy','regenerar_seccion','generar_ads','generar_html','generar_liquid'];
+$accion_actual = $data['accion'] ?? '';
+
+if (in_array($accion_actual, $AI_ACTIONS)) {
+    $user_email = $auth_user_id ? ($usr['email'] ?? '') : '';
+    $is_admin   = !empty($ADMIN_EMAIL) && strtolower($user_email) === strtolower($ADMIN_EMAIL);
+
+    if ($is_admin) {
+        // Admin usa las keys del sistema configuradas en EasyPanel
+        $data['_api_key']      = getenv('ANTHROPIC_API_KEY') ?: '';
+        $data['_openai_key']   = getenv('OPENAI_API_KEY') ?: '';
+    } elseif ($auth_enabled && $auth_user_id && !empty($token)) {
+        // Usuario normal: buscar su Anthropic key en Supabase
+        $chK = curl_init($SUPABASE_URL . '/rest/v1/api_keys?select=key_enc&user_id=eq.' . $auth_user_id . '&provider=eq.anthropic&limit=1');
+        curl_setopt_array($chK, [
+            CURLOPT_HTTPHEADER     => [
+                'Authorization: Bearer ' . $token,
+                'apikey: ' . (getenv('SUPABASE_ANON_KEY') ?: ''),
+                'Accept: application/json',
+            ],
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_TIMEOUT        => 6,
+            CURLOPT_SSL_VERIFYPEER => false,
+        ]);
+        $keyResp = curl_exec($chK);
+        curl_close($chK);
+        $keyArr = json_decode($keyResp, true);
+        $user_api_key = (is_array($keyArr) && !empty($keyArr[0]['key_enc'])) ? $keyArr[0]['key_enc'] : '';
+
+        if (empty($user_api_key)) {
+            echo json_encode([
+                'success' => false,
+                'error'   => 'Necesitas configurar tu API key de Anthropic en Configuración (⚙️) para generar contenido.',
+                'code'    => 'NO_API_KEY',
+            ]);
+            exit;
+        }
+        $data['_api_key'] = $user_api_key;
+    } elseif (!$auth_enabled) {
+        // Modo dev sin auth: usa key del sistema
+        $data['_api_key'] = getenv('ANTHROPIC_API_KEY') ?: '';
+    }
+}
+
 $base = 'https://duallegacy-ia-asistentes-n8n.aigmej.easypanel.host/webhook/';
 
 $routes = [
