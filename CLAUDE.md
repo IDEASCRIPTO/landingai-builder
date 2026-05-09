@@ -1,6 +1,17 @@
 # LandingAI Builder — Reglas críticas del sistema
 
-## ⚠️ IMPORTANTE: Antes de modificar cualquier ítem marcado con 🔒, notificar al usuario y pedir confirmación explícita.
+## ⚠️ REGLA GENERAL: Proponer antes de implementar
+
+Antes de cualquier cambio — código, configuración, n8n, Supabase, EasyPanel — siempre:
+1. Proponer qué se va a cambiar
+2. Indicar pros y contras
+3. Esperar confirmación explícita del usuario antes de proceder
+
+Esto aplica a todo, sin excepción, incluso si el cambio parece pequeño.
+
+---
+
+## ⚠️ Antes de modificar cualquier ítem marcado con 🔒, notificar al usuario y pedir confirmación explícita.
 
 ---
 
