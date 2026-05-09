@@ -23,24 +23,26 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 /* ─── STEP BAR ─────────────────────────────── */
 /* ── BANNER YOUTUBE ── */
 .yt-banner{
-  display:flex;align-items:center;gap:.9rem;
-  background:linear-gradient(90deg,rgba(255,0,0,.08),rgba(255,0,0,.03));
-  border-bottom:1px solid rgba(255,0,0,.15);
-  padding:.65rem 1.4rem;cursor:pointer;transition:background .2s;
-  max-width:100%;
+  display:flex;align-items:center;gap:.6rem;
+  background:linear-gradient(90deg,rgba(255,0,0,.07),rgba(255,0,0,.02));
+  border-bottom:1px solid rgba(255,0,0,.12);
+  padding:.4rem 1rem;cursor:pointer;transition:background .2s;
 }
-.yt-banner:hover{background:linear-gradient(90deg,rgba(255,0,0,.15),rgba(255,0,0,.07));}
-.yt-icon{width:28px;height:28px;flex-shrink:0;}
-.yt-banner-text{display:flex;flex-direction:column;flex:1;min-width:0;}
-.yt-banner-title{font-size:.82rem;font-weight:700;color:var(--tx);}
-.yt-banner-sub{font-size:.73rem;color:var(--tm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.yt-banner:hover{background:linear-gradient(90deg,rgba(255,0,0,.13),rgba(255,0,0,.05));}
+.yt-icon{width:20px;height:20px;flex-shrink:0;}
+.yt-banner-text{display:flex;align-items:center;gap:.5rem;flex:1;min-width:0;}
+.yt-banner-title{font-size:.75rem;font-weight:600;color:var(--tx);}
+.yt-banner-sub{font-size:.7rem;color:var(--tm);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .yt-banner-cta{
   flex-shrink:0;background:#FF0000;color:#fff;
-  font-size:.72rem;font-weight:700;padding:.35rem .8rem;
+  font-size:.68rem;font-weight:700;padding:.25rem .65rem;
   border-radius:20px;white-space:nowrap;
 }
 .yt-banner:hover .yt-banner-cta{background:#cc0000;}
-@media(max-width:480px){.yt-banner-sub{display:none}.yt-banner-cta{font-size:.68rem;padding:.3rem .6rem;}}
+@media(max-width:480px){.yt-banner-sub{display:none}}
+/* ── SHOPIFY DISABLED ── */
+.fmt-disabled{opacity:.45;pointer-events:none;cursor:not-allowed;}
+.fmt-soon{font-size:.62rem;font-weight:700;background:rgba(255,165,0,.2);color:#f59e0b;padding:2px 7px;border-radius:20px;margin-left:.4rem;vertical-align:middle;}
 /* ────────────────── */
 #stepBar{
   position:sticky;top:0;z-index:90;
@@ -680,19 +682,17 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
   </div>
 </div>
 
-<!-- ══ BANNER YOUTUBE ══════════════════════════
-     Para cambiar el link del canal edita YT_CHANNEL_URL
-     Para cambiar el texto edita los spans dentro del banner
+<!-- ══ URLS TUTORIALES YOUTUBE ══════════════════
+     Cambia cada URL por el video específico de cada paso.
+     Por ahora apuntan al canal. Cuando subas los videos
+     reemplaza la URL del paso correspondiente.
 ═══════════════════════════════════════════════ -->
-<script>const YT_CHANNEL_URL = 'https://youtube.com/@ideas_digitalycripto';</script>
-<div class="yt-banner" onclick="window.open(YT_CHANNEL_URL,'_blank')">
-  <svg class="yt-icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.5 6.2s-.2-1.6-.9-2.3c-.9-.9-1.9-.9-2.3-1C17.4 2.7 12 2.7 12 2.7s-5.4 0-8.3.2c-.5.1-1.5.1-2.3 1-.7.7-.9 2.3-.9 2.3S.3 8 .3 9.8v1.7c0 1.8.2 3.6.2 3.6s.2 1.6.9 2.3c.9.9 2 .9 2.5 1 1.8.2 7.6.2 7.6.2s5.4 0 8.3-.3c.5-.1 1.5-.1 2.3-1 .7-.7.9-2.3.9-2.3s.2-1.8.2-3.6V9.8c0-1.8-.2-3.6-.2-3.6zM9.7 15.5V8l6.3 3.8-6.3 3.7z"/></svg>
-  <div class="yt-banner-text">
-    <span class="yt-banner-title">¿Cómo usar LandingAI Builder?</span>
-    <span class="yt-banner-sub">Mira los tutoriales en nuestro canal de YouTube →</span>
-  </div>
-  <span class="yt-banner-cta">Ver tutoriales</span>
-</div>
+<script>
+const YT_STEP1 = 'https://youtube.com/@ideas_digitalycripto'; // Tutorial Paso 1: Producto
+const YT_STEP2 = 'https://youtube.com/@ideas_digitalycripto'; // Tutorial Paso 2: Copy & Estilo
+const YT_STEP3 = 'https://youtube.com/@ideas_digitalycripto'; // Tutorial Paso 3: Resultado
+function ytBannerSvg(){ return '<svg class="yt-icon" viewBox="0 0 24 24" fill="#FF0000"><path d="M23.5 6.2s-.2-1.6-.9-2.3c-.9-.9-1.9-.9-2.3-1C17.4 2.7 12 2.7 12 2.7s-5.4 0-8.3.2c-.5.1-1.5.1-2.3 1-.7.7-.9 2.3-.9 2.3S.3 8 .3 9.8v1.7c0 1.8.2 3.6.2 3.6s.2 1.6.9 2.3c.9.9 2 .9 2.5 1 1.8.2 7.6.2 7.6.2s5.4 0 8.3-.3c.5-.1 1.5-.1 2.3-1 .7-.7.9-2.3.9-2.3s.2-1.8.2-3.6V9.8c0-1.8-.2-3.6-.2-3.6zM9.7 15.5V8l6.3 3.8-6.3 3.7z"/></svg>'; }
+</script>
 
 <!-- MAIN -->
 <div id="main">
@@ -702,6 +702,15 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
   ═════════════════════════════════════════════ -->
   <div class="step-panel active" id="step1">
 
+    <div class="yt-banner" onclick="window.open(YT_STEP1,'_blank')">
+      <span id="_yt1"></span>
+      <div class="yt-banner-text">
+        <span class="yt-banner-title">Tutorial Paso 1 — Producto</span>
+        <span class="yt-banner-sub">Aprende a configurar tu producto y secciones →</span>
+      </div>
+      <span class="yt-banner-cta">Ver tutorial</span>
+    </div>
+
     <div class="card">
       <div class="sec-title">📄 Tipo de documento</div>
       <div class="fmt-grid">
@@ -710,10 +719,10 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
           <div class="fmt-name">HTML Landing Page</div>
           <div class="fmt-desc">Landing completa lista para publicar en cualquier sitio web. Genera Hero, todas las secciones y CSS en un solo archivo.</div>
         </div>
-        <div class="fmt-card" id="fmt_shopify" onclick="selectFormato('shopify')">
+        <div class="fmt-card fmt-disabled" id="fmt_shopify" title="Próximamente">
           <div class="fmt-ico">🛍️</div>
-          <div class="fmt-name">Liquid para Shopify</div>
-          <div class="fmt-desc">Código modular por secciones para el editor Custom Liquid de Shopify. Elegís qué secciones querés generar.</div>
+          <div class="fmt-name">Liquid para Shopify <span class="fmt-soon">Próximamente</span></div>
+          <div class="fmt-desc">Código modular por secciones para el editor Custom Liquid de Shopify.</div>
         </div>
       </div>
     </div>
@@ -885,6 +894,15 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
        STEP 2 — COPY & ESTILO
   ═════════════════════════════════════════════ -->
   <div class="step-panel" id="step2">
+
+    <div class="yt-banner" onclick="window.open(YT_STEP2,'_blank')">
+      <span id="_yt2"></span>
+      <div class="yt-banner-text">
+        <span class="yt-banner-title">Tutorial Paso 2 — Copy & Estilo</span>
+        <span class="yt-banner-sub">Aprende a editar textos y personalizar el diseño →</span>
+      </div>
+      <span class="yt-banner-cta">Ver tutorial</span>
+    </div>
 
     <!-- Copy Editor -->
     <div class="card">
@@ -1088,6 +1106,15 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
        STEP 3 — RESULTADO
   ═════════════════════════════════════════════ -->
   <div class="step-panel" id="step3">
+
+    <div class="yt-banner" onclick="window.open(YT_STEP3,'_blank')">
+      <span id="_yt3"></span>
+      <div class="yt-banner-text">
+        <span class="yt-banner-title">Tutorial Paso 3 — Resultado</span>
+        <span class="yt-banner-sub">Aprende a descargar e instalar tu landing page →</span>
+      </div>
+      <span class="yt-banner-cta">Ver tutorial</span>
+    </div>
 
     <div id="resBox">
       <div class="res-icon" id="resIcon">✅</div>
@@ -2544,6 +2571,8 @@ function escHtml(s){
 initSupabase();
 init();
 initAuth();
+// Inyectar iconos YouTube en los banners
+['_yt1','_yt2','_yt3'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = ytBannerSvg(); });
 </script>
 </body>
 </html>
