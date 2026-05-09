@@ -223,11 +223,18 @@ if (in_array($accion_actual, $AI_ACTIONS)) {
         $data['_provider'] = $provider;
     } elseif ($auth_enabled && $auth_user_id && !empty($token)) {
         // Usuario normal: buscar su key del proveedor elegido en Supabase
+        // Usa service_role si está disponible (bypass RLS); si no, usa el JWT del usuario
+        $serviceRoleKey = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '';
+        $sbAuthHeader   = $serviceRoleKey
+            ? 'Bearer ' . $serviceRoleKey
+            : 'Bearer ' . $token;
+        $sbApiKey = $serviceRoleKey ?: (getenv('SUPABASE_ANON_KEY') ?: '');
+
         $chK = curl_init($SUPABASE_URL . '/rest/v1/api_keys?select=key_enc&user_id=eq.' . $auth_user_id . '&provider=eq.' . $provider . '&limit=1');
         curl_setopt_array($chK, [
             CURLOPT_HTTPHEADER     => [
-                'Authorization: Bearer ' . $token,
-                'apikey: ' . (getenv('SUPABASE_ANON_KEY') ?: ''),
+                'Authorization: ' . $sbAuthHeader,
+                'apikey: ' . $sbApiKey,
                 'Accept: application/json',
             ],
             CURLOPT_RETURNTRANSFER => true,
@@ -235,17 +242,21 @@ if (in_array($accion_actual, $AI_ACTIONS)) {
             CURLOPT_SSL_VERIFYPEER => false,
         ]);
         $keyResp = curl_exec($chK);
+        $keyCurlErr = curl_error($chK);
         curl_close($chK);
         $keyArr       = json_decode($keyResp, true);
         $user_api_key = (is_array($keyArr) && !empty($keyArr[0]['key_enc'])) ? $keyArr[0]['key_enc'] : '';
 
         if (empty($user_api_key)) {
             $provName = ['anthropic'=>'Anthropic','openai'=>'OpenAI','gemini'=>'Gemini'][$provider] ?? $provider;
+            // Debug: incluir respuesta de Supabase para diagnosticar el problema
+            $sbDebug = $keyCurlErr ?: (substr($keyResp ?: '', 0, 300));
             echo json_encode([
                 'success'  => false,
                 'error'    => 'Necesitas configurar tu API key de ' . $provName . ' en Configuración (⚙️).',
                 'code'     => 'NO_API_KEY',
                 'provider' => $provider,
+                '_debug'   => $sbDebug,
             ]);
             exit;
         }
