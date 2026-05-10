@@ -266,7 +266,7 @@ if (($data['accion'] ?? '') === 'save_api_key') {
         exit;
     }
     $body = json_encode([['user_id'=>$auth_user_id,'provider'=>$prov,'key_enc'=>$keyVal]]);
-    $chS  = curl_init($SUPABASE_URL . '/rest/v1/api_keys');
+    $chS  = curl_init($SUPABASE_URL . '/rest/v1/api_keys?on_conflict=user_id,provider');
     curl_setopt_array($chS, [
         CURLOPT_POST           => true,
         CURLOPT_POSTFIELDS     => $body,
