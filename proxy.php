@@ -117,7 +117,7 @@ function parseAiCopyResponse(array $resp): array {
    - SUPABASE_URL: URL de tu proyecto (ej: https://xxxx.supabase.co)
    - Si no está configurado, el proxy funciona sin auth (modo dev)
 ─────────────────────────────────────────────────── */
-$SUPABASE_URL      = getenv('SUPABASE_URL') ?: '';
+$SUPABASE_URL      = getenv('SUPABASE_URL') ?: 'https://jsrbfuwjkqwzhjdsbicg.supabase.co';
 $SUPABASE_ANON_KEY = getenv('SUPABASE_ANON_KEY') ?: 'sb_publishable_aOtEsxOOgBqL05kQ8eMIDQ_WHF7rw54';
 $SUPABASE_SVC_KEY  = getenv('SUPABASE_SERVICE_ROLE_KEY') ?: '';
 $auth_enabled      = !empty($SUPABASE_URL) && !str_contains($SUPABASE_URL, 'xxxx');

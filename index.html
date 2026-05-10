@@ -1487,11 +1487,15 @@ async function loadUsage(){
 }
 
 async function loadApiKeys(){
-  if(!_sb || !_user) return;
+  if(!_user || !_authTok) return;
   try{
-    const { data, error } = await _sb.from('api_keys').select('provider').eq('user_id', _user.id);
-    if(error || !data) return;
-    _savedProviders = new Set(data.map(r => r.provider));
+    const res = await fetch('proxy.php', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ accion:'load_api_keys', _auth_token:_authTok })
+    });
+    const d = await res.json();
+    if(!d.success) return;
+    _savedProviders = new Set(d.providers || []);
     ['Anthropic','Openai','Gemini','Fal'].forEach(p => {
       const inp = document.getElementById('key'+p);
       if(inp && _savedProviders.has(p.toLowerCase())) inp.placeholder = '●●●●●●●●●● (guardada)';
@@ -1516,14 +1520,15 @@ async function saveApiKey(provider){
   if(!inp){ _akMsg('❌ Campo no encontrado: ' + provider, false); return; }
   const key = inp.value.trim();
   if(!key){ _akMsg('⚠️ Escribe la API Key antes de guardar', false); return; }
-  if(!_sb || !_user){ _akMsg('⚠️ Sesión no activa — recarga la página', false); return; }
+  if(!_user || !_authTok){ _akMsg('⚠️ Sesión no activa — recarga la página', false); return; }
   _akMsg('⏳ Guardando...', true);
   try{
-    const { error } = await _sb.from('api_keys').upsert(
-      { user_id: _user.id, provider, key_enc: key },
-      { onConflict: 'user_id,provider' }
-    );
-    if(error){ _akMsg('❌ ' + error.message, false); return; }
+    const res = await fetch('proxy.php', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({ accion:'save_api_key', provider, key_enc:key, _auth_token:_authTok })
+    });
+    const d = await res.json();
+    if(!d.success){ _akMsg('❌ ' + (d.error || 'Error al guardar'), false); return; }
     inp.value = '';
     inp.placeholder = '●●●●●●●●●● (guardada)';
     _savedProviders.add(provider);
