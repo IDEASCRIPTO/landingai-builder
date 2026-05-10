@@ -2037,9 +2037,8 @@ async function generateAdsPDF(){
     const res = await fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
     const data = await res.json();
     if(!data.success || !data.ads) throw new Error(data.error || 'Error generando ads copy');
-    btn.textContent = '⏳ Generando PDF...';
-    await downloadAdsPdf(nombre, data.ads);
-    toast('✓ PDF descargado');
+    showAdsPdfPreview(nombre, data.ads);
+    toast('✓ Copy generado — revisa la vista previa');
   } catch(e){
     toast('❌ ' + e.message, 4000);
   } finally {
@@ -2048,38 +2047,36 @@ async function generateAdsPDF(){
   }
 }
 
-async function downloadAdsPdf(nombre, ads){
+function _buildAdsHtml(nombre, ads){
   const e = s => String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const fecha = new Date().toLocaleDateString('es-ES',{day:'2-digit',month:'long',year:'numeric'});
   const meta   = ads.meta   || [];
   const tiktok = ads.tiktok || [];
-
-  const content = `
-<div style="font-family:-apple-system,'Segoe UI',Arial,sans-serif;color:#111827;background:#fff;padding:0">
-  <div style="background:linear-gradient(135deg,#1D9E75,#0f7a5c);color:#fff;padding:28px 36px;margin-bottom:0">
+  return `
+<div style="font-family:Arial,sans-serif;color:#111827;background:#fff;padding:0">
+  <div style="background:linear-gradient(135deg,#1D9E75,#0f7a5c);color:#fff;padding:28px 36px">
     <div style="font-size:20px;font-weight:800;margin-bottom:3px">📢 Copy para Publicidad</div>
     <div style="font-size:12px;opacity:.8">${e(nombre)} · Generado el ${fecha}</div>
   </div>
   <div style="padding:24px 36px">
     <div style="display:flex;align-items:center;gap:8px;margin:0 0 14px;padding-bottom:8px;border-bottom:3px solid #1877F2">
-      <span style="font-size:22px">📘</span>
+      <span style="font-size:20px">📘</span>
       <span style="color:#1877F2;font-size:16px;font-weight:800">Meta Ads — Facebook &amp; Instagram</span>
     </div>
     ${meta.map((v,i)=>`
-    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px 20px;margin-bottom:12px">
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px 20px;margin-bottom:12px;page-break-inside:avoid">
       <div style="display:inline-block;background:#1D9E75;color:#fff;border-radius:20px;padding:2px 11px;font-size:10px;font-weight:700;margin-bottom:10px">Variante ${i+1}</div>
       <div style="margin-bottom:8px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:2px">Titular</div><div style="font-size:13px;font-weight:700">${e(v.titular)}</div></div>
       <div style="margin-bottom:8px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:2px">Texto Principal</div><div style="font-size:13px">${e(v.texto_principal)}</div></div>
       <div style="margin-bottom:8px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:2px">Descripción</div><div style="font-size:13px">${e(v.descripcion)}</div></div>
       <div><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:4px">CTA</div><span style="background:#1D9E75;color:#fff;padding:3px 12px;border-radius:20px;font-size:12px;font-weight:700">${e(v.cta)}</span></div>
     </div>`).join('')}
-
     <div style="display:flex;align-items:center;gap:8px;margin:20px 0 14px;padding-bottom:8px;border-bottom:3px solid #111827">
-      <span style="font-size:22px">🎵</span>
+      <span style="font-size:20px">🎵</span>
       <span style="font-size:16px;font-weight:800">TikTok Ads</span>
     </div>
     ${tiktok.map((v,i)=>`
-    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px 20px;margin-bottom:12px">
+    <div style="background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:16px 20px;margin-bottom:12px;page-break-inside:avoid">
       <div style="display:inline-block;background:#111827;color:#fff;border-radius:20px;padding:2px 11px;font-size:10px;font-weight:700;margin-bottom:10px">Variante ${i+1}</div>
       <div style="margin-bottom:8px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:2px">Hook — primeros 3 seg</div><div style="font-size:13px;font-weight:700">${e(v.hook)}</div></div>
       <div style="margin-bottom:8px"><div style="font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:#6b7280;margin-bottom:2px">Copy Principal</div><div style="font-size:13px">${e(v.copy)}</div></div>
@@ -2089,21 +2086,68 @@ async function downloadAdsPdf(nombre, ads){
     <div style="margin-top:32px;padding-top:14px;border-top:1px solid #e5e7eb;text-align:center;font-size:11px;color:#9ca3af">Generado con LandingAI Builder</div>
   </div>
 </div>`;
+}
 
-  const el = document.createElement('div');
-  el.style.cssText = 'position:fixed;left:-9999px;top:0;width:794px;background:#fff';
-  el.innerHTML = content;
-  document.body.appendChild(el);
-  try {
-    const fname = 'ads-' + nombre.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') + '.pdf';
-    await html2pdf().set({
-      margin:[8,10,8,10], filename:fname,
-      html2canvas:{scale:2, useCORS:true, logging:false, backgroundColor:'#ffffff'},
-      jsPDF:{unit:'mm', format:'a4', orientation:'portrait'}
-    }).from(el).save();
-  } finally {
-    document.body.removeChild(el);
-  }
+function showAdsPdfPreview(nombre, ads){
+  document.getElementById('adsPdfModal')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'adsPdfModal';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:9999;overflow-y:auto;padding:20px 12px';
+
+  const wrap = document.createElement('div');
+  wrap.style.cssText = 'max-width:820px;margin:0 auto;background:#fff;border-radius:14px;overflow:hidden;box-shadow:0 20px 60px rgba(0,0,0,.4)';
+
+  const toolbar = document.createElement('div');
+  toolbar.style.cssText = 'display:flex;justify-content:space-between;align-items:center;padding:12px 20px;border-bottom:1px solid #e5e7eb;background:#fff;position:sticky;top:0;z-index:10';
+  toolbar.innerHTML = `
+    <span style="font-weight:700;font-size:14px;color:#111827">📄 Vista previa — Copy Ads</span>
+    <div style="display:flex;gap:8px">
+      <button id="btnDownloadAdsPdf" style="background:#1D9E75;color:#fff;border:none;border-radius:8px;padding:7px 16px;font-weight:700;font-size:13px;cursor:pointer">📥 Descargar PDF</button>
+      <button style="background:#f3f4f6;color:#374151;border:none;border-radius:8px;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer" id="btnCloseAdsPdf">✕ Cerrar</button>
+    </div>`;
+
+  const contentDiv = document.createElement('div');
+  contentDiv.id = 'adsPdfContent';
+  contentDiv.style.cssText = 'padding:0;background:#fff';
+  contentDiv.innerHTML = _buildAdsHtml(nombre, ads);
+
+  wrap.appendChild(toolbar);
+  wrap.appendChild(contentDiv);
+  overlay.appendChild(wrap);
+  document.body.appendChild(overlay);
+
+  overlay.addEventListener('click', ev => { if(ev.target === overlay) overlay.remove(); });
+  document.getElementById('btnCloseAdsPdf').addEventListener('click', () => overlay.remove());
+
+  document.getElementById('btnDownloadAdsPdf').addEventListener('click', async function(){
+    const btn = this;
+    btn.textContent = '⏳ Generando...';
+    btn.disabled = true;
+    try {
+      const fname = 'ads-' + nombre.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') + '.pdf';
+      // Fix blank PDF: use position:absolute (NOT fixed) so html2canvas can capture it
+      const clone = document.createElement('div');
+      clone.style.cssText = 'position:absolute;left:-9999px;top:0;width:794px;background:#fff';
+      clone.innerHTML = _buildAdsHtml(nombre, ads);
+      document.body.appendChild(clone);
+      try {
+        await html2pdf().set({
+          margin:[8,10,8,10], filename:fname,
+          html2canvas:{scale:2, useCORS:true, logging:false, backgroundColor:'#ffffff', scrollX:0, scrollY:0},
+          jsPDF:{unit:'mm', format:'a4', orientation:'portrait'}
+        }).from(clone).save();
+        toast('✓ PDF descargado');
+      } finally {
+        document.body.removeChild(clone);
+      }
+    } catch(err){
+      toast('❌ ' + err.message, 4000);
+    } finally {
+      btn.textContent = '📥 Descargar PDF';
+      btn.disabled = false;
+    }
+  });
 }
 
 /* ── BUILD COPY EDITOR ───────────────────────── */
