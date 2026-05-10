@@ -2143,35 +2143,64 @@ function showAdsPdfPreview(nombre, ads){
     const btn = this;
     btn.textContent = '⏳ Generando...';
     btn.disabled = true;
+    const contentEl = document.getElementById('adsPdfContent');
+    const parentEl  = contentEl.parentElement;
     try {
       const fname = 'ads-' + nombre.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') + '.pdf';
-      const contentEl = document.getElementById('adsPdfContent');
-      // Fix PDF en blanco: onclone elimina overflow:hidden de los padres en el clon
-      // para que html2canvas pueda capturar el contenido completo sin recorte
-      await html2pdf().set({
-        margin:[8,10,8,10], filename:fname,
-        html2canvas:{
-          scale:2, useCORS:true, logging:false, backgroundColor:'#ffffff',
-          onclone: (clonedDoc) => {
-            const el = clonedDoc.getElementById('adsPdfContent');
-            if (!el) return;
-            let node = el.parentElement;
-            while (node && node.tagName && node.tagName.toUpperCase() !== 'HTML') {
-              node.style.overflow  = 'visible';
-              node.style.overflowY = 'visible';
-              node.style.maxHeight = 'none';
-              node.style.height    = 'auto';
-              node = node.parentElement;
-            }
-          }
-        },
-        jsPDF:{unit:'mm', format:'a4', orientation:'portrait'}
-      }).from(contentEl).save();
+
+      // Desacoplar del modal para eliminar overflow:hidden y position:fixed de los padres
+      // El modal (z-index:9999) permanece visible; el elemento queda debajo (z-index:1)
+      contentEl.style.cssText = 'position:absolute;top:0;left:0;width:794px;background:#fff;z-index:1';
+      document.body.appendChild(contentEl);
+      await new Promise(r => setTimeout(r, 80)); // esperar render completo
+
+      const canvas = await html2canvas(contentEl, {
+        scale: 2,
+        useCORS: true,
+        backgroundColor: '#ffffff',
+        logging: false,
+        width: 794,
+        height: contentEl.scrollHeight,
+        windowWidth: 794
+      });
+
+      // Generar PDF con jsPDF
+      const { jsPDF } = window.jspdf;
+      const pdf   = new jsPDF({ orientation:'portrait', unit:'mm', format:'a4' });
+      const pdfW  = pdf.internal.pageSize.getWidth();
+      const pdfH  = pdf.internal.pageSize.getHeight();
+      const mg    = 8;
+      const imgW  = pdfW - mg * 2;
+      const ratio = canvas.width / imgW;           // px por mm
+      const imgH  = canvas.height / ratio;
+      const pageH = pdfH - mg * 2;
+
+      let srcMM = 0, first = true;
+      while (srcMM < imgH) {
+        if (!first) pdf.addPage();
+        first = false;
+        const sliceH   = Math.min(pageH, imgH - srcMM);
+        const slicePx  = Math.round(sliceH  * ratio);
+        const srcPx    = Math.round(srcMM   * ratio);
+        const slice    = document.createElement('canvas');
+        slice.width    = canvas.width;
+        slice.height   = slicePx;
+        const ctx = slice.getContext('2d');
+        ctx.fillStyle = '#fff';
+        ctx.fillRect(0, 0, slice.width, slice.height);
+        ctx.drawImage(canvas, 0, srcPx, canvas.width, slicePx, 0, 0, canvas.width, slicePx);
+        pdf.addImage(slice.toDataURL('image/jpeg', 0.95), 'JPEG', mg, mg, imgW, sliceH);
+        srcMM += sliceH;
+      }
+      pdf.save(fname);
       toast('✓ PDF descargado');
     } catch(err){
       toast('❌ ' + err.message, 4000);
       console.error('PDF error:', err);
     } finally {
+      // Reinsertar en el modal
+      contentEl.style.cssText = 'background:#fff';
+      parentEl.appendChild(contentEl);
       btn.textContent = '📥 Descargar PDF';
       btn.disabled = false;
     }
@@ -2862,6 +2891,7 @@ initAuth();
 // Inyectar iconos YouTube en los banners
 ['_yt1','_yt2','_yt3'].forEach(id => { const el = document.getElementById(id); if(el) el.innerHTML = ytBannerSvg(); });
 </script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 </body>
 </html>
