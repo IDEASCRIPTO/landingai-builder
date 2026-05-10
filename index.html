@@ -1487,13 +1487,11 @@ async function loadUsage(){
 }
 
 async function loadApiKeys(){
-  if(!_authTok || !_user) return;
+  if(!_sb || !_user) return;
   try{
-    const res = await fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({accion:'load_api_keys', _auth_token:_authTok, _user_id:_user.id})});
-    const data = await res.json();
-    if(!data.success) return;
-    _savedProviders = new Set(data.providers || []);
+    const { data, error } = await _sb.from('api_keys').select('provider').eq('user_id', _user.id);
+    if(error || !data) return;
+    _savedProviders = new Set(data.map(r => r.provider));
     ['Anthropic','Openai','Gemini','Fal'].forEach(p => {
       const inp = document.getElementById('key'+p);
       if(inp && _savedProviders.has(p.toLowerCase())) inp.placeholder = '●●●●●●●●●● (guardada)';
@@ -1518,13 +1516,14 @@ async function saveApiKey(provider){
   if(!inp){ _akMsg('❌ Campo no encontrado: ' + provider, false); return; }
   const key = inp.value.trim();
   if(!key){ _akMsg('⚠️ Escribe la API Key antes de guardar', false); return; }
-  if(!_authTok || !_user){ _akMsg('⚠️ Sesión no activa — recarga la página', false); return; }
+  if(!_sb || !_user){ _akMsg('⚠️ Sesión no activa — recarga la página', false); return; }
   _akMsg('⏳ Guardando...', true);
   try{
-    const res = await fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'},
-      body: JSON.stringify({accion:'save_api_key', provider, key_enc:key, _auth_token:_authTok, _user_id:_user.id})});
-    const data = await res.json();
-    if(!data.success){ _akMsg('❌ ' + (data.error || 'Error al guardar'), false); return; }
+    const { error } = await _sb.from('api_keys').upsert(
+      { user_id: _user.id, provider, key_enc: key },
+      { onConflict: 'user_id,provider' }
+    );
+    if(error){ _akMsg('❌ ' + error.message, false); return; }
     inp.value = '';
     inp.placeholder = '●●●●●●●●●● (guardada)';
     _savedProviders.add(provider);
