@@ -2108,12 +2108,20 @@ function showAdsPdfPreview(nombre, ads){
       <button style="background:#f3f4f6;color:#374151;border:none;border-radius:8px;padding:7px 14px;font-weight:600;font-size:13px;cursor:pointer" id="btnCloseAdsPdf">✕ Cerrar</button>
     </div>`;
 
+  const instrBar = document.createElement('div');
+  instrBar.style.cssText = 'padding:12px 20px;background:#fffbeb;border-bottom:1px solid #fef3c7';
+  instrBar.innerHTML = `
+    <div style="font-size:10px;font-weight:700;color:#92400e;text-transform:uppercase;letter-spacing:.5px;margin-bottom:5px">💡 Instrucciones para regenerar (opcional)</div>
+    <textarea id="adsRegenInstr" rows="2" placeholder="Ej: Hazlo más urgente, enfócate en el precio de oferta, usa lenguaje más casual, agrega escasez…"
+      style="width:100%;box-sizing:border-box;resize:vertical;border:1px solid #fcd34d;border-radius:6px;padding:7px 10px;font-size:12px;font-family:inherit;background:#fffef5;color:#111827"></textarea>`;
+
   const contentDiv = document.createElement('div');
   contentDiv.id = 'adsPdfContent';
-  contentDiv.style.cssText = 'padding:0;background:#fff';
+  contentDiv.style.cssText = 'background:#fff';
   contentDiv.innerHTML = _buildAdsHtml(nombre, ads);
 
   wrap.appendChild(toolbar);
+  wrap.appendChild(instrBar);
   wrap.appendChild(contentDiv);
   overlay.appendChild(wrap);
   document.body.appendChild(overlay);
@@ -2122,6 +2130,11 @@ function showAdsPdfPreview(nombre, ads){
   document.getElementById('btnCloseAdsPdf').addEventListener('click', () => overlay.remove());
 
   document.getElementById('btnRegenAdsPdf').addEventListener('click', () => {
+    const instr = (document.getElementById('adsRegenInstr')?.value || '').trim();
+    if (instr) {
+      const f = document.getElementById('s1_instr');
+      if (f) f.value = instr;
+    }
     overlay.remove();
     generateAdsPDF();
   });
@@ -2132,29 +2145,32 @@ function showAdsPdfPreview(nombre, ads){
     btn.disabled = true;
     try {
       const fname = 'ads-' + nombre.toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'') + '.pdf';
-      // Fix PDF en blanco: elemento en top:0;left:0 (position:absolute, NO fixed ni left:-9999px)
-      // El modal (z-index:9999) lo cubre visualmente mientras html2canvas lo captura
-      const printDiv = document.createElement('div');
-      printDiv.style.cssText = 'position:absolute;top:0;left:0;width:794px;background:#fff;z-index:9998';
-      printDiv.innerHTML = _buildAdsHtml(nombre, ads);
-      document.body.appendChild(printDiv);
-      // Forzar render y scroll al tope para que html2canvas lo vea
-      printDiv.getBoundingClientRect();
-      const prevScroll = window.scrollY;
-      window.scrollTo(0, 0);
-      try {
-        await html2pdf().set({
-          margin:[8,10,8,10], filename:fname,
-          html2canvas:{scale:2, useCORS:true, logging:false, backgroundColor:'#ffffff'},
-          jsPDF:{unit:'mm', format:'a4', orientation:'portrait'}
-        }).from(printDiv).save();
-        toast('✓ PDF descargado');
-      } finally {
-        window.scrollTo(0, prevScroll);
-        document.body.removeChild(printDiv);
-      }
+      const contentEl = document.getElementById('adsPdfContent');
+      // Fix PDF en blanco: onclone elimina overflow:hidden de los padres en el clon
+      // para que html2canvas pueda capturar el contenido completo sin recorte
+      await html2pdf().set({
+        margin:[8,10,8,10], filename:fname,
+        html2canvas:{
+          scale:2, useCORS:true, logging:false, backgroundColor:'#ffffff',
+          onclone: (clonedDoc) => {
+            const el = clonedDoc.getElementById('adsPdfContent');
+            if (!el) return;
+            let node = el.parentElement;
+            while (node && node.tagName && node.tagName.toUpperCase() !== 'HTML') {
+              node.style.overflow  = 'visible';
+              node.style.overflowY = 'visible';
+              node.style.maxHeight = 'none';
+              node.style.height    = 'auto';
+              node = node.parentElement;
+            }
+          }
+        },
+        jsPDF:{unit:'mm', format:'a4', orientation:'portrait'}
+      }).from(contentEl).save();
+      toast('✓ PDF descargado');
     } catch(err){
       toast('❌ ' + err.message, 4000);
+      console.error('PDF error:', err);
     } finally {
       btn.textContent = '📥 Descargar PDF';
       btn.disabled = false;
