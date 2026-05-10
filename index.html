@@ -1980,7 +1980,7 @@ async function generateCopy(){
     const data = await res.json();
 
     if(!data.success){
-      if(data.code === 'NO_API_KEY'){ hideOverlay(); console.error('[NO_API_KEY]', data); handleNoApiKey(data.provider); return; }
+      if(data.code === 'NO_API_KEY'){ hideOverlay(); console.error('[NO_API_KEY] ' + JSON.stringify(data)); handleNoApiKey(data.provider); return; }
       throw new Error(data.error || data.message || 'Error generando copy');
     }
     st.copy = data.copy;
@@ -2419,7 +2419,7 @@ async function generate(tipo_salida){
     const data = await res.json();
 
     if(!data.success){
-      if(data.code === 'NO_API_KEY'){ hideOverlay(); console.error('[NO_API_KEY]', data); handleNoApiKey(data.provider); return; }
+      if(data.code === 'NO_API_KEY'){ hideOverlay(); console.error('[NO_API_KEY] ' + JSON.stringify(data)); handleNoApiKey(data.provider); return; }
       throw new Error(data.error || data.message || 'Error generando la landing');
     }
     if(!data.html){
