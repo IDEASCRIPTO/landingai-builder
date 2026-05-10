@@ -336,9 +336,10 @@ $SYSTEM_KEYS = [
     'gemini'    => getenv('GEMINI_API_KEY')    ?: '',
 ];
 
+$user_email = $auth_user_id ? ($usr['email'] ?? '') : '';
+$is_admin   = !empty($ADMIN_EMAIL) && strtolower($user_email) === strtolower($ADMIN_EMAIL);
+
 if (in_array($accion_actual, $AI_ACTIONS)) {
-    $user_email = $auth_user_id ? ($usr['email'] ?? '') : '';
-    $is_admin   = !empty($ADMIN_EMAIL) && strtolower($user_email) === strtolower($ADMIN_EMAIL);
 
     if ($is_admin || !$auth_enabled) {
         // Admin o modo dev: usa keys del sistema

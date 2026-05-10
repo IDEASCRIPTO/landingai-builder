@@ -947,9 +947,9 @@ function ytBannerSvg(){ return '<svg class="yt-icon" viewBox="0 0 24 24" fill="#
         <div style="flex:1;min-width:120px">
           <label style="font-size:.73rem;font-weight:600;color:var(--tm);display:block;margin-bottom:.3rem">Variantes</label>
           <select id="adsCantidad" class="cf-inp" style="padding:.35rem .5rem;font-size:.8rem">
-            <option value="1">1 variante</option>
+            <option value="1" selected>1 variante</option>
             <option value="2">2 variantes</option>
-            <option value="3" selected>3 variantes</option>
+            <option value="3">3 variantes</option>
           </select>
         </div>
         <div style="flex:2;min-width:180px">
@@ -2011,6 +2011,7 @@ async function generateAdsPDF(){
   btn.disabled = true;
   try {
     const payload = {
+      ...getAuthPayload(),
       accion: 'generar_ads',
       nombre_producto: nombre,
       descripcion: document.getElementById('s1_desc').value.trim(),
@@ -2020,7 +2021,7 @@ async function generateAdsPDF(){
       instrucciones: document.getElementById('s1_instr').value.trim(),
       pais: document.getElementById('s1_pais').value,
       pais_nombre: (COUNTRIES[document.getElementById('s1_pais').value]||{}).name || '',
-      cantidad_variantes: parseInt(document.getElementById('adsCantidad')?.value || '3'),
+      cantidad_variantes: parseInt(document.getElementById('adsCantidad')?.value || '1'),
       estilo_copy: document.getElementById('adsEstilo')?.value || 'titulo_desc_cta'
     };
     const res = await fetch(PROXY, {method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)});
