@@ -1,1 +1,9 @@
 .mcp.json
+*.zip
+fix_*.js
+test_*.js
+diag*.js
+debug_*.js
+upload_*.js
+create_*.js
+deep_*.js
