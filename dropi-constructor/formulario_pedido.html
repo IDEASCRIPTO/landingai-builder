@@ -1,0 +1,279 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Realizar Pedido — Depiladora 5 en 1</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#f9fafb;color:#111827;min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
+.form-wrap{background:#fff;border-radius:20px;box-shadow:0 8px 40px rgba(0,0,0,.1);max-width:520px;width:100%;padding:36px 32px}
+.form-header{text-align:center;margin-bottom:28px}
+.form-header .badge{display:inline-block;background:rgba(29,158,117,.1);color:#1D9E75;padding:5px 14px;border-radius:50px;font-size:.75rem;font-weight:700;margin-bottom:10px}
+.form-header h2{font-size:1.6rem;font-weight:900;color:#111827;margin-bottom:6px}
+.form-header p{font-size:.88rem;color:#6b7280}
+.qty-section{margin-bottom:24px}
+.qty-label{font-size:.82rem;font-weight:700;color:#374151;margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.qty-options{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.qty-option{position:relative}
+.qty-option input{position:absolute;opacity:0;width:0;height:0}
+.qty-option label{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #e5e7eb;border-radius:12px;padding:14px 10px;cursor:pointer;transition:.2s;text-align:center}
+.qty-option input:checked + label{border-color:#1D9E75;background:rgba(29,158,117,.05)}
+.qty-option label:hover{border-color:#1D9E75}
+.qty-units{font-size:.85rem;font-weight:700;color:#374151;margin-bottom:4px}
+.qty-price{font-size:1.3rem;font-weight:900;color:#1D9E75}
+.qty-save{font-size:.72rem;font-weight:600;color:#fff;background:#f59e0b;padding:2px 8px;border-radius:20px;margin-top:4px}
+.divider{border:none;border-top:1px solid #f3f4f6;margin:20px 0}
+.field-group{margin-bottom:16px}
+.field-group label{display:block;font-size:.82rem;font-weight:700;color:#374151;margin-bottom:6px}
+.field-group input,
+.field-group select{width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:12px 14px;font-size:.95rem;font-family:'Inter',sans-serif;color:#111827;transition:.2s;outline:none;background:#fff}
+.field-group input:focus,
+.field-group select:focus{border-color:#1D9E75;box-shadow:0 0 0 3px rgba(29,158,117,.1)}
+.field-group input::placeholder{color:#9ca3af}
+.field-group select:disabled{background:#f9fafb;color:#9ca3af;cursor:not-allowed}
+.total-box{background:linear-gradient(135deg,#f0fdf4,#dcfce7);border-radius:12px;padding:16px 18px;display:flex;justify-content:space-between;align-items:center;margin-bottom:20px}
+.total-label{font-size:.88rem;font-weight:600;color:#166534}
+.total-price{font-size:1.5rem;font-weight:900;color:#15803d}
+.btn-submit{width:100%;background:#1D9E75;color:#fff;border:none;border-radius:50px;padding:16px;font-size:1.05rem;font-weight:800;font-family:'Inter',sans-serif;cursor:pointer;transition:.2s;box-shadow:0 6px 24px rgba(29,158,117,.35)}
+.btn-submit:hover{background:#178a64;box-shadow:0 10px 32px rgba(29,158,117,.5);transform:translateY(-1px)}
+.btn-submit:disabled{background:#9ca3af;box-shadow:none;cursor:not-allowed;transform:none}
+.trust{display:flex;justify-content:center;gap:16px;margin-top:14px;flex-wrap:wrap;font-size:.78rem;color:#6b7280}
+.msg{display:none;border-radius:12px;padding:16px 18px;margin-top:16px;font-size:.88rem;font-weight:600;text-align:center}
+.msg.success{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
+.msg.error{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
+.spinner{display:inline-block;width:18px;height:18px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:8px}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media(max-width:480px){.form-wrap{padding:24px 18px}.qty-price{font-size:1.1rem}}
+</style>
+</head>
+<body>
+<div class="form-wrap">
+  <div class="form-header">
+    <div class="badge">🚚 Pago al recibir — Envío gratis</div>
+    <h2>Completa tu pedido</h2>
+    <p>Elige tu pack y llena tus datos. ¡Te contactamos para confirmar!</p>
+  </div>
+
+  <div class="qty-section">
+    <div class="qty-label">Elige tu pack:</div>
+    <div class="qty-options">
+      <div class="qty-option">
+        <input type="radio" name="qty" id="q1" value="1" data-price="29.99" data-variation="57" checked>
+        <label for="q1">
+          <span class="qty-units">1 Unidad</span>
+          <span class="qty-price">$29.99</span>
+        </label>
+      </div>
+      <div class="qty-option">
+        <input type="radio" name="qty" id="q2" value="2" data-price="50.00" data-variation="58">
+        <label for="q2">
+          <span class="qty-units">2 Unidades</span>
+          <span class="qty-price">$50.00</span>
+          <span class="qty-save">Ahorras $9.98</span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+  <hr class="divider">
+
+  <div class="field-group">
+    <label for="nombre">Nombre completo *</label>
+    <input type="text" id="nombre" placeholder="Ej: María García" required>
+  </div>
+
+  <div class="field-group">
+    <label for="telefono">Teléfono / WhatsApp *</label>
+    <input type="tel" id="telefono" placeholder="Ej: 0987654321" required>
+  </div>
+
+  <div class="field-group">
+    <label for="provincia">Provincia *</label>
+    <select id="provincia" required>
+      <option value="">Selecciona tu provincia</option>
+      <option value="EC-A">Azuay</option>
+      <option value="EC-B">Bolívar</option>
+      <option value="EC-F">Cañar</option>
+      <option value="EC-C">Carchi</option>
+      <option value="EC-H">Chimborazo</option>
+      <option value="EC-X">Cotopaxi</option>
+      <option value="EC-O">El Oro</option>
+      <option value="EC-E">Esmeraldas</option>
+      <option value="EC-G">Guayas</option>
+      <option value="EC-I">Imbabura</option>
+      <option value="EC-L">Loja</option>
+      <option value="EC-R">Los Ríos</option>
+      <option value="EC-M">Manabí</option>
+      <option value="EC-S">Morona Santiago</option>
+      <option value="EC-N">Napo</option>
+      <option value="EC-D">Orellana</option>
+      <option value="EC-Y">Pastaza</option>
+      <option value="EC-P">Pichincha</option>
+      <option value="EC-SE">Santa Elena</option>
+      <option value="EC-SD">Santo Domingo de los Tsáchilas</option>
+      <option value="EC-U">Sucumbíos</option>
+      <option value="EC-T">Tungurahua</option>
+      <option value="EC-Z">Zamora Chinchipe</option>
+    </select>
+  </div>
+
+  <div class="field-group">
+    <label for="ciudad">Ciudad / Cantón *</label>
+    <select id="ciudad" required disabled>
+      <option value="">Primero selecciona una provincia</option>
+    </select>
+  </div>
+
+  <div class="field-group">
+    <label for="direccion">Dirección exacta *</label>
+    <input type="text" id="direccion" placeholder="Ej: Av. Amazonas N23-45 y Veintimilla" required>
+  </div>
+
+  <div class="total-box">
+    <span class="total-label">Total a pagar al recibir:</span>
+    <span class="total-price" id="totalPrice">$29.99</span>
+  </div>
+
+  <button class="btn-submit" id="btnSubmit" onclick="enviarPedido()">
+    🛵 REALIZAR PEDIDO — Pago al recibir
+  </button>
+
+  <div class="trust">
+    <span>✔ Envío gratis</span>
+    <span>✔ Pago al recibir</span>
+    <span>✔ Garantía 100%</span>
+  </div>
+
+  <div class="msg success" id="msgSuccess" style="display:none">
+    ✅ ¡Pedido realizado con éxito! Te contactaremos pronto para confirmar tu entrega. 🎉
+  </div>
+  <div class="msg error" id="msgError" style="display:none">
+    ❌ Hubo un error al procesar tu pedido. Por favor intenta de nuevo o contáctanos.
+  </div>
+</div>
+
+<script>
+const API = 'https://vidaydetalledl.com/wp-json/mi-tienda/v1/pedido';
+const PRODUCT_ID = 18;
+
+// City data from Dropi's EC.php — exact names accepted by the Dropi API
+const CIUDADES = {
+  "EC-P": ["TABACUNDO","CAYAMBE","PEDRO MONCAYO","AYORA","JUAN MONTALVO","QUITO","ALANGASI","ALOAG","AMAGUANA","CONOCOTO","CUMBAYA","GUAYLLABAMBA","LA ARMENIA","LLANO CHICO","LLANO GRANDE","MACHACHI","MIRAVALLE","MITAD DEL MUNDO","MONJAS","ORQUIDEAS","PIFO","PINTAG","POMASQUI","PUEMBO","PUSUQUI","EL QUINCHE","AZCASUBI VIA AL QUINCHE","CHECA","SAN ANTONIO DE PICHINCHA","SAN JOSE DE MORAN","CALDERON","SAN RAFAEL","SANGOLQUI","TABABELA","TAMBILLO","TUMBACO","UYUMBICHO","VALLE DE LOS CHILLOS","YARUQUI","ZAMBISA","PUERTO QUITO","PEDRO V. MALDONADO","SAN MIGUEL DE LOS BANCOS","NANEGALITO","CALACALI","CUZUBAMBA"],
+  "EC-X": ["LATACUNGA","SALCEDO","SAQUISILI","LASSO","GUAYTACAMA","PASTOCALLE","MULALO","TANICUCHI","BELISARIO QUEVEDO","PUJILI","SAN BUENAVENTURA -BELLAVISTA.","LA MANA"],
+  "EC-C": ["TULCAN","SAN GABRIEL","EL ANGEL","JULIO ANDRADE","BOLIVAR","HUACA","MIRA"],
+  "EC-I": ["IBARRA","CARANQUI","URCUQUI","YAGUARCOCHA","ATUNTAQUI","ANDRADE MARIN","CHALTURA","SAN LUIS","SANTA BERTHA","TIERRA BLANCA","SAN JOSE","NATABUELA","ANTONIO ANTE","PIMAMPIRO","SAN ANTONIO IBARRA","SAN ROQUE","CHORLAVI","OTAVALO","COTACACHI","SAN PABLO IMBABURA","QUIROGA","GONZALEZ SUAREZ","PERUGACHI","PEGUCHE"],
+  "EC-B": ["GUARANDA","SALINAS DE GUARANDA","SAN JOSE DE CHIMBO","SAN MIGUEL DE BOLIVAR"],
+  "EC-A": ["CUENCA","CHAULLABAMBA","RICAURTE CUENCA","GUALACEO","SIG SIG","PAUTE","CHORDELEG","ZONA FRANCA","CUMBE","TARQUI","GIRON","YUNGUILLA","SANTA ISABEL","ONA","PONCE ENRIQUEZ"],
+  "EC-F": ["AZOGUES","BIBLIAN","CANAR","EL TAMBO"],
+  "EC-H": ["RIOBAMBA","GUANO","CAJABAMBA","CHUNCHI","LICAN","ALAUSI","GUAMOTE","COLTA","CHAMBO","YARUQUIES"],
+  "EC-O": ["MACHALA","PINAS","ZARUMA","PORTOVELO","PUERTO BOLIVAR","ARENILLAS","PASAJE","SANTA ROSA","HUAQUILLAS","EL CAMBIO","EL GUABO"],
+  "EC-E": ["ESMERALDAS","ATACAMES","TONSUPA","TACHINA","LA UNION","QUININDE","VICHE"],
+  "EC-G": ["JUJAN","TRES POSTES","GUAYAQUIL","DURAN","DAULE","SAMBORONDON (Pueblo)","BOCA DE CANA","NOBOL","ISIDRO AYORA","LOMAS DE SARGENTILLO","PEDRO CARBO","PALESTINA","SANTA LUCIA","BALZAR","LAUREL","SALITRE","SAMBORONDON","CHIVERIA","PETRILLO","PUENTE LUCIA","COLORADAL","GENERAL VERNAZA","LA MARAVILLA","LAS ANIMAS","LOS TINTOS","SABANILLA","TARIFA","PLAYAS","CERECITA","CHONGON","POSORJA","PROGRESO","MILAGRO","BASE TAURA","EL DESEO","MATILDE ESTHER","KM 26 VIA DURAN TAMBO","BUCAY","BOLICHE","CUMANDA","ROBERTO ASTUDILLO","YAGUACHI","NARANJITO","EL TRIUNFO","LA TRONCAL","MARCELINO MARIDUENA","MANUEL J. CALLE","SIMON BOLIVAR","MARISCAL SUCRE","LORENZO DE GARAICOA","NARANJAL","BALAO","PUERTO INCA"],
+  "EC-L": ["LOJA","VILCABAMBA","CARIAMANGA","CATACOCHA","CATAMAYO","CELICA","SARAGURO","MALACATOS","GONZANAMA","MACARA"],
+  "EC-R": ["VALENCIA","MOCACHE","QUINSALOMA","SAN CARLOS","PATRICIA PILAR","BABAHOYO","VINCES","PALENQUE","ISLA BEJUCAL","BABA","ECHEANDIA","MONTALVO","CALUMA","PUEBLO VIEJO","CATARAMA","RICAURTE LOS RIOS","SAN JUAN","VENTANAS","QUEVEDO","SAN CAMILO","BUENA FE","EL EMPALME"],
+  "EC-M": ["PEDERNALES","EL CARMEN","NUEVO ISRAEL","LA DELICIA KM. 29","CHONE","CALCETA","CANUTO","ESTANCILLA","FLAVIO ALFARO","RICAURTE MANABI","SAN ANTONIO DE CHONE","JUNIN","TOSAGUA","BAHIA DE CARAQUEZ","LEONIDAS PLAZA","SAN VICENTE","JAMA","MANTA","MONTECRISTI","JARAMIJO","PORTOVIEJO","ALAHUELA","CALDERON DE PORTOVIEJO","CHARAPOTO","CRUCITA","PICOAZA","SAN PLACIDO","RIO CHICO","ROCAFUERTE","24 DE MAYO","OLMEDO","SANTA ANA","COLON","JIPIJAPA","PUERTO CAYO","PUERTO LOPEZ","PAJAN","PICHINCHA MANABI"],
+  "EC-S": ["MACAS","SUCUA","GUALAQUIZA"],
+  "EC-N": ["EL CHACO","ARCHIDONA","TENA","MISAHUALLI","PTO. NAPO","AROSEMENA TOLA"],
+  "EC-D": ["(FRANCISCO DE ORELLANA) EL COCA","LA JOYA DE LOS SACHAS","LORETO"],
+  "EC-Y": ["PUYO","SHELL"],
+  "EC-SE": ["LA LIBERTAD","SANTA ELENA","BALLENITA","SALINAS","MUEY","PUERTO SANTA ROSA","ANCON","ANCONCITO","MAR BRAVO","PUNTA CARNERO","PROSPERIDAD","MANGLARALTO","MONTANITA","OLON","SAN PABLO SANTA ELENA","PUNTA BLANCA","CADEATE","CAPAES","LIBERTADOR BOLIVAR","MONTEVERDE","PALMAR","PUNTA BARANDUA","SAN PEDRO","VALDIVIA","AYANGUE"],
+  "EC-SD": ["SANTO DOMINGO","KM 14 QUEVEDO","KM 24 QUEVEDO","KM 38.5 QUEVEDO","KM 41 QUEVEDO","LUZ DE AMERICA","LA CONCORDIA","LAS VILLEGAS","MONTERREY","VALLE HERMOSO"],
+  "EC-U": ["NUEVA LOJA - LAGO AGRIO","SHUSHUFINDI"],
+  "EC-T": ["AMBATO","MOCHA","CEVALLOS","QUERO","BANOS DE AGUA SANTA","PELILEO","PATATE","TISALEO","HUAMBALO","PILLARO"],
+  "EC-Z": ["ZAMORA","YANTZAZA","CENTINELA DEL CONDOR"]
+};
+
+// Populate city dropdown when province changes
+document.getElementById('provincia').addEventListener('change', function() {
+  var ciudadSelect = document.getElementById('ciudad');
+  var codigo = this.value;
+  ciudadSelect.innerHTML = '';
+
+  if (!codigo || !CIUDADES[codigo]) {
+    ciudadSelect.innerHTML = '<option value="">Primero selecciona una provincia</option>';
+    ciudadSelect.disabled = true;
+    return;
+  }
+
+  ciudadSelect.innerHTML = '<option value="">Selecciona tu ciudad</option>';
+  CIUDADES[codigo].forEach(function(c) {
+    var opt = document.createElement('option');
+    opt.value = c;
+    opt.textContent = c;
+    ciudadSelect.appendChild(opt);
+  });
+  ciudadSelect.disabled = false;
+});
+
+// Update total price when pack changes
+document.querySelectorAll('input[name="qty"]').forEach(function(radio) {
+  radio.addEventListener('change', function() {
+    document.getElementById('totalPrice').textContent = '$' + this.dataset.price;
+  });
+});
+
+async function enviarPedido() {
+  var nombre    = document.getElementById('nombre').value.trim();
+  var telefono  = document.getElementById('telefono').value.trim();
+  var provincia = document.getElementById('provincia').value;
+  var ciudad    = document.getElementById('ciudad').value;
+  var direccion = document.getElementById('direccion').value.trim();
+  var selectedQty = document.querySelector('input[name="qty"]:checked');
+
+  if (!nombre || !telefono || !provincia || !ciudad || !direccion) {
+    alert('Por favor completa todos los campos.');
+    return;
+  }
+
+  var btn = document.getElementById('btnSubmit');
+  btn.disabled = true;
+  btn.innerHTML = '<span class="spinner"></span>Procesando pedido...';
+
+  document.getElementById('msgSuccess').style.display = 'none';
+  document.getElementById('msgError').style.display = 'none';
+
+  var variationId = parseInt(selectedQty.dataset.variation);
+
+  var orderData = {
+    nombre:       nombre,
+    telefono:     telefono,
+    provincia:    provincia,
+    ciudad:       ciudad,
+    direccion:    direccion,
+    product_id:   PRODUCT_ID,
+    variation_id: variationId
+  };
+
+  try {
+    var response = await fetch(API, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(orderData)
+    });
+
+    var data = await response.json();
+
+    if (response.ok && data.success) {
+      document.getElementById('msgSuccess').style.display = 'block';
+      document.getElementById('nombre').value    = '';
+      document.getElementById('telefono').value  = '';
+      document.getElementById('provincia').value = '';
+      document.getElementById('ciudad').innerHTML = '<option value="">Primero selecciona una provincia</option>';
+      document.getElementById('ciudad').disabled  = true;
+      document.getElementById('direccion').value  = '';
+      btn.innerHTML = '✅ Pedido Realizado';
+    } else {
+      throw new Error(JSON.stringify(data));
+    }
+  } catch(e) {
+    console.error('Error:', e);
+    document.getElementById('msgError').style.display = 'block';
+    btn.disabled = false;
+    btn.innerHTML = '🛵 REALIZAR PEDIDO — Pago al recibir';
+  }
+}
+</script>
+</body>
+</html>
