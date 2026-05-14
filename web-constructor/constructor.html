@@ -67,6 +67,14 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
 .ai-hint{font-size:.68rem;color:#475569;margin-top:8px;line-height:1.55}
 @keyframes spin{to{transform:rotate(360deg)}}
 
+/* URL Analysis loading overlay */
+.url-overlay{position:fixed;inset:0;background:rgba(15,23,42,.92);z-index:9999;display:none;flex-direction:column;align-items:center;justify-content:center;gap:18px;backdrop-filter:blur(4px)}
+.url-overlay.active{display:flex}
+.url-overlay-spinner{width:48px;height:48px;border:4px solid #334155;border-top-color:#38bdf8;border-radius:50%;animation:spin 1s linear infinite}
+.url-overlay-ttl{font-size:1.1rem;font-weight:800;color:#f1f5f9}
+.url-overlay-sub{font-size:.85rem;color:#94a3b8;text-align:center;max-width:320px;line-height:1.6}
+.url-overlay-url{font-size:.75rem;color:#38bdf8;background:rgba(56,189,248,.08);border:1px solid rgba(56,189,248,.2);border-radius:8px;padding:6px 14px;max-width:320px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
 /* Scrollbar */
 .cfg::-webkit-scrollbar{width:5px}
 .cfg::-webkit-scrollbar-track{background:#0f172a}
@@ -88,6 +96,14 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
 </style>
 </head>
 <body>
+
+<!-- URL ANALYSIS LOADING OVERLAY -->
+<div class="url-overlay" id="urlOverlay">
+  <div class="url-overlay-spinner"></div>
+  <div class="url-overlay-ttl">🔗 Analizando sitio web...</div>
+  <div class="url-overlay-url" id="urlOverlayUrl"></div>
+  <div class="url-overlay-sub">La IA está leyendo el contenido del sitio y preparando tu página. Esto puede tomar hasta 30 segundos.</div>
+</div>
 
 <!-- HEADER -->
 <header class="hdr">
@@ -1123,6 +1139,61 @@ async function generarConIA(){
 }
 
 // ═══════════════════════════════════════════════
+// URL ANALYSIS
+// ═══════════════════════════════════════════════
+async function analizarWebUrl(url, tipo){
+  const token = getSupabaseToken();
+  const overlay = document.getElementById('urlOverlay');
+  const urlLbl  = document.getElementById('urlOverlayUrl');
+  const errEl   = document.getElementById('aiError');
+
+  if(!token){
+    errEl.textContent = '⚠️ Debes iniciar sesión en LandingAI Builder para usar esta función. Abre la app principal primero.';
+    errEl.style.display = 'block';
+    document.getElementById('cfg').scrollTop = 0;
+    return;
+  }
+
+  urlLbl.textContent = url;
+  overlay.classList.add('active');
+  errEl.style.display = 'none';
+
+  try{
+    const res = await fetch('../proxy.php', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({accion:'analizar_url', url, tipo, _auth_token:token})
+    });
+    const json = await res.json();
+
+    if(!json.success){
+      errEl.textContent = '❌ ' + (json.error || 'Error al analizar el sitio. Intenta de nuevo.');
+      errEl.style.display = 'block';
+      document.getElementById('cfg').scrollTop = 0;
+      return;
+    }
+
+    const base = DEFAULTS[TYPE] || DEFAULTS.servicio;
+    const webData = json.data || {};
+    applyState({...base, ...webData});
+    render(); save();
+
+    if(webData._warning){
+      errEl.textContent = '⚠️ ' + webData._warning;
+      errEl.style.display = 'block';
+    }
+    document.getElementById('cfg').scrollTop = 220;
+
+  }catch(e){
+    errEl.textContent = '❌ Error de conexión: ' + e.message;
+    errEl.style.display = 'block';
+    document.getElementById('cfg').scrollTop = 0;
+  }finally{
+    overlay.classList.remove('active');
+  }
+}
+
+// ═══════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════
 function init(){
@@ -1144,6 +1215,16 @@ function init(){
   }));
   applyState(d);
   render();
+
+  // Si viene del selector con URL para analizar, disparar análisis automáticamente
+  const pendingUrl  = localStorage.getItem('wc-pending-url');
+  const pendingTipo = localStorage.getItem('wc-pending-url-tipo') || TYPE;
+  if(pendingUrl){
+    localStorage.removeItem('wc-pending-url');
+    localStorage.removeItem('wc-pending-url-tipo');
+    // Pequeño delay para que la página cargue primero
+    setTimeout(() => analizarWebUrl(pendingUrl, pendingTipo), 400);
+  }
 }
 init();
 </script>

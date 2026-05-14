@@ -1,0 +1,97 @@
+{
+  "name": "analizar-url",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "analizar-url",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "node-webhook",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "=https://r.jina.ai/{{ $json.body.url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "text/plain"
+            },
+            {
+              "name": "X-Return-Format",
+              "value": "text"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          },
+          "timeout": 25000
+        }
+      },
+      "id": "node-jina",
+      "name": "Jina Reader",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "const pageContent = $input.first().json.data || '';\nconst webhookData = $('Webhook').first().json.body || {};\nconst tipo = webhookData.tipo || 'servicio';\nconst url  = webhookData.url  || '';\n\nconst tipoLabel = {\n  viajes:       'Agencia de Viajes',\n  medico:       'Médico / Clínica',\n  abogado:      'Abogado / Bufete',\n  inmobiliaria: 'Inmobiliaria',\n  automotriz:   'Automotriz',\n  producto:     'Tienda / Productos',\n  servicio:     'Servicios / Agencia',\n}[tipo] || 'Negocio';\n\nconst hasContent = typeof pageContent === 'string' && pageContent.trim().length > 200;\n\nlet prompt;\n\nif (hasContent) {\n  const trimmed = pageContent.slice(0, 6000);\n  prompt = `Eres un experto en marketing digital y copywriting para negocios en Ecuador y Latinoamérica. Analizaste el siguiente contenido extraído de la web \"${url}\".\n\nTipo de negocio detectado: ${tipoLabel}\n\nContenido extraído de la web:\n---\n${trimmed}\n---\n\nBasado en ese contenido real, genera el contenido completo para una página web profesional. Responde ÚNICAMENTE con un JSON válido (sin texto adicional, sin bloques de código, sin explicaciones), con esta estructura exacta:\n\n{\n  \"bizName\": \"Nombre del negocio extraído o deducido\",\n  \"bizTagline\": \"Propuesta de valor en una línea\",\n  \"bizDesc\": \"Descripción del negocio en 1-2 oraciones claras\",\n  \"bizBadge\": \"Emoji + texto corto para el badge del hero (ej: 🏆 Líderes en Ecuador · Desde 2015)\",\n  \"heroTitle\": \"Título principal del hero, impactante y directo (máx 10 palabras)\",\n  \"heroSub\": \"Subtítulo persuasivo de 1-2 oraciones\",\n  \"heroCta\": \"Texto del botón principal (ej: Agendar Cita, Cotizar Ahora, Contactar)\",\n  \"servs\": [\n    {\"icon\": \"emoji\", \"title\": \"Nombre del servicio\", \"desc\": \"Descripción breve del beneficio\"},\n    {\"icon\": \"emoji\", \"title\": \"Nombre del servicio\", \"desc\": \"Descripción breve del beneficio\"},\n    {\"icon\": \"emoji\", \"title\": \"Nombre del servicio\", \"desc\": \"Descripción breve del beneficio\"},\n    {\"icon\": \"emoji\", \"title\": \"Nombre del servicio\", \"desc\": \"Descripción breve del beneficio\"}\n  ],\n  \"pasos\": [\n    {\"title\": \"Nombre del paso\", \"desc\": \"Descripción breve\"},\n    {\"title\": \"Nombre del paso\", \"desc\": \"Descripción breve\"},\n    {\"title\": \"Nombre del paso\", \"desc\": \"Descripción breve\"},\n    {\"title\": \"Nombre del paso\", \"desc\": \"Descripción breve\"}\n  ],\n  \"testis\": [\n    {\"name\": \"Nombre real ecuatoriano\", \"cargo\": \"Ciudad o profesión\", \"text\": \"Testimonio creíble de 1-2 oraciones\"},\n    {\"name\": \"Nombre real ecuatoriano\", \"cargo\": \"Ciudad o profesión\", \"text\": \"Testimonio creíble de 1-2 oraciones\"},\n    {\"name\": \"Nombre real ecuatoriano\", \"cargo\": \"Ciudad o profesión\", \"text\": \"Testimonio creíble de 1-2 oraciones\"}\n  ],\n  \"ctPhone\": \"+593 9X XXX-XXXX\",\n  \"ctWa\": \"593XXXXXXXXX\",\n  \"ctEmail\": \"contacto@negocio.ec\",\n  \"ctAddr\": \"Ciudad, Ecuador\",\n  \"ctHorario\": \"Lun-Vie 9:00-18:00\",\n  \"formTitle\": \"Título llamativo del formulario de contacto\",\n  \"formBtn\": \"Texto del botón de envío\",\n  \"formSuccess\": \"Mensaje amigable de confirmación\"\n}\n\nReglas: usa la información real del sitio analizado. Si falta algún dato, inventa uno coherente con el tipo de negocio. Exactamente 4 servicios, 4 pasos y 3 testimonios. Solo JSON.`;\n} else {\n  prompt = `AVISO: No se pudo extraer contenido útil de la URL \"${url}\". El sitio puede estar protegido, vacío o requerir JavaScript avanzado.\n\nDe todas formas, genera contenido genérico de alta calidad para un negocio de tipo \"${tipoLabel}\" en Ecuador. Responde ÚNICAMENTE con un JSON válido con esta estructura exacta:\n\n{\n  \"bizName\": \"Nombre del negocio\",\n  \"bizTagline\": \"Propuesta de valor en una línea\",\n  \"bizDesc\": \"Descripción del negocio en 1-2 oraciones claras\",\n  \"bizBadge\": \"Emoji + texto corto para el badge del hero\",\n  \"heroTitle\": \"Título principal del hero (máx 10 palabras)\",\n  \"heroSub\": \"Subtítulo persuasivo de 1-2 oraciones\",\n  \"heroCta\": \"Texto del botón principal\",\n  \"servs\": [\n    {\"icon\": \"emoji\", \"title\": \"Servicio\", \"desc\": \"Descripción\"},\n    {\"icon\": \"emoji\", \"title\": \"Servicio\", \"desc\": \"Descripción\"},\n    {\"icon\": \"emoji\", \"title\": \"Servicio\", \"desc\": \"Descripción\"},\n    {\"icon\": \"emoji\", \"title\": \"Servicio\", \"desc\": \"Descripción\"}\n  ],\n  \"pasos\": [\n    {\"title\": \"Paso\", \"desc\": \"Descripción\"},\n    {\"title\": \"Paso\", \"desc\": \"Descripción\"},\n    {\"title\": \"Paso\", \"desc\": \"Descripción\"},\n    {\"title\": \"Paso\", \"desc\": \"Descripción\"}\n  ],\n  \"testis\": [\n    {\"name\": \"Nombre\", \"cargo\": \"Ciudad\", \"text\": \"Testimonio\"},\n    {\"name\": \"Nombre\", \"cargo\": \"Ciudad\", \"text\": \"Testimonio\"},\n    {\"name\": \"Nombre\", \"cargo\": \"Ciudad\", \"text\": \"Testimonio\"}\n  ],\n  \"ctPhone\": \"+593 9X XXX-XXXX\",\n  \"ctWa\": \"593XXXXXXXXX\",\n  \"ctEmail\": \"contacto@negocio.ec\",\n  \"ctAddr\": \"Ciudad, Ecuador\",\n  \"ctHorario\": \"Lun-Vie 9:00-18:00\",\n  \"formTitle\": \"Título del formulario\",\n  \"formBtn\": \"Enviar\",\n  \"formSuccess\": \"Gracias por contactarnos, te responderemos pronto.\",\n  \"_warning\": \"No se pudo extraer contenido del sitio web. Se generó contenido genérico.\"\n}\n\nSolo JSON.`;\n}\n\nreturn [{ json: { prompt } }];"
+      },
+      "id": "node-build-prompt",
+      "name": "Construir Prompt",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { prompt: $json.prompt } }}",
+        "options": {}
+      },
+      "id": "node-respond",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [900, 300]
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [{ "node": "Jina Reader", "type": "main", "index": 0 }]
+      ]
+    },
+    "Jina Reader": {
+      "main": [
+        [{ "node": "Construir Prompt", "type": "main", "index": 0 }]
+      ]
+    },
+    "Construir Prompt": {
+      "main": [
+        [{ "node": "Respond to Webhook", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "tags": [],
+  "triggerCount": 0,
+  "updatedAt": "2026-05-13T00:00:00.000Z",
+  "versionId": "1"
+}

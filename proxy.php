@@ -323,7 +323,7 @@ if (($data['accion'] ?? '') === 'load_api_keys') {
    Proveedores soportados: anthropic, openai, gemini
 ─────────────────────────────────────────────────────────────── */
 $ADMIN_EMAIL   = getenv('ADMIN_EMAIL') ?: '';
-$AI_ACTIONS    = ['generar_copy','regenerar_seccion','generar_ads','generar_html','generar_liquid','generar_web'];
+$AI_ACTIONS    = ['generar_copy','regenerar_seccion','generar_ads','generar_html','generar_liquid','generar_web','analizar_url'];
 $accion_actual = $data['accion'] ?? '';
 $provider      = in_array($data['_provider'] ?? '', ['anthropic','openai','gemini'])
                     ? $data['_provider']
@@ -496,6 +496,7 @@ $routes = [
     'generar_html'          => $base . 'generar-v2',
     'generar_liquid'        => $base . 'generar-v2',
     'generar_prompt_imagen' => $base . 'generar-prompt-imagen',
+    'analizar_url'          => $base . 'analizar-url',
 ];
 
 $accion = $data['accion'];
@@ -563,7 +564,7 @@ if ($accion_actual === 'generar_imagen') {
    n8n ya no tiene acceso al HTTP body dinámico por un bug de n8n (double-encoding).
    Solución: n8n devuelve solo el prompt, proxy.php hace la llamada AI con curl.
 ──────────────────────────────────────────────────────────────────────────────── */
-$COPY_ACTIONS = ['generar_copy', 'regenerar_seccion', 'generar_ads'];
+$COPY_ACTIONS = ['generar_copy', 'regenerar_seccion', 'generar_ads', 'analizar_url'];
 if (in_array($accion_actual, $COPY_ACTIONS)) {
     $apiKey     = $data['_api_key'] ?? '';
     $aiProvider = $data['_provider'] ?? $provider;
