@@ -377,6 +377,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
       <button class="add-btn" onclick="addProvincia()" style="margin-top:6px">+ Agregar provincia / departamento</button>
     </div>
 
+    <!-- WhatsApp confirmación -->
+    <div class="sec">
+      <div class="sec-ttl">📲 WhatsApp de confirmación</div>
+      <div class="fl">
+        <label>Número de WhatsApp <span style="color:#475569">(sin + ni espacios, ej: 593987654321)</span></label>
+        <input type="text" id="waNum" placeholder="593987654321" oninput="render();saveState()">
+      </div>
+      <div class="fl">
+        <label>Mensaje de agradecimiento <span style="color:#475569">— variables: {nombre}, {producto}</span></label>
+        <input type="text" id="waMsg" value="Hola, acabo de realizar mi pedido 🎉 Nombre: {nombre} | Producto: {producto}. ¡Gracias!" oninput="render();saveState()">
+      </div>
+    </div>
+
     <button class="dl-big" onclick="downloadForm()">⬇ Generar y Descargar Formulario</button>
     <p class="hint">El archivo HTML descargado está listo para subir a Hostinger</p>
 
@@ -557,6 +570,8 @@ function saveState(){
         formBg:      document.getElementById('formBg')?.value||'#ffffff',
         badgeColor:  document.getElementById('badgeColor')?.value||'#f59e0b',
         textColor:   document.getElementById('textColor')?.value||'#374151',
+        waNum:       document.getElementById('waNum')?.value||'',
+        waMsg:       document.getElementById('waMsg')?.value||'',
       }
     };
     try{ localStorage.setItem('dropi-constructor', JSON.stringify(state)); } catch(e){}
@@ -591,6 +606,8 @@ function applyUI(ui){
   if(ui.formBg){     set('formBg',ui.formBg);         set('formBgHex',ui.formBg);       }
   if(ui.badgeColor){ set('badgeColor',ui.badgeColor); set('badgeColorHex',ui.badgeColor); }
   if(ui.textColor){  set('textColor',ui.textColor);   set('textColorHex',ui.textColor);  }
+  if(ui.waNum) set('waNum',ui.waNum);
+  if(ui.waMsg) set('waMsg',ui.waMsg);
   if(ui.formStyle){ formStyle=ui.formStyle; setStyle(ui.formStyle); } else render();
 }
 
@@ -608,6 +625,8 @@ function getFullState(){
       formBg:      document.getElementById('formBg').value,
       badgeColor:  document.getElementById('badgeColor')?.value||'#f59e0b',
       textColor:   document.getElementById('textColor')?.value||'#374151',
+      waNum:       document.getElementById('waNum')?.value||'',
+      waMsg:       document.getElementById('waMsg')?.value||'',
     }
   };
 }
@@ -912,6 +931,8 @@ function genHTML(){
   const textColor  = document.getElementById('textColor')?.value  || '#374151';
   const def      = packs[0]?.price||'0.00';
   const isOferta = formStyle==='oferta';
+  const waNum    = (document.getElementById('waNum')?.value||'').replace(/\D/g,'');
+  const waMsg    = document.getElementById('waMsg')?.value||'Hola, acabo de realizar mi pedido 🎉 Nombre: {nombre} | Producto: {producto}. ¡Gracias!';
 
   function darken(hex,pct){ let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); r=Math.max(0,Math.round(r*(1-pct)));g=Math.max(0,Math.round(g*(1-pct)));b=Math.max(0,Math.round(b*(1-pct))); return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join(''); }
   const btnDark=darken(btnColor,0.20);
@@ -1191,6 +1212,12 @@ ${resumenCSS}
 </div>
 <script>
 const API='${api}', PID=${pid2};
+const WA_NUM='${waNum}', WA_MSG='${waMsg.replace(/'/g,"\\'")}';
+function goWa(nombre,producto){
+  if(!WA_NUM) return;
+  var msg=WA_MSG.replace('{nombre}',nombre).replace('{producto}',producto);
+  window.open('https://wa.me/'+WA_NUM+'?text='+encodeURIComponent(msg),'_blank');
+}
 const CDS=${JSON.stringify(ciudadesObj)};
 const VM=${JSON.stringify(vmap)};
 
@@ -1243,6 +1270,7 @@ async function send(){
       document.getElementById('city').innerHTML='<option value="">— primero provincia —</option>';
       document.getElementById('city').disabled=true;
       btn.innerHTML='✅ ¡Pedido Enviado!';
+      setTimeout(function(){ goWa(fn+' '+ln,'${esc(pname)}'); }, 1500);
     }else throw new Error(JSON.stringify(d));
   }catch(e){
     document.getElementById('mEr').style.display='block';
