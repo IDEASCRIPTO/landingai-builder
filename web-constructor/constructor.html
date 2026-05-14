@@ -20,8 +20,10 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
 .save-ind{font-size:.67rem;color:#1D9E75;opacity:0;transition:opacity .3s;white-space:nowrap}
 .btn-sm{background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:7px;padding:6px 11px;font-size:.72rem;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap}
 .btn-sm:hover{border-color:#1D9E75;color:#1D9E75}
-.btn-dl{background:#1D9E75;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.8rem;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
-.btn-dl:hover{background:#0f7d5a}
+.btn-dl{background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:8px;padding:8px 16px;font-size:.8rem;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn-dl:hover{border-color:#1D9E75;color:#1D9E75}
+.btn-next{background:linear-gradient(135deg,#1D9E75,#0f7d5a);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:.8rem;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:6px}
+.btn-next:hover{background:linear-gradient(135deg,#0f7d5a,#065f46);transform:translateY(-1px)}
 
 /* ── Layout ── */
 .body{display:flex;flex:1;overflow:hidden;min-height:0}
@@ -98,7 +100,8 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
   <div class="hdr-right">
     <span class="save-ind" id="saveInd">✓ Guardado</span>
     <button class="btn-sm" onclick="resetState()">↺ Reiniciar</button>
-    <button class="btn-dl" onclick="downloadPage()">⬇ Descargar HTML</button>
+    <button class="btn-dl" onclick="downloadPage()">⬇ Borrador</button>
+    <a class="btn-next" id="btnNext" href="#">Siguiente paso →</a>
   </div>
 </header>
 
@@ -207,9 +210,8 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
       <div class="fl"><label>Horario de atención</label>
         <input type="text" id="ctHorario" placeholder="Lun-Vie 8:00-18:00" oninput="render();save()">
       </div>
-      <div class="grid2">
-        <div class="fl"><label>Instagram</label><input type="url" id="ctIg" placeholder="https://..." oninput="render();save()"></div>
-        <div class="fl"><label>Facebook</label><input type="url" id="ctFb" placeholder="https://..." oninput="render();save()"></div>
+      <div class="fl"><label>Link del botón CTA principal</label>
+        <input type="text" id="ctaLink" placeholder="#contacto  o  https://wa.me/593..." oninput="render();save()">
       </div>
     </div>
 
@@ -224,6 +226,17 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
       </div>
       <div class="fl"><label>Mensaje de éxito tras envío</label>
         <input type="text" id="formSuccess" oninput="render();save()">
+      </div>
+      <div class="fl"><label>Destino del formulario</label>
+        <select id="formDest" onchange="toggleFormDest();render();save()">
+          <option value="none">Solo mostrar mensaje de éxito</option>
+          <option value="whatsapp">Enviar a WhatsApp</option>
+          <option value="email">Enviar a Email</option>
+          <option value="webhook">Enviar a URL / Webhook</option>
+        </select>
+      </div>
+      <div class="fl" id="formDestRow" style="display:none"><label id="formDestLbl">Número de WhatsApp (593...)</label>
+        <input type="text" id="formDestVal" placeholder="593987654321" oninput="render();save()">
       </div>
     </div>
 
@@ -265,6 +278,7 @@ const TYPE_META = {
 };
 const meta = TYPE_META[TYPE] || TYPE_META.servicio;
 document.getElementById('typeLabel').textContent = meta.icon + ' ' + meta.label;
+document.getElementById('btnNext').href = 'finalize.html?t=' + TYPE;
 document.getElementById('servTtl').textContent = meta.servTtl;
 
 // ═══════════════════════════════════════════════
@@ -297,7 +311,7 @@ const DEFAULTS = {
     ],
     ctPhone:'+593 2 234-5678', ctWa:'593987654321', ctEmail:'info@travelecuador.com',
     ctAddr:'Av. Amazonas N23-45, Quito', ctHorario:'Lun-Vie 9:00-18:00 · Sáb 10:00-14:00',
-    ctIg:'', ctFb:'',
+    ctaLink:'', formDest:'none', formDestVal:'',
     formTitle:'Cotiza tu viaje ahora', formBtn:'Solicitar Cotización Gratis', formSuccess:'¡Gracias! Te contactaremos en menos de 24 horas con tu cotización personalizada.',
   },
   medico: {
@@ -326,7 +340,7 @@ const DEFAULTS = {
     ],
     ctPhone:'+593 2 345-6789', ctWa:'593981234567', ctEmail:'citas@medicenter.ec',
     ctAddr:'Av. 6 de Diciembre N45-12, Quito', ctHorario:'Lun-Vie 7:00-20:00 · Sáb 8:00-14:00',
-    ctIg:'', ctFb:'',
+    ctaLink:'', formDest:'none', formDestVal:'',
     formTitle:'Agenda tu cita médica', formBtn:'Agendar Cita Ahora', formSuccess:'¡Cita recibida! Te llamaremos en breve para confirmar el horario.',
   },
   abogado: {
@@ -355,7 +369,7 @@ const DEFAULTS = {
     ],
     ctPhone:'+593 2 456-7890', ctWa:'593995678901', ctEmail:'consultas@lexasociados.ec',
     ctAddr:'Av. República del Salvador N34-183, Quito', ctHorario:'Lun-Vie 9:00-18:00',
-    ctIg:'', ctFb:'',
+    ctaLink:'', formDest:'none', formDestVal:'',
     formTitle:'Solicita tu consulta gratuita', formBtn:'Enviar Consulta', formSuccess:'¡Consulta recibida! Un abogado te contactará en menos de 24 horas.',
   },
   inmobiliaria: {
@@ -384,7 +398,7 @@ const DEFAULTS = {
     ],
     ctPhone:'+593 2 567-8901', ctWa:'593987890123', ctEmail:'ventas@mayas.ec',
     ctAddr:'Av. Eloy Alfaro N56-78, Quito', ctHorario:'Lun-Sáb 9:00-18:00',
-    ctIg:'', ctFb:'',
+    ctaLink:'', formDest:'none', formDestVal:'',
     formTitle:'Agenda una visita a nuestros proyectos', formBtn:'Agendar Visita', formSuccess:'¡Listo! Un asesor te contactará para coordinar la visita.',
   },
   automotriz: {
@@ -413,7 +427,7 @@ const DEFAULTS = {
     ],
     ctPhone:'+593 2 678-9012', ctWa:'593989012345', ctEmail:'ventas@adauto.ec',
     ctAddr:'Av. Simón Bolívar Km 3.5, Quito', ctHorario:'Lun-Vie 8:00-18:00 · Sáb 8:00-13:00',
-    ctIg:'', ctFb:'',
+    ctaLink:'', formDest:'none', formDestVal:'',
     formTitle:'Cotiza tu repuesto ahora', formBtn:'Solicitar Cotización', formSuccess:'¡Cotización enviada! Te respondemos en menos de 2 horas.',
   },
   producto: {
@@ -442,7 +456,7 @@ const DEFAULTS = {
     ],
     ctPhone:'+593 99 123-4567', ctWa:'593991234567', ctEmail:'pedidos@tuproducto.ec',
     ctAddr:'Ecuador — Envíos a todo el país', ctHorario:'Lun-Sáb 8:00-20:00',
-    ctIg:'', ctFb:'',
+    ctaLink:'', formDest:'none', formDestVal:'',
     formTitle:'Haz tu pedido ahora', formBtn:'Confirmar Pedido', formSuccess:'¡Pedido recibido! Te llamamos en las próximas horas para confirmar.',
   },
   servicio: {
@@ -471,7 +485,7 @@ const DEFAULTS = {
     ],
     ctPhone:'+593 2 123-4567', ctWa:'593981234567', ctEmail:'hola@duallegacy.ai',
     ctAddr:'Quito, Ecuador · Atención virtual y presencial', ctHorario:'Lun-Vie 9:00-18:00',
-    ctIg:'', ctFb:'',
+    ctaLink:'', formDest:'none', formDestVal:'',
     formTitle:'Agenda tu consulta gratuita', formBtn:'Agendar Consulta Gratis', formSuccess:'¡Consulta agendada! Te contactaremos en menos de 24 horas para coordinar.',
   },
 };
@@ -504,7 +518,8 @@ function collectState(){
     pasos: collectPasos(),
     testis: collectItems('testi'),
     ctPhone:g('ctPhone'), ctWa:g('ctWa'), ctEmail:g('ctEmail'),
-    ctAddr:g('ctAddr'), ctHorario:g('ctHorario'), ctIg:g('ctIg'), ctFb:g('ctFb'),
+    ctAddr:g('ctAddr'), ctHorario:g('ctHorario'),
+    ctaLink:g('ctaLink'), formDest:g('formDest'), formDestVal:g('formDestVal'),
     formTitle:g('formTitle'), formBtn:g('formBtn'), formSuccess:g('formSuccess'),
   };
 }
@@ -543,8 +558,9 @@ function applyState(s){
   set('heroCta',s.heroCta);    set('heroImg',s.heroImg);
   set('ctPhone',s.ctPhone); set('ctWa',s.ctWa); set('ctEmail',s.ctEmail);
   set('ctAddr',s.ctAddr);   set('ctHorario',s.ctHorario);
-  set('ctIg',s.ctIg);       set('ctFb',s.ctFb);
+  set('ctaLink',s.ctaLink); set('formDest',s.formDest); set('formDestVal',s.formDestVal);
   set('formTitle',s.formTitle); set('formBtn',s.formBtn); set('formSuccess',s.formSuccess);
+  toggleFormDest();
   renderServs(s.servs||[]); renderPasos(s.pasos||[]); renderTestis(s.testis||[]);
   syncTitle();
 }
@@ -860,7 +876,7 @@ footer{background:#0f172a;color:#94a3b8;padding:32px 0}
       <h1>${s.heroTitle||s.bizTagline||''}</h1>
       <p>${s.heroSub||s.bizDesc||''}</p>
       <div class="hero-btns">
-        <a href="#contacto" class="btn-primary">${s.heroCta||'Contactar'} →</a>
+        <a href="${s.ctaLink||'#contacto'}" class="btn-primary">${s.heroCta||'Contactar'} →</a>
         ${s.ctWa ? `<a href="${waLink}" target="_blank" class="btn-secondary">💬 WhatsApp</a>` : ''}
       </div>
     </div>
@@ -964,8 +980,7 @@ footer{background:#0f172a;color:#94a3b8;padding:32px 0}
         <a href="#proceso">Proceso</a>
         <a href="#testimonios">Testimonios</a>
         <a href="#contacto">Contacto</a>
-        ${s.ctIg ? `<a href="${s.ctIg}" target="_blank">Instagram</a>` : ''}
-        ${s.ctFb ? `<a href="${s.ctFb}" target="_blank">Facebook</a>` : ''}
+        <a href="#contacto">Contacto</a>
       </div>
     </div>
     <div class="footer-copy">© ${new Date().getFullYear()} ${s.bizName||'Mi Negocio'}. Todos los derechos reservados.</div>
@@ -982,6 +997,16 @@ function toggleMenu(){document.getElementById('navMobile').classList.toggle('ope
 // Form
 function submitForm(e){
   e.preventDefault();
+  var dest='${s.formDest||"none"}',val='${(s.formDestVal||"").replace(/'/g,"\\'")}';
+  if(dest==='whatsapp'&&val){
+    var n=document.getElementById('fn').value,t=document.getElementById('ft').value,m=document.getElementById('fm').value;
+    window.open('https://wa.me/'+val.replace(/\\D/g,'')+'?text='+encodeURIComponent('Nombre: '+n+'\\nTeléfono: '+t+'\\nMensaje: '+m),'_blank');
+  }else if(dest==='email'&&val){
+    var n=document.getElementById('fn').value,m=document.getElementById('fm').value;
+    window.location.href='mailto:'+val+'?subject=Contacto+web&body='+encodeURIComponent('Nombre: '+n+'\\nMensaje: '+m);
+  }else if(dest==='webhook'&&val){
+    fetch(val,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre:document.getElementById('fn').value,telefono:document.getElementById('ft').value,email:document.getElementById('fe').value,mensaje:document.getElementById('fm').value})}).catch(function(){});
+  }
   document.getElementById('cf').style.display='none';
   document.getElementById('fok').style.display='block';
 }
@@ -1022,6 +1047,20 @@ function toggleCfg(){
   const cfg=document.getElementById('cfg'), btn=document.getElementById('cfgToggle');
   const col=cfg.classList.toggle('collapsed');
   btn.textContent=col?'▶ Config':'◀ Config';
+}
+
+// ═══════════════════════════════════════════════
+// FORM DEST TOGGLE
+// ═══════════════════════════════════════════════
+function toggleFormDest(){
+  const v = document.getElementById('formDest')?.value || 'none';
+  const row = document.getElementById('formDestRow');
+  const lbl = document.getElementById('formDestLbl');
+  if(!row) return;
+  row.style.display = v === 'none' ? 'none' : '';
+  if(v==='whatsapp') lbl.textContent = 'Número WhatsApp (ej: 593987654321)';
+  else if(v==='email') lbl.textContent = 'Correo destino';
+  else if(v==='webhook') lbl.textContent = 'URL del webhook';
 }
 
 // ═══════════════════════════════════════════════

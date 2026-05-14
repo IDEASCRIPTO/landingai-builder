@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Paso 2 — Header, Footer & Links</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Header ── */
+.hdr{background:#1e293b;padding:9px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #334155;flex-shrink:0;gap:10px}
+.hdr-left{display:flex;align-items:center;gap:8px;min-width:0}
+.hdr-back{background:transparent;color:#64748b;border:1px solid #334155;border-radius:7px;padding:5px 10px;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;transition:.15s}
+.hdr-back:hover{color:#1D9E75;border-color:#1D9E75}
+.hdr-type{background:#6366f1;color:#fff;padding:3px 10px;border-radius:6px;font-size:.68rem;font-weight:800;white-space:nowrap}
+.hdr-step{font-size:.78rem;font-weight:700;color:#94a3b8}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.save-ind{font-size:.67rem;color:#1D9E75;opacity:0;transition:opacity .3s;white-space:nowrap}
+.btn-sm{background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:7px;padding:6px 11px;font-size:.72rem;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn-sm:hover{border-color:#1D9E75;color:#1D9E75}
+.btn-dl{background:linear-gradient(135deg,#1D9E75,#0f7d5a);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:.8rem;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn-dl:hover{background:linear-gradient(135deg,#0f7d5a,#065f46);transform:translateY(-1px)}
+
+/* ── Layout ── */
+.body{display:flex;flex:1;overflow:hidden;min-height:0}
+
+/* ── Config Panel ── */
+.cfg{background:#1e293b;border-right:1px solid #334155;overflow-y:auto;padding:14px;width:380px;flex-shrink:0;transition:width .25s ease,padding .25s ease,border .25s ease}
+.cfg.collapsed{width:0;padding:0;border:none;overflow:hidden}
+.sec{background:#0f172a;border-radius:10px;padding:13px;margin-bottom:10px}
+.sec-ttl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#64748b;margin-bottom:11px;display:flex;align-items:center;gap:5px}
+.fl{margin-bottom:9px}
+.fl label,.fl-label{display:block;font-size:.71rem;color:#94a3b8;margin-bottom:3px}
+.fl input[type=text],.fl input[type=url],.fl input[type=tel],.fl input[type=email],.fl select,.fl textarea{width:100%;background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:7px;padding:7px 10px;font-size:.82rem;font-family:inherit;outline:none}
+.fl input:focus,.fl select:focus,.fl textarea:focus{border-color:#1D9E75}
+
+/* Nav rows */
+.nav-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px;align-items:center}
+.nav-row-num{font-size:.65rem;color:#475569;text-align:center;grid-column:1/-1;margin-bottom:2px}
+
+/* Social rows */
+.soc-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.soc-icon{font-size:1.1rem;width:26px;text-align:center;flex-shrink:0}
+.soc-row input{flex:1;background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:7px;padding:6px 9px;font-size:.8rem;font-family:inherit;outline:none}
+.soc-row input:focus{border-color:#1D9E75}
+.soc-row input::placeholder{color:#334155}
+
+/* Scrollbar */
+.cfg::-webkit-scrollbar{width:5px}
+.cfg::-webkit-scrollbar-track{background:#0f172a}
+.cfg::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
+
+/* ── Preview Panel ── */
+.pv{display:flex;flex-direction:column;background:#cbd5e1;flex:1;min-width:0}
+.pv-hdr{background:#94a3b8;padding:7px 12px;font-size:.72rem;color:#1e293b;font-weight:600;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.dot{width:9px;height:9px;border-radius:50%}
+.pv-toggle{background:none;border:1px solid #64748b;color:#1e293b;border-radius:6px;padding:3px 9px;font-size:.72rem;font-weight:700;cursor:pointer;transition:.15s;margin-right:4px;flex-shrink:0}
+.pv-toggle:hover{background:#64748b;color:#fff}
+.pv-dev-btns{margin-left:auto;display:flex;gap:4px}
+.pv-dev-btn{background:none;border:1px solid #64748b;color:#334155;border-radius:6px;padding:3px 9px;font-size:.68rem;font-weight:600;cursor:pointer;transition:.15s}
+.pv-dev-btn.active{border-color:#0f7d5a;color:#0f7d5a;background:rgba(15,125,90,.1)}
+.pv-wrap{flex:1;display:flex;justify-content:center;align-items:flex-start;overflow:auto;background:linear-gradient(135deg,#e2e8f0,#cbd5e1);padding:24px 16px}
+.pv-wrap iframe{width:100%;max-width:960px;min-height:600px;border:none;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.pv-wrap.dev-tablet iframe{max-width:768px;border-radius:10px}
+.pv-wrap.dev-mobile iframe{max-width:390px;border-radius:20px}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <div class="hdr-left">
+    <a class="hdr-back" id="backBtn" href="constructor.html">← Paso 1</a>
+    <span class="hdr-type" id="typeLabel">Web</span>
+    <span class="hdr-step">Paso 2 — Header, Footer & Links</span>
+  </div>
+  <div class="hdr-right">
+    <span class="save-ind" id="saveInd">✓ Guardado</span>
+    <button class="btn-dl" onclick="downloadPage()">⬇ Descargar HTML final</button>
+  </div>
+</header>
+
+<div class="body">
+  <aside class="cfg" id="cfg">
+
+    <!-- NAVEGACIÓN HEADER -->
+    <div class="sec">
+      <div class="sec-ttl">🔗 Links de Navegación (Header)</div>
+      <div id="navList"></div>
+    </div>
+
+    <!-- REDES SOCIALES -->
+    <div class="sec">
+      <div class="sec-ttl">📱 Redes Sociales</div>
+      <div class="soc-row"><span class="soc-icon">📘</span><input type="url" id="socFb" placeholder="https://facebook.com/tupagina" oninput="render();save()"></div>
+      <div class="soc-row"><span class="soc-icon">📸</span><input type="url" id="socIg" placeholder="https://instagram.com/tupagina" oninput="render();save()"></div>
+      <div class="soc-row"><span class="soc-icon">🎵</span><input type="url" id="socTt" placeholder="https://tiktok.com/@tupagina" oninput="render();save()"></div>
+      <div class="soc-row"><span class="soc-icon">▶️</span><input type="url" id="socYt" placeholder="https://youtube.com/@tucanal" oninput="render();save()"></div>
+      <div class="soc-row"><span class="soc-icon">🐦</span><input type="url" id="socTw" placeholder="https://x.com/tupagina" oninput="render();save()"></div>
+      <div class="soc-row"><span class="soc-icon">💼</span><input type="url" id="socLi" placeholder="https://linkedin.com/company/tu" oninput="render();save()"></div>
+      <div class="soc-row"><span class="soc-icon">💬</span><input type="url" id="socWa" placeholder="https://wa.me/593987654321" oninput="render();save()"></div>
+    </div>
+
+    <!-- POLÍTICAS -->
+    <div class="sec">
+      <div class="sec-ttl">📄 Políticas y Legales</div>
+      <div class="fl"><label>Política de Privacidad — URL</label>
+        <input type="url" id="polPrivacy" placeholder="https://tupagina.com/privacidad" oninput="render();save()">
+      </div>
+      <div class="fl"><label>Términos y Condiciones — URL</label>
+        <input type="url" id="polTerms" placeholder="https://tupagina.com/terminos" oninput="render();save()">
+      </div>
+      <div class="fl"><label>Política de Cookies — URL <span style="color:#475569">(opcional)</span></label>
+        <input type="url" id="polCookies" placeholder="https://tupagina.com/cookies" oninput="render();save()">
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="sec">
+      <div class="sec-ttl">🦶 Footer</div>
+      <div class="fl"><label>Texto breve sobre la empresa</label>
+        <textarea id="footerAbout" placeholder="Somos una empresa dedicada a..." oninput="render();save()" style="min-height:56px"></textarea>
+      </div>
+      <div class="fl"><label>Texto de Copyright</label>
+        <input type="text" id="footerCopy" placeholder="© 2025 Tu Empresa. Todos los derechos reservados." oninput="render();save()">
+      </div>
+    </div>
+
+  </aside>
+
+  <main class="pv">
+    <div class="pv-hdr">
+      <button class="pv-toggle" id="cfgToggle" onclick="toggleCfg()">◀ Config</button>
+      <div class="dot" style="background:#ef4444"></div>
+      <div class="dot" style="background:#f59e0b"></div>
+      <div class="dot" style="background:#22c55e"></div>
+      <span>Vista Previa</span>
+      <div class="pv-dev-btns">
+        <button class="pv-dev-btn active" id="dev-desktop" onclick="setDevice('desktop')">🖥 Desktop</button>
+        <button class="pv-dev-btn" id="dev-tablet" onclick="setDevice('tablet')">⬛ Tablet</button>
+        <button class="pv-dev-btn" id="dev-mobile" onclick="setDevice('mobile')">📱 Móvil</button>
+      </div>
+    </div>
+    <div class="pv-wrap" id="pvWrap">
+      <iframe id="pf"></iframe>
+    </div>
+  </main>
+</div>
+
+<script>
+const TYPE = new URLSearchParams(location.search).get('t') || 'servicio';
+const TYPE_META = {
+  viajes:{label:'Agencia de Viajes',icon:'✈️'},medico:{label:'Médico / Clínica',icon:'🏥'},
+  abogado:{label:'Abogado / Bufete',icon:'⚖️'},inmobiliaria:{label:'Inmobiliaria',icon:'🏠'},
+  automotriz:{label:'Automotriz',icon:'🚗'},producto:{label:'Productos / Tienda',icon:'🛍️'},
+  servicio:{label:'Servicios / Agencia',icon:'💼'},
+};
+const meta = TYPE_META[TYPE] || TYPE_META.servicio;
+document.getElementById('typeLabel').textContent = meta.icon + ' ' + meta.label;
+document.getElementById('backBtn').href = 'constructor.html?t=' + TYPE;
+
+const CSK = 'wc-' + TYPE;
+const FSK = 'wc-' + TYPE + '-fin';
+let cState = {};
+let fState = {};
+let _saveTimer = null;
+
+const NAV_COUNT = 5;
+
+// ─── NAV ROWS ───────────────────────────────
+function buildNavRows(){
+  const defaults = [
+    {label:'Inicio', url:'#'},
+    {label:'Servicios', url:'#servicios'},
+    {label:'Proceso', url:'#proceso'},
+    {label:'Testimonios', url:'#testimonios'},
+    {label:'Contacto', url:'#contacto'},
+  ];
+  document.getElementById('navList').innerHTML = Array.from({length:NAV_COUNT},(_,i)=>`
+    <div style="margin-bottom:8px">
+      <div style="font-size:.63rem;color:#475569;margin-bottom:3px">Link ${i+1}</div>
+      <div class="nav-row">
+        <input type="text" class="nav-label" placeholder="Ej: Servicios" value="" oninput="render();save()">
+        <input type="text" class="nav-url"   placeholder="#servicios" value="" oninput="render();save()">
+      </div>
+    </div>`).join('');
+  const rows = document.querySelectorAll('.nav-label');
+  defaults.forEach((d,i)=>{ if(rows[i]){ rows[i].value=d.label; } });
+  const urls = document.querySelectorAll('.nav-url');
+  defaults.forEach((d,i)=>{ if(urls[i]){ urls[i].value=d.url; } });
+}
+
+// ─── COLLECT ───────────────────────────────
+function collectFinalize(){
+  const g = id => document.getElementById(id)?.value || '';
+  const navLinks = [];
+  const labels = document.querySelectorAll('.nav-label');
+  const urls   = document.querySelectorAll('.nav-url');
+  labels.forEach((el,i)=>{
+    const label = el.value.trim();
+    if(label) navLinks.push({label, url: urls[i]?.value.trim() || '#'});
+  });
+  fState = {
+    navLinks,
+    socFb:g('socFb'), socIg:g('socIg'), socTt:g('socTt'),
+    socYt:g('socYt'), socTw:g('socTw'), socLi:g('socLi'), socWa:g('socWa'),
+    polPrivacy:g('polPrivacy'), polTerms:g('polTerms'), polCookies:g('polCookies'),
+    footerAbout:g('footerAbout'), footerCopy:g('footerCopy'),
+  };
+}
+
+function applyFinalize(f){
+  const set = (id,v) => { const el=document.getElementById(id); if(el&&v!==undefined) el.value=v; };
+  // Nav
+  const labels = document.querySelectorAll('.nav-label');
+  const urls   = document.querySelectorAll('.nav-url');
+  (f.navLinks||[]).forEach((n,i)=>{
+    if(labels[i]) labels[i].value = n.label||'';
+    if(urls[i])   urls[i].value   = n.url||'';
+  });
+  // Social
+  set('socFb',f.socFb); set('socIg',f.socIg); set('socTt',f.socTt);
+  set('socYt',f.socYt); set('socTw',f.socTw); set('socLi',f.socLi); set('socWa',f.socWa);
+  // Policies
+  set('polPrivacy',f.polPrivacy); set('polTerms',f.polTerms); set('polCookies',f.polCookies);
+  // Footer
+  set('footerAbout',f.footerAbout); set('footerCopy',f.footerCopy);
+}
+
+function save(){
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(()=>{
+    collectFinalize();
+    localStorage.setItem(FSK, JSON.stringify(fState));
+    const ind = document.getElementById('saveInd');
+    ind.style.opacity='1'; setTimeout(()=>ind.style.opacity='0',1500);
+  }, 400);
+}
+
+// ─── COLOR HELPERS ─────────────────────────
+function hexAlpha(hex,a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function darken(hex,p){
+  let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  r=Math.max(0,Math.round(r*(1-p)));g=Math.max(0,Math.round(g*(1-p)));b=Math.max(0,Math.round(b*(1-p)));
+  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+// ─── GENERATE HTML ─────────────────────────
+function genHTML(){
+  collectFinalize();
+  const s = cState;
+  const f = fState;
+  const p   = s.colorPrimary||'#1D9E75';
+  const bg  = s.colorBg||'#f8fafc';
+  const hero= s.colorHero||darken(p,.3);
+  const pd  = darken(p,.15);
+
+  // Nav links
+  const navLinks = f.navLinks||[
+    {label:'Servicios',url:'#servicios'},{label:'Proceso',url:'#proceso'},
+    {label:'Testimonios',url:'#testimonios'},{label:'Contacto',url:'#contacto'},
+  ];
+  const navItems  = navLinks.slice(0,-1).map(n=>`<a href="${n.url}">${n.label}</a>`).join('');
+  const navCtaItem = navLinks.length ? navLinks[navLinks.length-1] : {label:'Contactar',url:'#contacto'};
+  const mobileNavItems = navLinks.map(n=>`<a href="${n.url}" onclick="toggleMenu()">${n.label}</a>`).join('');
+
+  // Social links
+  const socials = [
+    {k:'socFb',icon:'📘',label:'Facebook'},{k:'socIg',icon:'📸',label:'Instagram'},
+    {k:'socTt',icon:'🎵',label:'TikTok'},{k:'socYt',icon:'▶️',label:'YouTube'},
+    {k:'socTw',icon:'🐦',label:'X / Twitter'},{k:'socLi',icon:'💼',label:'LinkedIn'},
+    {k:'socWa',icon:'💬',label:'WhatsApp'},
+  ].filter(s=>f[s.k]).map(s=>`<a href="${f[s.k]}" target="_blank" rel="noopener">${s.icon} ${s.label}</a>`).join('');
+
+  const waLink = s.ctWa ? `https://wa.me/${s.ctWa.replace(/\D/g,'')}` : '#';
+
+  // Content items
+  const servItems = (s.servs||[]).map((sv,i)=>`
+    <div class="card" data-reveal style="--delay:${i*.1}s">
+      <div class="card-icon">${sv.icon||'⭐'}</div>
+      <h3>${sv.title||''}</h3><p>${sv.desc||''}</p>
+    </div>`).join('');
+  const pasoItems = (s.pasos||[]).map((ps,i)=>`
+    <div class="step" data-reveal style="--delay:${i*.12}s">
+      <div class="step-num">${i+1}</div>
+      <h4>${ps.title||''}</h4><p>${ps.desc||''}</p>
+    </div>`).join('');
+  const testiItems = (s.testis||[]).map(t=>`
+    <div class="testi-card" data-reveal>
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"${t.text||t.desc||''}"</p>
+      <div class="testi-author">
+        <div class="testi-avatar">${(t.name||t.title||'?')[0]}</div>
+        <div><strong>${t.name||t.title||''}</strong><span>${t.cargo||t.icon||''}</span></div>
+      </div>
+    </div>`).join('');
+
+  const metaServ = {
+    viajes:'🗺️ Destinos / Paquetes',medico:'🩺 Especialidades',abogado:'📜 Áreas Legales',
+    inmobiliaria:'🏗️ Propiedades',automotriz:'🔧 Servicios',producto:'📦 Productos',servicio:'⚡ Servicios',
+  }[TYPE]||'⭐ Servicios';
+
+  const legalLinks = [
+    f.polPrivacy ? `<a href="${f.polPrivacy}" target="_blank">Política de Privacidad</a>` : '',
+    f.polTerms   ? `<a href="${f.polTerms}"   target="_blank">Términos y Condiciones</a>` : '',
+    f.polCookies ? `<a href="${f.polCookies}" target="_blank">Cookies</a>` : '',
+  ].filter(Boolean).join(' · ');
+
+  const copyText = f.footerCopy || `© ${new Date().getFullYear()} ${s.bizName||'Mi Negocio'}. Todos los derechos reservados.`;
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${s.bizName||'Mi Negocio'} — ${s.bizTagline||''}</title>
+<meta name="description" content="${s.bizDesc||''}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:${p};--pd:${pd};--hero:${hero};--bg:${bg};--r:14px;--tr:.35s cubic-bezier(.4,0,.2,1)}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:#1f2937}
+a{color:var(--p);text-decoration:none}
+img{max-width:100%;display:block}
+.container{max-width:1140px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+.section{padding:clamp(56px,8vw,96px) 0}
+.section-alt{background:#fff}
+nav{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(255,255,255,.95);backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,0,0,.08);transition:var(--tr)}
+nav.scrolled{box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:66px}
+.nav-logo{font-size:1.1rem;font-weight:900;color:#0f172a}
+.nav-logo span{color:var(--p)}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{font-size:.875rem;font-weight:500;color:#475569;transition:color var(--tr)}
+.nav-links a:hover{color:var(--p)}
+.nav-cta{background:var(--p);color:#fff!important;padding:9px 20px;border-radius:50px;font-weight:700!important;font-size:.85rem!important;transition:background var(--tr)!important}
+.nav-cta:hover{background:var(--pd)!important}
+.nav-burger{display:none;background:none;border:none;cursor:pointer;padding:4px}
+.nav-mobile{display:none;position:fixed;top:66px;left:0;right:0;background:#fff;border-bottom:1px solid #e5e7eb;padding:16px 20px;flex-direction:column;gap:12px;z-index:998}
+.nav-mobile.open{display:flex}
+.nav-mobile a{font-size:.95rem;font-weight:500;color:#374151;padding:8px 0;border-bottom:1px solid #f3f4f6}
+#hero{min-height:100vh;background:linear-gradient(135deg,var(--hero),var(--p));display:flex;align-items:center;padding-top:66px;position:relative;overflow:hidden}
+#hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+${s.heroImg?`#hero{background:linear-gradient(135deg,${hero}dd,${p}cc),url('${s.heroImg}') center/cover no-repeat}`:''}
+.hero-content{max-width:680px;padding:60px 0}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 16px;border-radius:50px;font-size:.78rem;font-weight:700;margin-bottom:20px;backdrop-filter:blur(8px)}
+.hero-content h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;line-height:1.12;margin-bottom:18px}
+.hero-content p{font-size:clamp(.95rem,2vw,1.1rem);color:rgba(255,255,255,.85);line-height:1.7;margin-bottom:32px;max-width:520px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{background:#fff;color:var(--p);padding:14px 28px;border-radius:50px;font-weight:800;font-size:.95rem;transition:var(--tr);display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2);color:var(--pd)}
+.btn-secondary{background:rgba(255,255,255,.15);color:#fff;padding:14px 28px;border-radius:50px;font-weight:700;font-size:.95rem;border:2px solid rgba(255,255,255,.4);transition:var(--tr);white-space:nowrap}
+.btn-secondary:hover{background:rgba(255,255,255,.25)}
+.section-header{text-align:center;margin-bottom:clamp(32px,5vw,56px)}
+.section-tag{display:inline-block;background:${hexAlpha(p,.1)};color:var(--p);padding:5px 16px;border-radius:50px;font-size:.75rem;font-weight:700;margin-bottom:12px}
+.section-header h2{font-size:clamp(1.6rem,3.5vw,2.3rem);font-weight:900;color:#0f172a;margin-bottom:12px}
+.section-header p{font-size:.97rem;color:#6b7280;max-width:540px;margin:0 auto;line-height:1.7}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.card{background:#fff;border-radius:var(--r);padding:28px 24px;border:1px solid #f1f5f9;transition:var(--tr);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.1);border-color:${hexAlpha(p,.2)}}
+.card-icon{font-size:2.2rem;margin-bottom:16px}
+.card h3{font-size:1.05rem;font-weight:800;color:#0f172a;margin-bottom:8px}
+.card p{font-size:.88rem;color:#6b7280;line-height:1.65}
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0;position:relative}
+.steps-grid::before{content:'';position:absolute;top:36px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--p),${hexAlpha(p,.2)});z-index:0}
+.step{text-align:center;padding:20px 16px;position:relative;z-index:1}
+.step-num{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-size:1.5rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 6px 20px ${hexAlpha(p,.3)}}
+.step h4{font-size:1rem;font-weight:800;color:#0f172a;margin-bottom:8px}
+.step p{font-size:.85rem;color:#6b7280;line-height:1.6}
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.testi-card{background:#fff;border-radius:var(--r);padding:28px;border:1px solid #f1f5f9;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.stars{color:#f59e0b;font-size:1rem;margin-bottom:12px}
+.testi-text{font-size:.92rem;color:#374151;line-height:1.7;margin-bottom:18px;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.testi-author strong{display:block;font-size:.88rem;font-weight:700;color:#0f172a}
+.testi-author span{font-size:.78rem;color:#9ca3af}
+.cta-banner{background:linear-gradient(135deg,var(--hero),var(--p));border-radius:24px;padding:clamp(32px,6vw,56px);text-align:center;color:#fff}
+.cta-banner h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:900;margin-bottom:12px}
+.cta-banner p{font-size:.97rem;opacity:.9;margin-bottom:28px;line-height:1.6}
+.cta-banner .btn-white{background:#fff;color:var(--p);padding:14px 32px;border-radius:50px;font-weight:800;font-size:.97rem;transition:var(--tr);display:inline-block}
+.cta-banner .btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.contact-wrap{display:grid;grid-template-columns:1fr 1.2fr;gap:48px;align-items:start}
+.contact-info h3{font-size:1.4rem;font-weight:900;color:#0f172a;margin-bottom:20px}
+.contact-item{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.contact-item-icon{width:40px;height:40px;border-radius:10px;background:${hexAlpha(p,.1)};color:var(--p);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.contact-item-text strong{display:block;font-size:.85rem;font-weight:700;color:#0f172a;margin-bottom:2px}
+.contact-item-text span{font-size:.85rem;color:#6b7280}
+.form-card{background:#fff;border-radius:20px;padding:36px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.form-title{font-size:1.2rem;font-weight:800;color:#0f172a;margin-bottom:6px}
+.form-sub{font-size:.83rem;color:#9ca3af;margin-bottom:24px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:5px}
+.fg input,.fg select,.fg textarea{width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:11px 14px;font-size:.9rem;font-family:'Inter',sans-serif;color:#111827;outline:none;transition:var(--tr);background:#fff}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px ${hexAlpha(p,.1)}}
+.fg textarea{resize:vertical;min-height:80px}
+.fg.full{grid-column:1/-1}
+.btn-submit{width:100%;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border:none;border-radius:50px;padding:15px;font-size:.97rem;font-weight:800;font-family:'Inter',sans-serif;cursor:pointer;transition:var(--tr);margin-top:4px}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px ${hexAlpha(p,.35)}}
+.form-ok{display:none;text-align:center;padding:24px 0}
+.form-ok .ok-icon{font-size:2.5rem;margin-bottom:12px}
+.form-ok h4{font-size:1.1rem;font-weight:800;color:#0f172a;margin-bottom:8px}
+.form-ok p{font-size:.88rem;color:#6b7280;line-height:1.6}
+footer{background:#0f172a;color:#94a3b8;padding:48px 0 24px}
+.footer-top{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:40px;padding-bottom:32px;border-bottom:1px solid #1e293b;margin-bottom:24px}
+.footer-brand .footer-logo{font-size:1.1rem;font-weight:900;color:#f1f5f9;margin-bottom:10px}
+.footer-brand .footer-logo span{color:var(--p)}
+.footer-brand p{font-size:.82rem;color:#475569;line-height:1.65;max-width:260px}
+.footer-col h4{font-size:.75rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#64748b;margin-bottom:14px}
+.footer-col a{display:block;font-size:.83rem;color:#475569;margin-bottom:9px;transition:color var(--tr)}
+.footer-col a:hover{color:var(--p)}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:.75rem;color:#334155}
+.footer-legal{display:flex;gap:16px;flex-wrap:wrap}
+.footer-legal a{font-size:.72rem;color:#334155;transition:color var(--tr)}
+.footer-legal a:hover{color:var(--p)}
+.wa-float{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:#25d366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.4);z-index:900;transition:var(--tr)}
+.wa-float:hover{transform:scale(1.1)}
+.wa-float svg{width:28px;height:28px;fill:#fff}
+[data-reveal]{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease;transition-delay:var(--delay,0s)}
+[data-reveal].visible{opacity:1;transform:none}
+@media(max-width:768px){
+  .contact-wrap,.footer-top{grid-template-columns:1fr}
+  .steps-grid::before{display:none}
+  .form-row{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .nav-burger{display:block}
+  .footer-bottom{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">${s.bizName?.split(' ')[0]||'Logo'}<span> ${s.bizName?.split(' ').slice(1).join(' ')||''}</span></a>
+      <div class="nav-links">
+        ${navItems}
+        <a href="${navCtaItem.url}" class="nav-cta">${navCtaItem.label}</a>
+      </div>
+      <button class="nav-burger" onclick="toggleMenu()" aria-label="Menú">
+        <svg width="24" height="24" fill="none" stroke="#374151" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+<div class="nav-mobile" id="navMobile">${mobileNavItems}</div>
+
+<section id="hero">
+  <div class="container">
+    <div class="hero-content" data-reveal>
+      ${s.bizBadge?`<div class="hero-badge">${s.bizBadge}</div>`:''}
+      <h1>${s.heroTitle||s.bizTagline||''}</h1>
+      <p>${s.heroSub||s.bizDesc||''}</p>
+      <div class="hero-btns">
+        <a href="${s.ctaLink||'#contacto'}" class="btn-primary">${s.heroCta||'Contactar'} →</a>
+        ${s.ctWa?`<a href="${waLink}" target="_blank" class="btn-secondary">💬 WhatsApp</a>`:''}
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="servicios">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <span class="section-tag">${metaServ}</span>
+      <h2>Todo lo que necesitas en un solo lugar</h2>
+      <p>${s.bizDesc||''}</p>
+    </div>
+    <div class="cards-grid">${servItems}</div>
+  </div>
+</section>
+
+<section class="section" id="proceso">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <span class="section-tag">⚙️ ¿Cómo funciona?</span>
+      <h2>Proceso simple y transparente</h2>
+      <p>Te acompañamos en cada paso del camino.</p>
+    </div>
+    <div class="steps-grid">${pasoItems}</div>
+  </div>
+</section>
+
+<section class="section section-alt" id="testimonios">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <span class="section-tag">⭐ Lo que dicen nuestros clientes</span>
+      <h2>Más de 500 clientes satisfechos</h2>
+      <p>La confianza de nuestros clientes es nuestro mayor logro.</p>
+    </div>
+    <div class="testi-grid">${testiItems}</div>
+  </div>
+</section>
+
+<section class="section">
+  <div class="container">
+    <div class="cta-banner" data-reveal>
+      <h2>¿Listo para empezar?</h2>
+      <p>${s.bizTagline||'Contáctanos hoy y recibe atención personalizada.'}</p>
+      <a href="${s.ctaLink||'#contacto'}" class="btn-white">${s.heroCta||'Contactar'} →</a>
+    </div>
+  </div>
+</section>
+
+<section class="section section-alt" id="contacto">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <span class="section-tag">📞 Contáctanos</span>
+      <h2>Estamos aquí para ayudarte</h2>
+    </div>
+    <div class="contact-wrap">
+      <div class="contact-info" data-reveal>
+        <h3>${s.bizName||''}</h3>
+        ${s.ctPhone?`<div class="contact-item"><div class="contact-item-icon">📞</div><div class="contact-item-text"><strong>Teléfono</strong><span>${s.ctPhone}</span></div></div>`:''}
+        ${s.ctEmail?`<div class="contact-item"><div class="contact-item-icon">✉️</div><div class="contact-item-text"><strong>Email</strong><span>${s.ctEmail}</span></div></div>`:''}
+        ${s.ctAddr?`<div class="contact-item"><div class="contact-item-icon">📍</div><div class="contact-item-text"><strong>Dirección</strong><span>${s.ctAddr}</span></div></div>`:''}
+        ${s.ctHorario?`<div class="contact-item"><div class="contact-item-icon">🕐</div><div class="contact-item-text"><strong>Horario</strong><span>${s.ctHorario}</span></div></div>`:''}
+      </div>
+      <div data-reveal style="--delay:.15s">
+        <div class="form-card">
+          <div class="form-title">${s.formTitle||'Contáctanos'}</div>
+          <div class="form-sub">Te respondemos en menos de 24 horas.</div>
+          <form id="cf" onsubmit="submitForm(event)">
+            <div class="form-row">
+              <div class="fg"><label>Nombre completo</label><input type="text" id="fn" required placeholder="Tu nombre"></div>
+              <div class="fg"><label>Teléfono</label><input type="tel" id="ft" required placeholder="0987654321"></div>
+              <div class="fg"><label>Email</label><input type="email" id="fe" required placeholder="tu@email.com"></div>
+              <div class="fg"><label>Asunto</label><input type="text" id="fa" placeholder="¿En qué podemos ayudarte?"></div>
+              <div class="fg full"><label>Mensaje</label><textarea id="fm" placeholder="Cuéntanos más..."></textarea></div>
+            </div>
+            <button type="submit" class="btn-submit">${s.formBtn||'Enviar Mensaje'} →</button>
+          </form>
+          <div class="form-ok" id="fok">
+            <div class="ok-icon">✅</div>
+            <h4>¡Mensaje enviado!</h4>
+            <p>${s.formSuccess||'Te contactaremos pronto.'}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">${s.bizName?.split(' ')[0]||'Logo'}<span> ${s.bizName?.split(' ').slice(1).join(' ')||''}</span></div>
+        <p>${f.footerAbout||s.bizDesc||''}</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navegación</h4>
+        ${navLinks.map(n=>`<a href="${n.url}">${n.label}</a>`).join('')}
+      </div>
+      <div class="footer-col">
+        <h4>Síguenos</h4>
+        ${socials||'<span style="font-size:.8rem;color:#334155">Sin redes configuradas</span>'}
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">${copyText}</div>
+      ${legalLinks?`<div class="footer-legal">${legalLinks}</div>`:''}
+    </div>
+  </div>
+</footer>
+
+${s.ctWa?`<a href="${waLink}" target="_blank" class="wa-float" title="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>`:''}
+
+<script>
+window.addEventListener('scroll',function(){document.getElementById('mainNav').classList.toggle('scrolled',scrollY>50)});
+function toggleMenu(){document.getElementById('navMobile').classList.toggle('open')}
+function submitForm(e){
+  e.preventDefault();
+  var dest='${s.formDest||"none"}',val='${(s.formDestVal||"").replace(/'/g,"\\'")}';
+  if(dest==='whatsapp'&&val){var n=document.getElementById('fn').value,t=document.getElementById('ft').value,m=document.getElementById('fm').value;window.open('https://wa.me/'+val.replace(/\\D/g,'')+'?text='+encodeURIComponent('Nombre: '+n+'\\nTeléfono: '+t+'\\nMensaje: '+m),'_blank');}
+  else if(dest==='email'&&val){var n=document.getElementById('fn').value,m=document.getElementById('fm').value;window.location.href='mailto:'+val+'?subject=Contacto+web&body='+encodeURIComponent('Nombre: '+n+'\\nMensaje: '+m);}
+  else if(dest==='webhook'&&val){fetch(val,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre:document.getElementById('fn').value,telefono:document.getElementById('ft').value,email:document.getElementById('fe').value,mensaje:document.getElementById('fm').value})}).catch(function(){});}
+  document.getElementById('cf').style.display='none';document.getElementById('fok').style.display='block';
+}
+var io=new IntersectionObserver(function(entries){entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('visible');io.unobserve(en.target);}});},{threshold:0.1,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el);});
+setTimeout(function(){document.querySelectorAll('[data-reveal]').forEach(function(el){el.classList.add('visible');});},1200);
+<\/script>
+</body>
+</html>`;
+}
+
+// ─── RENDER & DOWNLOAD ─────────────────────
+function render(){
+  document.getElementById('pf').srcdoc = genHTML();
+}
+function downloadPage(){
+  const h=genHTML(), b=new Blob([h],{type:'text/html;charset=utf-8'}), u=URL.createObjectURL(b);
+  const a=document.createElement('a');
+  a.href=u;
+  const name=(cState.bizName||'pagina').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  a.download=name+'-final.html'; a.click(); URL.revokeObjectURL(u);
+}
+
+// ─── DEVICE / LAYOUT ───────────────────────
+function setDevice(d){
+  ['desktop','tablet','mobile'].forEach(x=>document.getElementById('dev-'+x).classList.toggle('active',x===d));
+  const w=document.getElementById('pvWrap');
+  w.className='pv-wrap'+(d!=='desktop'?' dev-'+d:'');
+}
+function toggleCfg(){
+  const cfg=document.getElementById('cfg'),btn=document.getElementById('cfgToggle');
+  const col=cfg.classList.toggle('collapsed');
+  btn.textContent=col?'▶ Config':'◀ Config';
+}
+
+// ─── INIT ──────────────────────────────────
+function init(){
+  const savedC = localStorage.getItem(CSK);
+  cState = savedC ? JSON.parse(savedC) : {};
+
+  buildNavRows();
+
+  const savedF = localStorage.getItem(FSK);
+  if(savedF){
+    applyFinalize(JSON.parse(savedF));
+  } else if(cState.ctWa){
+    document.getElementById('socWa').value = 'https://wa.me/' + cState.ctWa.replace(/\D/g,'');
+  }
+  render();
+}
+init();
+</script>
+</body>
+</html>
