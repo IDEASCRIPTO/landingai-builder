@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Constructor de Páginas Web — LandingAI Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0f172a;--bg2:#1e293b;--border:#1e293b;--text:#e2e8f0;--muted:#64748b;
+  --green:#1D9E75;--green2:#0f7d5a;
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+
+/* ── Header ── */
+.hdr{background:rgba(15,23,42,.96);backdrop-filter:blur(12px);border-bottom:1px solid #1e293b;padding:14px 32px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:100}
+.hdr-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.hdr-logo .mark{background:var(--green);color:#fff;padding:4px 10px;border-radius:7px;font-size:.75rem;font-weight:800}
+.hdr-logo .name{font-size:.95rem;font-weight:700;color:#f1f5f9}
+.btn-outline{background:transparent;border:1px solid #334155;color:#94a3b8;border-radius:8px;padding:7px 14px;font-size:.78rem;font-weight:600;cursor:pointer;text-decoration:none;transition:.15s}
+.btn-outline:hover{border-color:var(--green);color:var(--green)}
+
+/* ── Hero ── */
+.hero{text-align:center;padding:60px 24px 36px;max-width:680px;margin:0 auto}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(29,158,117,.12);color:var(--green);border:1px solid rgba(29,158,117,.25);border-radius:50px;padding:5px 14px;font-size:.74rem;font-weight:700;margin-bottom:18px}
+.hero h1{font-size:clamp(1.9rem,4vw,2.7rem);font-weight:900;line-height:1.15;margin-bottom:12px;color:#f8fafc}
+.hero h1 span{background:linear-gradient(135deg,var(--green),#38bdf8);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+.hero p{font-size:.97rem;color:#94a3b8;line-height:1.7;margin-bottom:28px}
+.search-wrap{max-width:400px;margin:0 auto;position:relative}
+.search-wrap input{width:100%;background:#1e293b;border:1.5px solid #334155;color:#f1f5f9;border-radius:12px;padding:11px 16px 11px 40px;font-size:.88rem;font-family:'Inter',sans-serif;outline:none;transition:.15s}
+.search-wrap input:focus{border-color:var(--green)}
+.search-wrap input::placeholder{color:#475569}
+.si{position:absolute;left:14px;top:50%;transform:translateY(-50%);color:#475569}
+
+/* ── Stats ── */
+.stats{display:flex;justify-content:center;gap:28px;padding:16px 24px 32px;flex-wrap:wrap}
+.stat{text-align:center}
+.stat-n{font-size:1.35rem;font-weight:900;color:var(--green)}
+.stat-l{font-size:.7rem;color:var(--muted);margin-top:2px}
+
+/* ── Section label ── */
+.slbl{max-width:1240px;margin:0 auto;padding:0 24px 14px;display:flex;align-items:center;justify-content:space-between}
+.slbl h2{font-size:.7rem;font-weight:700;color:var(--muted);text-transform:uppercase;letter-spacing:1px}
+.slbl span{font-size:.7rem;color:#475569}
+
+/* ── Grid ── */
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(340px,1fr));gap:24px;max-width:1240px;margin:0 auto;padding:0 24px 72px}
+
+/* ── Card ── */
+.card{background:var(--bg2);border:1.5px solid #1e293b;border-radius:18px;overflow:hidden;transition:.22s;cursor:pointer;display:flex;flex-direction:column;position:relative}
+.card:hover{border-color:var(--green);transform:translateY(-4px);box-shadow:0 16px 48px rgba(0,0,0,.4),0 0 0 1px rgba(29,158,117,.2)}
+
+/* ── MINI WEBSITE PREVIEW ── */
+.preview{height:210px;overflow:hidden;position:relative;flex-shrink:0}
+.mini{width:100%;height:100%;display:flex;flex-direction:column;font-family:'Inter',sans-serif}
+
+/* Mini Nav */
+.m-nav{display:flex;align-items:center;justify-content:space-between;padding:7px 12px;flex-shrink:0}
+.m-logo{font-size:.62rem;font-weight:800;letter-spacing:.3px}
+.m-links{display:flex;gap:8px}
+.m-links span{font-size:.48rem;opacity:.7}
+.m-cta{font-size:.48rem;font-weight:700;padding:3px 8px;border-radius:20px;color:#fff}
+
+/* Mini Hero */
+.m-hero{flex:0 0 90px;display:flex;flex-direction:column;justify-content:center;padding:10px 14px;position:relative;overflow:hidden}
+.m-hero::after{content:'';position:absolute;inset:0;background:rgba(0,0,0,.35)}
+.m-htag{font-size:.5rem;font-weight:700;padding:2px 7px;border-radius:20px;background:rgba(255,255,255,.2);color:#fff;width:fit-content;margin-bottom:5px;position:relative;z-index:1}
+.m-htitle{font-size:.82rem;font-weight:900;color:#fff;line-height:1.2;position:relative;z-index:1;margin-bottom:3px}
+.m-hsub{font-size:.48rem;color:rgba(255,255,255,.75);position:relative;z-index:1;margin-bottom:8px}
+.m-hbtn{font-size:.5rem;font-weight:700;padding:4px 10px;border-radius:20px;color:#fff;width:fit-content;position:relative;z-index:1}
+
+/* Mini Sections */
+.m-body{flex:1;padding:8px 10px;display:flex;flex-direction:column;gap:6px;overflow:hidden}
+.m-row{display:flex;gap:6px;flex:1}
+.m-chip{flex:1;border-radius:7px;display:flex;flex-direction:column;padding:6px 8px;gap:3px;overflow:hidden}
+.m-chip-icon{font-size:.75rem;margin-bottom:2px}
+.m-chip-t{font-size:.5rem;font-weight:700;color:#fff}
+.m-chip-s{font-size:.42rem;opacity:.6;color:#fff}
+.m-strip{border-radius:5px;height:16px;display:flex;align-items:center;padding:0 8px;gap:6px}
+.m-strip-dot{width:5px;height:5px;border-radius:50%;background:rgba(255,255,255,.5);flex-shrink:0}
+.m-strip-line{flex:1;height:3px;border-radius:2px;background:rgba(255,255,255,.15)}
+.m-strip-btn{font-size:.42rem;font-weight:700;padding:2px 6px;border-radius:10px;color:#fff;flex-shrink:0}
+
+/* Overlay al hover */
+.preview-overlay{position:absolute;inset:0;background:rgba(0,0,0,.0);display:flex;align-items:center;justify-content:center;transition:.22s;opacity:0}
+.card:hover .preview-overlay{background:rgba(0,0,0,.45);opacity:1}
+.preview-overlay span{background:#fff;color:#0f172a;font-size:.78rem;font-weight:800;padding:8px 18px;border-radius:20px;transform:translateY(8px);transition:.22s}
+.card:hover .preview-overlay span{transform:translateY(0)}
+
+/* ── Card Body ── */
+.card-body{padding:16px 18px 18px;display:flex;flex-direction:column;flex:1}
+.card-top{display:flex;align-items:center;gap:10px;margin-bottom:10px}
+.card-icon{width:36px;height:36px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.card-name{font-size:.92rem;font-weight:800;color:#f1f5f9}
+.card-desc{font-size:.75rem;color:#64748b;line-height:1.5;margin-top:1px}
+.card-tags{display:flex;flex-wrap:wrap;gap:4px;margin-bottom:14px}
+.tag{background:#0f172a;border:1px solid #283548;color:#64748b;border-radius:20px;padding:2px 8px;font-size:.63rem;font-weight:600}
+.card-footer{display:flex;align-items:center;justify-content:space-between;margin-top:auto;padding-top:12px;border-top:1px solid #1e293b}
+.card-meta{font-size:.68rem;color:#475569}
+.card-meta b{color:#94a3b8}
+.btn-card{background:var(--green);color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.78rem;font-weight:700;cursor:pointer;transition:.15s;text-decoration:none;display:inline-block}
+.btn-card:hover{background:var(--green2)}
+
+/* ── Footer ── */
+.ftr{border-top:1px solid #1e293b;padding:20px 24px;text-align:center;font-size:.7rem;color:#334155}
+
+@media(max-width:768px){
+  .hdr{padding:12px 16px}.grid{grid-template-columns:1fr;padding:0 14px 48px}
+  .hero{padding:36px 16px 20px}.stats{gap:16px}
+}
+</style>
+</head>
+<body>
+
+<header class="hdr">
+  <a class="hdr-logo" href="#">
+    <span class="mark">AI</span>
+    <span class="name">LandingAI Builder</span>
+  </a>
+  <div style="display:flex;align-items:center;gap:10px">
+    <a class="btn-outline" href="../dashboard.html">← Dashboard</a>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="hero-badge">✦ Constructor Web — Nuevo</div>
+  <h1>Tu página web lista<br><span>en minutos, sin código</span></h1>
+  <p>Elige el tipo de negocio, personaliza los textos y colores, y descarga tu página lista para publicar.</p>
+  <div class="search-wrap">
+    <span class="si">🔍</span>
+    <input type="text" id="si" placeholder="Buscar: médico, viajes, automotriz..." oninput="filter(this.value)">
+  </div>
+</section>
+
+<div class="stats">
+  <div class="stat"><div class="stat-n">7</div><div class="stat-l">Tipos de negocio</div></div>
+  <div class="stat"><div class="stat-n">10+</div><div class="stat-l">Secciones por plantilla</div></div>
+  <div class="stat"><div class="stat-n">100%</div><div class="stat-l">Sin código</div></div>
+  <div class="stat"><div class="stat-n">IA</div><div class="stat-l">Copy automático</div></div>
+</div>
+
+<div class="slbl">
+  <h2>Elige tu tipo de página</h2>
+  <span id="lbl">7 plantillas disponibles</span>
+</div>
+
+<div class="grid" id="grid">
+
+  <!-- ══ AGENCIA DE VIAJES ══ -->
+  <div class="card" data-n="agencia viajes turismo tours paquetes galapagos cruceros">
+    <div class="preview">
+      <div class="mini" style="background:#0c1e3a">
+        <div class="m-nav" style="background:#0a1628">
+          <span class="m-logo" style="color:#38bdf8">✈️ JouTrek</span>
+          <div class="m-links">
+            <span style="color:#94a3b8">Destinos</span><span style="color:#94a3b8">Tours</span><span style="color:#94a3b8">Nosotros</span>
+          </div>
+          <span class="m-cta" style="background:#0ea5e9">Reservar</span>
+        </div>
+        <div class="m-hero" style="background:linear-gradient(135deg,#0369a1,#0ea5e9,#38bdf8)">
+          <span class="m-htag">🌴 Destinos Únicos</span>
+          <div class="m-htitle">Explora Galápagos<br>y el Ecuador</div>
+          <div class="m-hsub">Paquetes desde $299 · Todo incluido · Grupos & Privados</div>
+          <span class="m-hbtn" style="background:#0ea5e9">Ver Destinos →</span>
+        </div>
+        <div class="m-body">
+          <div class="m-row">
+            <div class="m-chip" style="background:#0a2540">
+              <span class="m-chip-icon">🏝️</span>
+              <span class="m-chip-t">Galápagos</span>
+              <span class="m-chip-s">desde $599</span>
+            </div>
+            <div class="m-chip" style="background:#0a2540">
+              <span class="m-chip-icon">🏔️</span>
+              <span class="m-chip-t">Andes</span>
+              <span class="m-chip-s">desde $199</span>
+            </div>
+            <div class="m-chip" style="background:#0a2540">
+              <span class="m-chip-icon">🌿</span>
+              <span class="m-chip-t">Amazonas</span>
+              <span class="m-chip-s">desde $299</span>
+            </div>
+          </div>
+          <div class="m-strip" style="background:#0a2540">
+            <div class="m-strip-dot" style="background:#38bdf8"></div>
+            <div class="m-strip-line"></div>
+            <span class="m-strip-btn" style="background:#0ea5e9">Cotizar</span>
+          </div>
+        </div>
+      </div>
+      <div class="preview-overlay"><span>👁 Ver plantilla</span></div>
+    </div>
+    <div class="card-body">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(14,165,233,.15)">✈️</div>
+        <div>
+          <div class="card-name">Agencia de Viajes</div>
+          <div class="card-desc">Tours, paquetes turísticos, cruceros, viajes nacionales e internacionales.</div>
+        </div>
+      </div>
+      <div class="card-tags">
+        <span class="tag">Destinos</span><span class="tag">Paquetes</span><span class="tag">Galería</span><span class="tag">Testimonios</span><span class="tag">Cotización</span>
+      </div>
+      <div class="card-footer">
+        <div class="card-meta"><b>10</b> secciones incluidas</div>
+        <a class="btn-card" href="constructor.html?t=viajes">Crear página →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ MÉDICO / CLÍNICA ══ -->
+  <div class="card" data-n="medico clinica doctor salud consultorio especialista hospital">
+    <div class="preview">
+      <div class="mini" style="background:#f0fdf4">
+        <div class="m-nav" style="background:#fff;border-bottom:1px solid #d1fae5">
+          <span class="m-logo" style="color:#059669">🏥 MediCenter</span>
+          <div class="m-links">
+            <span style="color:#6b7280">Servicios</span><span style="color:#6b7280">Médicos</span><span style="color:#6b7280">Citas</span>
+          </div>
+          <span class="m-cta" style="background:#10b981">Agendar</span>
+        </div>
+        <div class="m-hero" style="background:linear-gradient(135deg,#047857,#10b981,#34d399)">
+          <span class="m-htag">✅ Atención Especializada</span>
+          <div class="m-htitle">Tu salud es<br>nuestra prioridad</div>
+          <div class="m-hsub">Más de 15 especialidades · Turnos en línea · Urgencias 24/7</div>
+          <span class="m-hbtn" style="background:#059669">Agendar Cita →</span>
+        </div>
+        <div class="m-body" style="background:#f0fdf4">
+          <div class="m-row">
+            <div class="m-chip" style="background:#dcfce7">
+              <span class="m-chip-icon">🫀</span>
+              <span class="m-chip-t" style="color:#166534">Cardiología</span>
+              <span class="m-chip-s" style="color:#166534">Especialista</span>
+            </div>
+            <div class="m-chip" style="background:#dcfce7">
+              <span class="m-chip-icon">🧠</span>
+              <span class="m-chip-t" style="color:#166534">Neurología</span>
+              <span class="m-chip-s" style="color:#166534">Especialista</span>
+            </div>
+            <div class="m-chip" style="background:#dcfce7">
+              <span class="m-chip-icon">🦴</span>
+              <span class="m-chip-t" style="color:#166534">Ortopedia</span>
+              <span class="m-chip-s" style="color:#166534">Especialista</span>
+            </div>
+          </div>
+          <div class="m-strip" style="background:#dcfce7">
+            <div class="m-strip-dot" style="background:#10b981"></div>
+            <div class="m-strip-line" style="background:rgba(16,185,129,.2)"></div>
+            <span class="m-strip-btn" style="background:#10b981">Ver horarios</span>
+          </div>
+        </div>
+      </div>
+      <div class="preview-overlay"><span>👁 Ver plantilla</span></div>
+    </div>
+    <div class="card-body">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(16,185,129,.15)">🏥</div>
+        <div>
+          <div class="card-name">Médico / Clínica</div>
+          <div class="card-desc">Consultorios, especialistas, clínicas y servicios de salud.</div>
+        </div>
+      </div>
+      <div class="card-tags">
+        <span class="tag">Especialidades</span><span class="tag">Equipo médico</span><span class="tag">Servicios</span><span class="tag">Citas online</span><span class="tag">Ubicación</span>
+      </div>
+      <div class="card-footer">
+        <div class="card-meta"><b>10</b> secciones incluidas</div>
+        <a class="btn-card" href="constructor.html?t=medico">Crear página →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ ABOGADO ══ -->
+  <div class="card" data-n="abogado bufete juridico legal asesoria derecho firma">
+    <div class="preview">
+      <div class="mini" style="background:#0d0c1e">
+        <div class="m-nav" style="background:#090818;border-bottom:1px solid #1e1b3a">
+          <span class="m-logo" style="color:#a78bfa">⚖️ Lex & Asociados</span>
+          <div class="m-links">
+            <span style="color:#7c3aed">Áreas</span><span style="color:#7c3aed">Equipo</span><span style="color:#7c3aed">Casos</span>
+          </div>
+          <span class="m-cta" style="background:#7c3aed">Consultar</span>
+        </div>
+        <div class="m-hero" style="background:linear-gradient(135deg,#1e1b4b,#4338ca,#6d28d9)">
+          <span class="m-htag">⚖️ Derecho & Justicia</span>
+          <div class="m-htitle">Defendemos<br>tus derechos</div>
+          <div class="m-hsub">20 años de experiencia · Consulta inicial gratis · Éxito comprobado</div>
+          <span class="m-hbtn" style="background:#7c3aed">Consulta Gratis →</span>
+        </div>
+        <div class="m-body">
+          <div class="m-row">
+            <div class="m-chip" style="background:#1e1b3a">
+              <span class="m-chip-icon">🏢</span>
+              <span class="m-chip-t">Derecho Civil</span>
+              <span class="m-chip-s">Contratos</span>
+            </div>
+            <div class="m-chip" style="background:#1e1b3a">
+              <span class="m-chip-icon">👔</span>
+              <span class="m-chip-t">Corporativo</span>
+              <span class="m-chip-s">Empresas</span>
+            </div>
+            <div class="m-chip" style="background:#1e1b3a">
+              <span class="m-chip-icon">🛡️</span>
+              <span class="m-chip-t">Penal</span>
+              <span class="m-chip-s">Defensa</span>
+            </div>
+          </div>
+          <div class="m-strip" style="background:#1e1b3a">
+            <div class="m-strip-dot" style="background:#7c3aed"></div>
+            <div class="m-strip-line"></div>
+            <span class="m-strip-btn" style="background:#6d28d9">Ver casos</span>
+          </div>
+        </div>
+      </div>
+      <div class="preview-overlay"><span>👁 Ver plantilla</span></div>
+    </div>
+    <div class="card-body">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(99,102,241,.15)">⚖️</div>
+        <div>
+          <div class="card-name">Abogado / Bufete</div>
+          <div class="card-desc">Estudios jurídicos, asesoría legal, derecho civil, penal y corporativo.</div>
+        </div>
+      </div>
+      <div class="card-tags">
+        <span class="tag">Áreas legales</span><span class="tag">Equipo</span><span class="tag">Casos</span><span class="tag">Consulta gratis</span><span class="tag">Contacto</span>
+      </div>
+      <div class="card-footer">
+        <div class="card-meta"><b>10</b> secciones incluidas</div>
+        <a class="btn-card" href="constructor.html?t=abogado">Crear página →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ INMOBILIARIA ══ -->
+  <div class="card" data-n="inmobiliaria constructora bienes raices casas departamentos propiedades">
+    <div class="preview">
+      <div class="mini" style="background:#1a1200">
+        <div class="m-nav" style="background:#0f0a00;border-bottom:1px solid #2a1f00">
+          <span class="m-logo" style="color:#f59e0b">🏠 Mayas</span>
+          <div class="m-links">
+            <span style="color:#92400e">Proyectos</span><span style="color:#92400e">Venta</span><span style="color:#92400e">Arriendo</span>
+          </div>
+          <span class="m-cta" style="background:#d97706">Contactar</span>
+        </div>
+        <div class="m-hero" style="background:linear-gradient(135deg,#78350f,#d97706,#f59e0b)">
+          <span class="m-htag">🏗️ Proyectos Nuevos</span>
+          <div class="m-htitle">Tu hogar ideal<br>en Quito</div>
+          <div class="m-hsub">Casas y deptos desde $65.000 · Financiamiento · Entrega inmediata</div>
+          <span class="m-hbtn" style="background:#d97706">Ver Propiedades →</span>
+        </div>
+        <div class="m-body">
+          <div class="m-row">
+            <div class="m-chip" style="background:#2a1f00">
+              <span class="m-chip-icon">🏘️</span>
+              <span class="m-chip-t">Casas</span>
+              <span class="m-chip-s">desde $65k</span>
+            </div>
+            <div class="m-chip" style="background:#2a1f00">
+              <span class="m-chip-icon">🏢</span>
+              <span class="m-chip-t">Departamentos</span>
+              <span class="m-chip-s">desde $45k</span>
+            </div>
+            <div class="m-chip" style="background:#2a1f00">
+              <span class="m-chip-icon">🏬</span>
+              <span class="m-chip-t">Locales</span>
+              <span class="m-chip-s">en arriendo</span>
+            </div>
+          </div>
+          <div class="m-strip" style="background:#2a1f00">
+            <div class="m-strip-dot" style="background:#f59e0b"></div>
+            <div class="m-strip-line"></div>
+            <span class="m-strip-btn" style="background:#d97706">Agendar visita</span>
+          </div>
+        </div>
+      </div>
+      <div class="preview-overlay"><span>👁 Ver plantilla</span></div>
+    </div>
+    <div class="card-body">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(245,158,11,.15)">🏠</div>
+        <div>
+          <div class="card-name">Inmobiliaria / Constructora</div>
+          <div class="card-desc">Venta y arriendo de propiedades, proyectos de construcción, bienes raíces.</div>
+        </div>
+      </div>
+      <div class="card-tags">
+        <span class="tag">Propiedades</span><span class="tag">Proyectos</span><span class="tag">Amenidades</span><span class="tag">Planos</span><span class="tag">Visita</span>
+      </div>
+      <div class="card-footer">
+        <div class="card-meta"><b>10</b> secciones incluidas</div>
+        <a class="btn-card" href="constructor.html?t=inmobiliaria">Crear página →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ AUTOMOTRIZ ══ -->
+  <div class="card" data-n="automotriz taller mecanico repuestos vehiculos autos carros camiones">
+    <div class="preview">
+      <div class="mini" style="background:#1a0505">
+        <div class="m-nav" style="background:#0f0202;border-bottom:1px solid #2a0808">
+          <span class="m-logo" style="color:#ef4444">🚗 ADAUTO</span>
+          <div class="m-links">
+            <span style="color:#991b1b">Catálogo</span><span style="color:#991b1b">Marcas</span><span style="color:#991b1b">Servicios</span>
+          </div>
+          <span class="m-cta" style="background:#dc2626">Cotizar</span>
+        </div>
+        <div class="m-hero" style="background:linear-gradient(135deg,#450a0a,#b91c1c,#ef4444)">
+          <span class="m-htag">🔧 Repuestos Originales</span>
+          <div class="m-htitle">Repuestos para<br>tu vehículo</div>
+          <div class="m-hsub">Más de 10.000 referencias · Marcas líderes · Envío a todo el país</div>
+          <span class="m-hbtn" style="background:#dc2626">Ver Catálogo →</span>
+        </div>
+        <div class="m-body">
+          <div class="m-row">
+            <div class="m-chip" style="background:#2a0808">
+              <span class="m-chip-icon">⚙️</span>
+              <span class="m-chip-t">Motor</span>
+              <span class="m-chip-s">Piezas</span>
+            </div>
+            <div class="m-chip" style="background:#2a0808">
+              <span class="m-chip-icon">🛞</span>
+              <span class="m-chip-t">Frenos</span>
+              <span class="m-chip-s">Pastillas</span>
+            </div>
+            <div class="m-chip" style="background:#2a0808">
+              <span class="m-chip-icon">💡</span>
+              <span class="m-chip-t">Eléctrico</span>
+              <span class="m-chip-s">Sensores</span>
+            </div>
+          </div>
+          <div class="m-strip" style="background:#2a0808">
+            <div class="m-strip-dot" style="background:#ef4444"></div>
+            <div class="m-strip-line"></div>
+            <span class="m-strip-btn" style="background:#dc2626">Pedir cotización</span>
+          </div>
+        </div>
+      </div>
+      <div class="preview-overlay"><span>👁 Ver plantilla</span></div>
+    </div>
+    <div class="card-body">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(239,68,68,.15)">🚗</div>
+        <div>
+          <div class="card-name">Automotriz / Taller</div>
+          <div class="card-desc">Concesionarios, talleres mecánicos, venta de repuestos y accesorios.</div>
+        </div>
+      </div>
+      <div class="card-tags">
+        <span class="tag">Catálogo</span><span class="tag">Servicios</span><span class="tag">Marcas</span><span class="tag">Cotización</span><span class="tag">Ubicación</span>
+      </div>
+      <div class="card-footer">
+        <div class="card-meta"><b>10</b> secciones incluidas</div>
+        <a class="btn-card" href="constructor.html?t=automotriz">Crear página →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ PRODUCTOS / E-COMMERCE ══ -->
+  <div class="card" data-n="producto ecommerce tienda online dropshipping venta shop">
+    <div class="preview">
+      <div class="mini" style="background:#051a10">
+        <div class="m-nav" style="background:#020f08;border-bottom:1px solid #0a2e1a">
+          <span class="m-logo" style="color:#1D9E75">🛍️ ShopEco</span>
+          <div class="m-links">
+            <span style="color:#065f46">Productos</span><span style="color:#065f46">Ofertas</span><span style="color:#065f46">Nosotros</span>
+          </div>
+          <span class="m-cta" style="background:#1D9E75">Comprar</span>
+        </div>
+        <div class="m-hero" style="background:linear-gradient(135deg,#064e3b,#1D9E75,#34d399)">
+          <span class="m-htag">🌿 100% Natural</span>
+          <div class="m-htitle">Productos que<br>transforman tu vida</div>
+          <div class="m-hsub">Envío gratis · Pago contra entrega · Garantía 30 días</div>
+          <span class="m-hbtn" style="background:#059669">Comprar Ahora →</span>
+        </div>
+        <div class="m-body">
+          <div class="m-row">
+            <div class="m-chip" style="background:#0a2e1a">
+              <span class="m-chip-icon">📦</span>
+              <span class="m-chip-t">Pack x1</span>
+              <span class="m-chip-s">$29.99</span>
+            </div>
+            <div class="m-chip" style="background:#0a2e1a">
+              <span class="m-chip-icon">📦</span>
+              <span class="m-chip-t">Pack x2</span>
+              <span class="m-chip-s">$49.99</span>
+            </div>
+            <div class="m-chip" style="background:#0a2e1a">
+              <span class="m-chip-icon">📦</span>
+              <span class="m-chip-t">Pack x3</span>
+              <span class="m-chip-s">$69.99</span>
+            </div>
+          </div>
+          <div class="m-strip" style="background:#0a2e1a">
+            <div class="m-strip-dot" style="background:#1D9E75"></div>
+            <div class="m-strip-line"></div>
+            <span class="m-strip-btn" style="background:#1D9E75">Pedir ahora</span>
+          </div>
+        </div>
+      </div>
+      <div class="preview-overlay"><span>👁 Ver plantilla</span></div>
+    </div>
+    <div class="card-body">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(29,158,117,.15)">🛍️</div>
+        <div>
+          <div class="card-name">Productos / Tienda</div>
+          <div class="card-desc">Venta de productos físicos, e-commerce, dropshipping, tiendas en línea.</div>
+        </div>
+      </div>
+      <div class="card-tags">
+        <span class="tag">Producto hero</span><span class="tag">Beneficios</span><span class="tag">Reseñas</span><span class="tag">Garantía</span><span class="tag">Pedido</span>
+      </div>
+      <div class="card-footer">
+        <div class="card-meta"><b>10</b> secciones incluidas</div>
+        <a class="btn-card" href="constructor.html?t=producto">Crear página →</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ SERVICIOS / AGENCIA ══ -->
+  <div class="card" data-n="servicios agencia empresa consultoria marketing digital tecnologia ia">
+    <div class="preview">
+      <div class="mini" style="background:#120a2e">
+        <div class="m-nav" style="background:#0a0520;border-bottom:1px solid #1e1040">
+          <span class="m-logo" style="color:#a78bfa">💼 Dual Legacy</span>
+          <div class="m-links">
+            <span style="color:#6d28d9">Servicios</span><span style="color:#6d28d9">Proceso</span><span style="color:#6d28d9">Contacto</span>
+          </div>
+          <span class="m-cta" style="background:#7c3aed">Agendar</span>
+        </div>
+        <div class="m-hero" style="background:linear-gradient(135deg,#1e1b4b,#5b21b6,#8b5cf6)">
+          <span class="m-htag">🤖 IA & Automatización</span>
+          <div class="m-htitle">Automatiza tu<br>negocio con IA</div>
+          <div class="m-hsub">Chatbots · Workflows · Integraciones · Resultados en 30 días</div>
+          <span class="m-hbtn" style="background:#7c3aed">Agendar Consulta →</span>
+        </div>
+        <div class="m-body">
+          <div class="m-row">
+            <div class="m-chip" style="background:#1e1040">
+              <span class="m-chip-icon">🤖</span>
+              <span class="m-chip-t">Chatbots IA</span>
+              <span class="m-chip-s">24/7 online</span>
+            </div>
+            <div class="m-chip" style="background:#1e1040">
+              <span class="m-chip-icon">⚡</span>
+              <span class="m-chip-t">Automatización</span>
+              <span class="m-chip-s">Workflows</span>
+            </div>
+            <div class="m-chip" style="background:#1e1040">
+              <span class="m-chip-icon">📊</span>
+              <span class="m-chip-t">Analítica</span>
+              <span class="m-chip-s">Reportes</span>
+            </div>
+          </div>
+          <div class="m-strip" style="background:#1e1040">
+            <div class="m-strip-dot" style="background:#8b5cf6"></div>
+            <div class="m-strip-line"></div>
+            <span class="m-strip-btn" style="background:#7c3aed">Ver servicios</span>
+          </div>
+        </div>
+      </div>
+      <div class="preview-overlay"><span>👁 Ver plantilla</span></div>
+    </div>
+    <div class="card-body">
+      <div class="card-top">
+        <div class="card-icon" style="background:rgba(139,92,246,.15)">💼</div>
+        <div>
+          <div class="card-name">Servicios / Agencia</div>
+          <div class="card-desc">Agencias, consultoras, servicios profesionales, marketing y tecnología.</div>
+        </div>
+      </div>
+      <div class="card-tags">
+        <span class="tag">Servicios</span><span class="tag">Proceso</span><span class="tag">Equipo</span><span class="tag">Casos de éxito</span><span class="tag">Contacto</span>
+      </div>
+      <div class="card-footer">
+        <div class="card-meta"><b>10</b> secciones incluidas</div>
+        <a class="btn-card" href="constructor.html?t=servicio">Crear página →</a>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<div class="ftr">LandingAI Builder · Constructor Web · 2026</div>
+
+<script>
+function filter(q){
+  const cards=document.querySelectorAll('.card'),term=q.toLowerCase().trim();
+  let n=0;
+  cards.forEach(c=>{
+    const match=!term||c.dataset.n.includes(term);
+    c.style.display=match?'':'none';
+    if(match)n++;
+  });
+  document.getElementById('lbl').textContent=term?`${n} resultado${n!==1?'s':''}`:'7 plantillas disponibles';
+}
+</script>
+</body>
+</html>

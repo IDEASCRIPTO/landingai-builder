@@ -323,7 +323,7 @@ if (($data['accion'] ?? '') === 'load_api_keys') {
    Proveedores soportados: anthropic, openai, gemini
 ─────────────────────────────────────────────────────────────── */
 $ADMIN_EMAIL   = getenv('ADMIN_EMAIL') ?: '';
-$AI_ACTIONS    = ['generar_copy','regenerar_seccion','generar_ads','generar_html','generar_liquid'];
+$AI_ACTIONS    = ['generar_copy','regenerar_seccion','generar_ads','generar_html','generar_liquid','generar_web'];
 $accion_actual = $data['accion'] ?? '';
 $provider      = in_array($data['_provider'] ?? '', ['anthropic','openai','gemini'])
                     ? $data['_provider']
@@ -393,6 +393,97 @@ if (in_array($accion_actual, $AI_ACTIONS)) {
         $data['_api_key']  = $user_api_key;
         $data['_provider'] = $provider;
     }
+}
+
+/* ── GENERAR_WEB: Claude genera JSON completo para el constructor web ─────────────
+   No usa n8n. El prompt se construye aquí y PHP llama a la IA directamente.
+──────────────────────────────────────────────────────────────────────────────── */
+if ($accion_actual === 'generar_web') {
+    $apiKey     = $data['_api_key'] ?? '';
+    $aiProvider = $data['_provider'] ?? $provider;
+    $descripcion = trim($data['descripcion'] ?? '');
+    $tipo = $data['tipo'] ?? 'servicio';
+
+    if (empty($apiKey)) {
+        $provName = ['anthropic'=>'Anthropic','openai'=>'OpenAI','gemini'=>'Gemini'][$aiProvider] ?? $aiProvider;
+        echo json_encode(['success'=>false,'error'=>'Necesitas configurar tu API key de '.$provName.' en Configuración (⚙️).','code'=>'NO_API_KEY','provider'=>$aiProvider]);
+        exit;
+    }
+    if (empty($descripcion)) {
+        echo json_encode(['success'=>false,'error'=>'Falta la descripción del negocio.']);
+        exit;
+    }
+
+    $tipoLabel = [
+        'viajes'       => 'Agencia de Viajes',
+        'medico'       => 'Médico / Clínica',
+        'abogado'      => 'Abogado / Bufete',
+        'inmobiliaria' => 'Inmobiliaria',
+        'automotriz'   => 'Automotriz',
+        'producto'     => 'Tienda / Productos',
+        'servicio'     => 'Servicios / Agencia',
+    ][$tipo] ?? 'Negocio';
+
+    $prompt = 'Eres un experto en marketing digital y copywriting para negocios en Ecuador y Latinoamérica. El usuario quiere crear una página web profesional.
+
+Tipo de negocio: ' . $tipoLabel . '
+Descripción del usuario: ' . $descripcion . '
+
+Genera el contenido completo para una página web profesional. Responde ÚNICAMENTE con un JSON válido (sin texto adicional, sin bloques de código, sin explicaciones), con esta estructura exacta:
+
+{
+  "bizName": "Nombre corto y memorable del negocio",
+  "bizTagline": "Propuesta de valor en una línea",
+  "bizDesc": "Descripción del negocio en 1-2 oraciones claras",
+  "bizBadge": "Emoji + texto corto para el badge del hero (ej: 🏆 Líderes en Ecuador · Desde 2015)",
+  "heroTitle": "Título principal del hero, impactante y directo (máx 10 palabras)",
+  "heroSub": "Subtítulo persuasivo de 1-2 oraciones",
+  "heroCta": "Texto del botón principal (ej: Agendar Cita, Cotizar Ahora, Contactar)",
+  "servs": [
+    {"icon": "emoji", "title": "Nombre del servicio", "desc": "Descripción breve del beneficio"},
+    {"icon": "emoji", "title": "Nombre del servicio", "desc": "Descripción breve del beneficio"},
+    {"icon": "emoji", "title": "Nombre del servicio", "desc": "Descripción breve del beneficio"},
+    {"icon": "emoji", "title": "Nombre del servicio", "desc": "Descripción breve del beneficio"}
+  ],
+  "pasos": [
+    {"title": "Nombre del paso", "desc": "Descripción breve de qué pasa en este paso"},
+    {"title": "Nombre del paso", "desc": "Descripción breve de qué pasa en este paso"},
+    {"title": "Nombre del paso", "desc": "Descripción breve de qué pasa en este paso"},
+    {"title": "Nombre del paso", "desc": "Descripción breve de qué pasa en este paso"}
+  ],
+  "testis": [
+    {"name": "Nombre real ecuatoriano", "cargo": "Ciudad o profesión", "text": "Testimonio creíble y natural de 1-2 oraciones"},
+    {"name": "Nombre real ecuatoriano", "cargo": "Ciudad o profesión", "text": "Testimonio creíble y natural de 1-2 oraciones"},
+    {"name": "Nombre real ecuatoriano", "cargo": "Ciudad o profesión", "text": "Testimonio creíble y natural de 1-2 oraciones"}
+  ],
+  "ctPhone": "+593 9X XXX-XXXX",
+  "ctWa": "593XXXXXXXXX",
+  "ctEmail": "contacto@negocio.ec",
+  "ctAddr": "Ciudad, Ecuador",
+  "ctHorario": "Lun-Vie 9:00-18:00",
+  "formTitle": "Título llamativo del formulario de contacto",
+  "formBtn": "Texto del botón de envío",
+  "formSuccess": "Mensaje amigable de confirmación tras enviar el formulario"
+}
+
+Reglas: usa nombres, ciudades y referencias reales de Ecuador. Contenido persuasivo y profesional. Exactamente 4 servicios, 4 pasos y 3 testimonios. Solo JSON, sin texto fuera del JSON.';
+
+    $aiResp = callAiDirect($aiProvider, $apiKey, $prompt);
+    $parsed = parseAiCopyResponse($aiResp);
+
+    if (isset($parsed['error'])) {
+        echo json_encode(['success'=>false,'error'=>$parsed['error']]);
+        exit;
+    }
+
+    $webData = $parsed['copy'] ?? [];
+    if (empty($webData) || isset($webData['raw'])) {
+        echo json_encode(['success'=>false,'error'=>'La IA no retornó un JSON válido. Intenta de nuevo.','raw'=>substr($parsed['raw_text']??'',0,300)]);
+        exit;
+    }
+
+    echo json_encode(['success'=>true,'data'=>$webData]);
+    exit;
 }
 
 $base = 'https://duallegacy-ia-asistentes-n8n.aigmej.easypanel.host/webhook/';

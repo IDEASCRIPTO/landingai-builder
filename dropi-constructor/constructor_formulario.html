@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Constructor de Formulario — Dropi Ecuador</title>
+<title>Constructor de Formulario — Dropi</title>
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
@@ -12,14 +12,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 .hdr{background:#1e293b;padding:10px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #334155;flex-shrink:0}
 .hdr-title{font-size:.95rem;font-weight:700;color:#f1f5f9;display:flex;align-items:center;gap:8px}
 .hdr-title span{background:#1D9E75;color:#fff;padding:2px 8px;border-radius:6px;font-size:.7rem;font-weight:700}
+.hdr-actions{display:flex;align-items:center;gap:8px}
+.btn-sm{background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:8px;padding:7px 12px;font-size:.75rem;font-weight:600;cursor:pointer;transition:.15s}
+.btn-sm:hover{border-color:#1D9E75;color:#1D9E75}
+.btn-sm.danger:hover{border-color:#ef4444;color:#ef4444}
 .btn-dl{background:#1D9E75;color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:.82rem;font-weight:700;cursor:pointer;transition:.15s}
 .btn-dl:hover{background:#178a64}
+.save-ind{font-size:.68rem;color:#1D9E75;opacity:0;transition:opacity .3s;white-space:nowrap}
 
 /* ── Layout ── */
-.body{display:grid;grid-template-columns:380px 1fr;flex:1;overflow:hidden;min-height:0}
+.body{display:flex;flex:1;overflow:hidden;min-height:0}
 
 /* ── Config Panel ── */
-.cfg{background:#1e293b;border-right:1px solid #334155;overflow-y:auto;padding:14px}
+.cfg{background:#1e293b;border-right:1px solid #334155;overflow-y:auto;padding:14px;width:400px;flex-shrink:0;transition:width .25s ease,padding .25s ease,border .25s ease}
+.cfg.collapsed{width:0;padding:0;border:none;overflow:hidden}
 .sec{background:#0f172a;border-radius:10px;padding:14px;margin-bottom:12px}
 .sec-ttl{font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#64748b;margin-bottom:12px;display:flex;align-items:center;gap:6px}
 .fl{margin-bottom:10px}
@@ -33,6 +39,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 .color-pick-row label{font-size:.73rem;color:#94a3b8;flex:1}
 .color-pick-row input[type=color]{width:44px;height:30px;border:2px solid #334155;background:none;cursor:pointer;padding:0;border-radius:6px}
 .color-pick-row .hex-val{width:80px;background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:6px;padding:5px 8px;font-size:.78rem;font-family:monospace}
+
+/* ── Style tabs ── */
+.style-tabs{display:flex;gap:6px;margin-bottom:4px}
+.style-tab{flex:1;background:#1e293b;border:1.5px solid #334155;color:#94a3b8;border-radius:8px;padding:7px 6px;font-size:.75rem;font-weight:700;cursor:pointer;text-align:center;transition:.15s}
+.style-tab.active{border-color:#1D9E75;background:#052e16;color:#86efac}
 
 /* ── Toggle ── */
 .tog-row{display:flex;align-items:center;justify-content:space-between;padding:7px 0;border-bottom:1px solid #1e293b;font-size:.8rem;color:#cbd5e1}
@@ -55,6 +66,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 .var-row span{font-size:.7rem;color:#94a3b8;flex:1;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .var-row input{width:72px;background:#0f172a;border:1px solid #334155;color:#f1f5f9;border-radius:5px;padding:4px 7px;font-size:.8rem;text-align:center}
 
+/* ── Size item ── */
+.si{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:8px 10px;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+.si input[type=text]{flex:1;background:#0f172a;border:1px solid #334155;color:#f1f5f9;border-radius:6px;padding:5px 9px;font-size:.82rem}
+.si .x{background:none;border:none;color:#ef4444;cursor:pointer;font-size:.9rem;line-height:1;flex-shrink:0}
+
 /* ── Pack item ── */
 .pi{background:#1e293b;border:1px solid #334155;border-radius:8px;padding:10px;margin-bottom:8px}
 .pi-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;font-size:.75rem;color:#94a3b8;font-weight:600}
@@ -63,6 +79,33 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 .pi-img-wrap{margin-top:8px}
 .pi-img-wrap .fl-label{font-size:.67rem;color:#64748b;margin-bottom:4px}
 .pi-img-preview{width:100%;height:70px;object-fit:cover;border-radius:6px;margin-top:5px;display:none;border:1px solid #334155}
+
+/* ── Field item ── */
+.fi{background:#1e293b;border-left:3px solid #1D9E75;border-radius:0 8px 8px 0;padding:9px 10px;margin-bottom:7px;transition:.15s}
+.fi.fi-off{border-left-color:#334155;opacity:.55}
+.fi-top{display:flex;align-items:center;gap:7px;margin-bottom:5px}
+.fi-top .fi-lbl{flex:1;background:#0f172a;border:1px solid #334155;color:#f1f5f9;border-radius:6px;padding:5px 9px;font-size:.82rem}
+.fi-req{display:flex;align-items:center;gap:4px;font-size:.68rem;color:#64748b;white-space:nowrap;cursor:pointer}
+.fi-req input{accent-color:#1D9E75;cursor:pointer}
+.fi-plc{width:100%;background:#0f172a;border:1px solid #1e293b;color:#94a3b8;border-radius:6px;padding:4px 9px;font-size:.76rem}
+.fi-prov-note{font-size:.65rem;color:#475569;padding:2px 0}
+
+/* ── Province / Cities ── */
+.prov-item{background:#1e293b;border:1px solid #334155;border-radius:8px;margin-bottom:6px;overflow:hidden}
+.prov-hdr{display:flex;align-items:center;gap:6px;padding:8px 10px;cursor:pointer;user-select:none}
+.prov-hdr:hover{background:#263248}
+.prov-code{width:58px;background:#0f172a;border:1px solid #334155;color:#64748b;border-radius:5px;padding:3px 6px;font-size:.72rem;font-family:monospace;text-align:center;flex-shrink:0}
+.prov-name{flex:1;background:#0f172a;border:1px solid #334155;color:#f1f5f9;border-radius:6px;padding:4px 8px;font-size:.8rem}
+.prov-arrow{font-size:.7rem;color:#64748b;flex-shrink:0;transition:.2s}
+.prov-cities{padding:8px 10px 10px;border-top:1px solid #334155;background:#0a1628}
+.city-chips{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:8px;min-height:10px}
+.city-chip{background:#1e3a5f;color:#93c5fd;padding:3px 8px 3px 10px;border-radius:20px;font-size:.7rem;display:flex;align-items:center;gap:4px}
+.city-chip button{background:none;border:none;color:#64748b;cursor:pointer;font-size:.75rem;line-height:1;padding:0;transition:.1s}
+.city-chip button:hover{color:#ef4444}
+.city-add{display:flex;gap:6px;margin-top:2px}
+.city-add input{flex:1;background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:6px;padding:5px 9px;font-size:.76rem;font-family:inherit;outline:none}
+.city-add input:focus{border-color:#1D9E75}
+.city-add button{background:#15803d;color:#fff;border:none;border-radius:6px;padding:5px 10px;font-size:.76rem;font-weight:700;cursor:pointer;white-space:nowrap}
 
 /* ── Load from WP ── */
 .load-btn{width:100%;background:#1e40af;color:#fff;border:none;border-radius:8px;padding:9px 12px;font-size:.8rem;font-weight:700;cursor:pointer;transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px;margin-top:2px}
@@ -91,22 +134,121 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 .hint{font-size:.68rem;color:#475569;text-align:center;margin-top:6px}
 
 /* ── Preview Panel ── */
-.pv{display:flex;flex-direction:column;background:#e2e8f0}
-.pv-hdr{background:#d1d5db;padding:7px 14px;font-size:.72rem;color:#6b7280;font-weight:600;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.pv{display:flex;flex-direction:column;background:#cbd5e1;flex:1;min-width:0}
+.pv-hdr{background:#94a3b8;padding:7px 12px;font-size:.72rem;color:#1e293b;font-weight:600;display:flex;align-items:center;gap:6px;flex-shrink:0}
 .dot{width:9px;height:9px;border-radius:50%}
-.pv iframe{flex:1;border:none;background:#fff}
+.pv-toggle{background:none;border:1px solid #64748b;color:#1e293b;border-radius:6px;padding:3px 9px;font-size:.72rem;font-weight:700;cursor:pointer;transition:.15s;margin-right:4px;flex-shrink:0}
+.pv-toggle:hover{background:#64748b;color:#fff}
+.pv-dev-btns{margin-left:auto;display:flex;gap:4px}
+.pv-dev-btn{background:none;border:1px solid #64748b;color:#334155;border-radius:6px;padding:3px 9px;font-size:.68rem;font-weight:600;cursor:pointer;transition:.15s;line-height:1.6}
+.pv-dev-btn.active{border-color:#0f7d5a;color:#0f7d5a;background:rgba(15,125,90,.1)}
+.pv-dev-btn:hover:not(.active){background:#64748b22}
+/* ── pv-wrap: siempre muestra fondo de "página real" con scroll ── */
+.pv-wrap{flex:1;display:flex;justify-content:center;align-items:flex-start;overflow:auto;background:linear-gradient(135deg,#e2e8f0 0%,#cbd5e1 100%);padding:24px 16px}
+.pv-wrap iframe{width:100%;max-width:560px;min-height:600px;border:none;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18),0 2px 8px rgba(0,0,0,.1)}
+.pv-wrap.dev-tablet{padding:20px}
+.pv-wrap.dev-tablet iframe{max-width:768px;border-radius:10px;box-shadow:0 6px 24px rgba(0,0,0,.2)}
+.pv-wrap.dev-mobile{padding:20px}
+.pv-wrap.dev-mobile iframe{max-width:390px;border-radius:20px;box-shadow:0 6px 28px rgba(0,0,0,.25)}
 
 /* ── Scrollbar ── */
 .cfg::-webkit-scrollbar{width:5px}
 .cfg::-webkit-scrollbar-track{background:#0f172a}
 .cfg::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
+
+/* ── Wizard ── */
+.wiz-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px}
+.wiz-box{background:#1e293b;border-radius:18px;padding:36px 32px;max-width:480px;width:100%;position:relative;border:1px solid #334155}
+.wiz-steps{display:flex;gap:6px;margin-bottom:28px;justify-content:center}
+.wiz-dot{width:8px;height:8px;border-radius:50%;background:#334155;transition:.2s}
+.wiz-dot.active{background:#1D9E75;width:24px;border-radius:20px}
+.wiz-icon{font-size:3rem;text-align:center;margin-bottom:12px}
+.wiz-ttl{font-size:1.2rem;font-weight:800;color:#f1f5f9;text-align:center;margin-bottom:10px}
+.wiz-txt{font-size:.87rem;color:#94a3b8;text-align:center;line-height:1.6;margin-bottom:24px}
+.wiz-txt b{color:#e2e8f0}
+.wiz-flow{background:#0f172a;border-radius:10px;padding:12px 16px;margin-bottom:24px;font-size:.78rem;color:#64748b;line-height:2}
+.wiz-flow span{color:#1D9E75;font-weight:700}
+.wiz-btns{display:flex;gap:10px}
+.wiz-btn-prev{flex:1;background:transparent;border:1.5px solid #334155;color:#94a3b8;border-radius:10px;padding:11px;font-size:.85rem;font-weight:700;cursor:pointer}
+.wiz-btn-next{flex:2;background:#1D9E75;color:#fff;border:none;border-radius:10px;padding:11px;font-size:.85rem;font-weight:700;cursor:pointer}
+.wiz-btn-next:hover{background:#178a64}
+.wiz-skip{position:absolute;top:14px;right:16px;background:none;border:none;color:#475569;font-size:.75rem;cursor:pointer}
+.wiz-skip:hover{color:#94a3b8}
+
+/* ── Help Modal ── */
+.help-overlay{position:fixed;inset:0;background:rgba(0,0,0,.7);z-index:1000;display:none;align-items:flex-start;justify-content:center;padding:20px;overflow-y:auto}
+.help-overlay.open{display:flex}
+.help-box{background:#1e293b;border-radius:16px;max-width:680px;width:100%;border:1px solid #334155;overflow:hidden}
+.help-hdr{background:#0f172a;padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #334155}
+.help-hdr h3{font-size:1rem;font-weight:700;color:#f1f5f9}
+.help-close{background:none;border:none;color:#64748b;font-size:1.3rem;cursor:pointer;line-height:1}
+.help-close:hover{color:#f1f5f9}
+.help-tabs{display:flex;border-bottom:1px solid #334155}
+.help-tab{flex:1;padding:11px;background:none;border:none;color:#64748b;font-size:.82rem;font-weight:600;cursor:pointer;border-bottom:2px solid transparent;transition:.15s}
+.help-tab.active{color:#1D9E75;border-bottom-color:#1D9E75;background:#0f172a}
+.help-body{padding:20px;max-height:70vh;overflow-y:auto}
+.help-section h4{font-size:.9rem;font-weight:700;color:#f1f5f9;margin-bottom:12px}
+.help-section ol{padding-left:18px;color:#cbd5e1;font-size:.83rem;line-height:1.8}
+.help-section li{margin-bottom:4px}
+.help-section code{background:#0f172a;color:#86efac;padding:1px 6px;border-radius:4px;font-size:.78rem;font-family:monospace}
+.help-body::-webkit-scrollbar{width:4px}
+.help-body::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
+.help-step{display:flex;gap:12px;margin-bottom:16px;align-items:flex-start}
+.help-num{background:#1D9E75;color:#fff;width:24px;height:24px;border-radius:50%;font-size:.72rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:1px}
+.help-step-body{flex:1}
+.help-step-ttl{font-size:.85rem;font-weight:700;color:#e2e8f0;margin-bottom:3px}
+.help-step-txt{font-size:.78rem;color:#64748b;line-height:1.5}
+.help-step-txt b{color:#94a3b8}
+.help-warn{background:#451a03;border:1px solid #92400e;border-radius:8px;padding:10px 12px;font-size:.75rem;color:#fbbf24;margin:10px 0}
+.help-ok{background:#052e16;border:1px solid #166534;border-radius:8px;padding:10px 12px;font-size:.75rem;color:#86efac;margin:10px 0}
+.help-code-wrap{position:relative;margin:8px 0}
+.help-code{background:#0f172a;border:1px solid #334155;border-radius:8px;padding:12px;font-size:.7rem;font-family:monospace;color:#86efac;white-space:pre;overflow-x:auto;max-height:200px}
+.help-copy{position:absolute;top:6px;right:8px;background:#334155;border:none;color:#94a3b8;border-radius:5px;padding:3px 8px;font-size:.65rem;cursor:pointer}
+.help-copy:hover{background:#1D9E75;color:#fff}
+.help-divider{border:none;border-top:1px solid #334155;margin:20px 0}
+
+/* ── Preview flotante (mobile) ── */
+.fab-preview{display:none;position:fixed;bottom:20px;right:20px;background:#1D9E75;color:#fff;border:none;border-radius:50px;padding:12px 20px;font-size:.85rem;font-weight:700;cursor:pointer;box-shadow:0 4px 20px rgba(29,158,117,.4);z-index:900;align-items:center;gap:8px}
+.preview-modal{display:none;position:fixed;inset:0;background:#fff;z-index:950;flex-direction:column}
+.preview-modal.open{display:flex}
+.preview-modal-hdr{background:#1e293b;padding:10px 16px;display:flex;align-items:center;justify-content:space-between;flex-shrink:0}
+.preview-modal-hdr span{font-size:.85rem;font-weight:600;color:#f1f5f9}
+.preview-modal-close{background:none;border:none;color:#94a3b8;font-size:1.4rem;cursor:pointer}
+.preview-modal iframe{flex:1;border:none}
+
+/* ── Responsive ── */
+@media(max-width:1024px){
+  .cfg{width:320px}
+  .btn-sm{padding:6px 9px;font-size:.7rem}
+}
+@media(max-width:768px){
+  body{overflow:auto;height:auto}
+  .hdr{padding:10px 14px;flex-wrap:wrap;gap:8px}
+  .hdr-title{font-size:.85rem}
+  .hdr-actions .btn-sm:not(.help-btn){display:none}
+  .hdr-actions{gap:6px}
+  .body{flex-direction:column;height:auto;overflow:visible}
+  .cfg{width:100%;border-right:none;border-bottom:1px solid #334155;overflow-y:visible;height:auto;transition:none}
+  .cfg.collapsed{width:100%;height:0;padding:0}
+  .pv{display:none}
+  .fab-preview{display:flex}
+  .wiz-box{padding:24px 18px}
+}
 </style>
 </head>
 <body>
 
 <div class="hdr">
-  <div class="hdr-title">⚡ Constructor de Formulario <span>Dropi Ecuador</span></div>
-  <button class="btn-dl" onclick="downloadForm()">⬇ Descargar Formulario</button>
+  <div class="hdr-title">⚡ Constructor de Formulario <span>Dropi</span></div>
+  <div class="hdr-actions">
+    <span class="save-ind" id="save-ind">✓ Guardado</span>
+    <button class="btn-sm help-btn" onclick="openHelp()" title="Guía de uso">❓ Ayuda</button>
+    <button class="btn-sm" onclick="exportConfig()" title="Exportar configuración como JSON">💾 Exportar</button>
+    <button class="btn-sm" onclick="importConfig()" title="Importar configuración desde JSON">📂 Importar</button>
+    <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(this)">
+    <button class="btn-sm danger" onclick="resetConfig()" title="Borrar configuración guardada y volver al inicio">↺ Resetear</button>
+    <button class="btn-dl" onclick="downloadForm()">⬇ Descargar</button>
+  </div>
 </div>
 
 <div class="body">
@@ -119,40 +261,34 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
       <div class="sec-ttl">🔗 Conexión WordPress</div>
       <div class="fl">
         <label>URL de tu tienda (dominio)</label>
-        <input type="url" id="apiUrl" value="https://tutienda.com/wp-json/mi-tienda/v1/pedido" oninput="render()">
+        <input type="url" id="apiUrl" value="https://tutienda.com/wp-json/mi-tienda/v1/pedido" oninput="render();saveState()">
       </div>
       <div class="fl">
         <label>ID del Producto en WooCommerce</label>
-        <input type="number" id="productId" value="18" oninput="render()">
+        <input type="number" id="productId" value="18" oninput="render();saveState()">
       </div>
-
-      <!-- Botón cargar variaciones -->
-      <button class="load-btn" id="loadBtn" onclick="loadFromWP()">
-        ⬇ Cargar variaciones desde WordPress
-      </button>
+      <button class="load-btn" id="loadBtn" onclick="loadFromWP()">⬇ Cargar variaciones desde WordPress</button>
       <div id="loadStatus" style="display:none" class="ls"></div>
-
-      <!-- Panel de mapeo de atributos (aparece tras carga exitosa) -->
       <div id="mapPanel" style="display:none" class="map-panel">
         <div class="map-ttl">📋 Atributos del proveedor detectados</div>
         <div id="mapAttrPills" class="attr-pills"></div>
         <div class="map-note">Indica qué atributo corresponde a cada sección del formulario:</div>
         <label style="font-size:.72rem;color:#94a3b8;display:block;margin-bottom:3px">Atributo de COLOR / Variante visual</label>
         <select id="mapColor" class="map-sel"></select>
+        <label style="font-size:.72rem;color:#94a3b8;display:block;margin-bottom:3px">Atributo de TALLA / Tamaño (opcional)</label>
+        <select id="mapTalla" class="map-sel"></select>
         <label style="font-size:.72rem;color:#94a3b8;display:block;margin-bottom:3px">Atributo de PACK / Cantidad (opcional)</label>
         <select id="mapPack" class="map-sel"></select>
         <button class="apply-btn" onclick="applyMapping()">✅ Aplicar al formulario</button>
       </div>
-
-      <!-- Panel alternativo: pegar JSON manualmente -->
-      <div id="jsonPanel" style="display:none" class="map-panel" style="border-color:#334155">
+      <div id="jsonPanel" style="display:none" class="map-panel">
         <div class="map-ttl" style="color:#f59e0b">📋 Pegar JSON manualmente</div>
         <div class="map-note">
           Abre esta URL en tu navegador mientras estás en WordPress:<br>
           <code id="endpointUrl" style="display:block;background:#0f172a;color:#86efac;padding:6px 8px;border-radius:5px;font-size:.7rem;margin:6px 0;word-break:break-all;user-select:all"></code>
           Copia todo el texto que aparece y pégalo aquí:
         </div>
-        <textarea id="jsonInput" style="width:100%;height:90px;background:#0f172a;border:1px solid #334155;color:#f1f5f9;border-radius:7px;padding:8px;font-size:.72rem;font-family:monospace;resize:vertical" placeholder='{"id":18,"name":"...","variations":[...]}'></textarea>
+        <textarea id="jsonInput" style="width:100%;height:90px;background:#0f172a;border:1px solid #334155;color:#f1f5f9;border-radius:7px;padding:8px;font-size:.72rem;font-family:monospace;resize:vertical" placeholder='{"id":18,"name":"...","variations":[]}'></textarea>
         <button class="apply-btn" style="margin-top:8px" onclick="parseJsonInput()">✅ Leer JSON y aplicar</button>
       </div>
     </div>
@@ -160,43 +296,48 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
     <!-- Producto -->
     <div class="sec">
       <div class="sec-ttl">📦 Información del Producto</div>
-      <div class="fl">
-        <label>Nombre del producto</label>
-        <input type="text" id="productName" value="Depiladora 5 en 1" oninput="render()">
-      </div>
-      <div class="fl">
-        <label>Subtítulo</label>
-        <input type="text" id="subtitle" value="Elige tu pack y llena tus datos. ¡Te contactamos!" oninput="render()">
-      </div>
-      <div class="fl">
-        <label>Badge superior</label>
-        <input type="text" id="badge" value="🚚 Pago al recibir — Envío gratis" oninput="render()">
-      </div>
+      <div class="fl"><label>Nombre del producto</label>
+        <input type="text" id="productName" value="Depiladora 5 en 1" oninput="render();saveState()"></div>
+      <div class="fl"><label>Subtítulo</label>
+        <input type="text" id="subtitle" value="Elige tu pack y llena tus datos. ¡Te contactamos!" oninput="render();saveState()"></div>
+      <div class="fl"><label>Badge superior</label>
+        <input type="text" id="badge" value="🚚 Pago al recibir — Envío gratis" oninput="render();saveState()"></div>
     </div>
 
     <!-- Diseño Visual -->
     <div class="sec">
       <div class="sec-ttl">🎨 Diseño Visual</div>
-
+      <div class="fl" style="margin-bottom:14px">
+        <div class="fl-label">Estilo de Packs</div>
+        <div class="style-tabs">
+          <button class="style-tab active" id="tabClasico" onclick="setStyle('clasico')">📦 Clásico</button>
+          <button class="style-tab" id="tabOferta" onclick="setStyle('oferta')">🔥 Oferta</button>
+        </div>
+      </div>
       <div class="color-pick-row">
         <label>Color del botón CTA</label>
-        <input type="color" id="btnColor" value="#1D9E75" oninput="syncHex('btnColor','btnColorHex');render()">
-        <input type="text" class="hex-val" id="btnColorHex" value="#1D9E75" maxlength="7"
-               oninput="syncColor('btnColorHex','btnColor');render()">
+        <input type="color" id="btnColor" value="#1D9E75" oninput="syncHex('btnColor','btnColorHex');render();saveState()">
+        <input type="text" class="hex-val" id="btnColorHex" value="#1D9E75" maxlength="7" oninput="syncColor('btnColorHex','btnColor');render();saveState()">
       </div>
-
       <div class="color-pick-row">
         <label>Color de fondo de página</label>
-        <input type="color" id="bgColor" value="#f0f4f8" oninput="syncHex('bgColor','bgColorHex');render()">
-        <input type="text" class="hex-val" id="bgColorHex" value="#f0f4f8" maxlength="7"
-               oninput="syncColor('bgColorHex','bgColor');render()">
+        <input type="color" id="bgColor" value="#f0f4f8" oninput="syncHex('bgColor','bgColorHex');render();saveState()">
+        <input type="text" class="hex-val" id="bgColorHex" value="#f0f4f8" maxlength="7" oninput="syncColor('bgColorHex','bgColor');render();saveState()">
       </div>
-
       <div class="color-pick-row">
         <label>Color de fondo del formulario</label>
-        <input type="color" id="formBg" value="#ffffff" oninput="syncHex('formBg','formBgHex');render()">
-        <input type="text" class="hex-val" id="formBgHex" value="#ffffff" maxlength="7"
-               oninput="syncColor('formBgHex','formBg');render()">
+        <input type="color" id="formBg" value="#ffffff" oninput="syncHex('formBg','formBgHex');render();saveState()">
+        <input type="text" class="hex-val" id="formBgHex" value="#ffffff" maxlength="7" oninput="syncColor('formBgHex','formBg');render();saveState()">
+      </div>
+      <div class="color-pick-row">
+        <label>Color del badge de ahorro</label>
+        <input type="color" id="badgeColor" value="#f59e0b" oninput="syncHex('badgeColor','badgeColorHex');render();saveState()">
+        <input type="text" class="hex-val" id="badgeColorHex" value="#f59e0b" maxlength="7" oninput="syncColor('badgeColorHex','badgeColor');render();saveState()">
+      </div>
+      <div class="color-pick-row">
+        <label>Color de texto del formulario</label>
+        <input type="color" id="textColor" value="#374151" oninput="syncHex('textColor','textColorHex');render();saveState()">
+        <input type="text" class="hex-val" id="textColorHex" value="#374151" maxlength="7" oninput="syncColor('textColorHex','textColor');render();saveState()">
       </div>
     </div>
 
@@ -207,6 +348,13 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
       <button class="add-btn" onclick="addColor()">+ Agregar color</button>
     </div>
 
+    <!-- Tallas -->
+    <div class="sec">
+      <div class="sec-ttl">👕 Tallas (opcional)</div>
+      <div id="sizesList"></div>
+      <button class="add-btn" onclick="addSize()">+ Agregar talla</button>
+    </div>
+
     <!-- Packs -->
     <div class="sec">
       <div class="sec-ttl">📦 Packs y Precios</div>
@@ -214,27 +362,19 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
       <button class="add-btn" onclick="addPack()">+ Agregar pack</button>
     </div>
 
-    <!-- Campos opcionales -->
+    <!-- Campos del formulario -->
     <div class="sec">
       <div class="sec-ttl">📋 Campos del Formulario</div>
-      <div style="font-size:.68rem;color:#475569;margin-bottom:6px">SIEMPRE INCLUIDOS</div>
-      <div class="tog-row"><span>Nombre y Apellido</span></div>
-      <div class="tog-row"><span>Teléfono / WhatsApp</span></div>
-      <div class="tog-row"><span>Provincia → Ciudad</span></div>
-      <div class="tog-row"><span>Calle Principal</span></div>
-      <div style="font-size:.68rem;color:#475569;margin:10px 0 6px">OPCIONALES</div>
-      <div class="tog-row"><span>Calle Secundaria</span>
-        <label class="tog"><input type="checkbox" id="oCalle2" checked onchange="render()"><span class="tog-sl"></span></label></div>
-      <div class="tog-row"><span>Barrio y Referencia</span>
-        <label class="tog"><input type="checkbox" id="oBarrio" checked onchange="render()"><span class="tog-sl"></span></label></div>
-      <div class="tog-row"><span>Número de casa</span>
-        <label class="tog"><input type="checkbox" id="oNumero" checked onchange="render()"><span class="tog-sl"></span></label></div>
-      <div class="tog-row"><span>Cédula de identidad</span>
-        <label class="tog"><input type="checkbox" id="oCedula" onchange="render()"><span class="tog-sl"></span></label></div>
-      <div class="tog-row"><span>Correo electrónico</span>
-        <label class="tog"><input type="checkbox" id="oEmail" onchange="render()"><span class="tog-sl"></span></label></div>
-      <div class="tog-row"><span>Instrucciones adicionales</span>
-        <label class="tog"><input type="checkbox" id="oNotas" onchange="render()"><span class="tog-sl"></span></label></div>
+      <div style="font-size:.67rem;color:#475569;margin-bottom:10px">Activa, desactiva, renombra o cambia el placeholder de cada campo. El asterisco (*) indica obligatorio.</div>
+      <div id="fieldsList"></div>
+    </div>
+
+    <!-- Provincias y Ciudades -->
+    <div class="sec">
+      <div class="sec-ttl">🗺️ Provincias y Ciudades</div>
+      <div style="font-size:.67rem;color:#475569;margin-bottom:10px">Edita el nombre de la provincia, su código, y agrega o elimina ciudades, pueblos o parroquias.</div>
+      <div id="provinciasList"></div>
+      <button class="add-btn" onclick="addProvincia()" style="margin-top:6px">+ Agregar provincia / departamento</button>
     </div>
 
     <button class="dl-big" onclick="downloadForm()">⬇ Generar y Descargar Formulario</button>
@@ -245,14 +385,65 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
   <!-- ════════════════ PREVIEW ════════════════ -->
   <main class="pv">
     <div class="pv-hdr">
+      <button class="pv-toggle" id="cfg-toggle" onclick="toggleCfg()" title="Colapsar/expandir panel de configuración">◀ Config</button>
       <div class="dot" style="background:#ef4444"></div>
       <div class="dot" style="background:#f59e0b"></div>
       <div class="dot" style="background:#22c55e"></div>
-      <span style="margin-left:6px">Vista Previa en Tiempo Real</span>
+      <span>Vista Previa</span>
+      <div class="pv-dev-btns">
+        <button class="pv-dev-btn active" id="dev-desktop" onclick="setDevice('desktop')" title="Vista escritorio">🖥 Desktop</button>
+        <button class="pv-dev-btn" id="dev-tablet" onclick="setDevice('tablet')" title="Vista tablet (768px)">⬛ Tablet</button>
+        <button class="pv-dev-btn" id="dev-mobile" onclick="setDevice('mobile')" title="Vista móvil (390px)">📱 Móvil</button>
+      </div>
     </div>
-    <iframe id="pf"></iframe>
+    <div class="pv-wrap" id="pv-wrap">
+      <iframe id="pf"></iframe>
+    </div>
   </main>
 
+</div>
+
+<!-- ════════ WIZARD PRIMER USO ════════ -->
+<div class="wiz-overlay" id="wizard" style="display:none">
+  <div class="wiz-box">
+    <button class="wiz-skip" onclick="closeWizard()">Saltar</button>
+    <div class="wiz-steps">
+      <div class="wiz-dot active" id="wd0"></div>
+      <div class="wiz-dot" id="wd1"></div>
+      <div class="wiz-dot" id="wd2"></div>
+      <div class="wiz-dot" id="wd3"></div>
+    </div>
+    <div id="wiz-content"></div>
+    <div class="wiz-btns">
+      <button class="wiz-btn-prev" id="wiz-prev" onclick="wizNav(-1)" style="display:none">← Anterior</button>
+      <button class="wiz-btn-next" id="wiz-next" onclick="wizNav(1)">Siguiente →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════════ MODAL AYUDA ════════ -->
+<div class="help-overlay" id="helpOverlay" onclick="closeHelp(event)">
+  <div class="help-box" onclick="event.stopPropagation()">
+    <div class="help-hdr">
+      <h3>📖 Guía de uso — Dropi Constructor</h3>
+      <button class="help-close" onclick="closeHelp()">✕</button>
+    </div>
+    <div class="help-tabs">
+      <button class="help-tab active" id="htab0" onclick="helpTab(0)">⚙️ Configuración inicial</button>
+      <button class="help-tab" id="htab1" onclick="helpTab(1)">🛒 Producto nuevo</button>
+    </div>
+    <div class="help-body" id="helpBody"></div>
+  </div>
+</div>
+
+<!-- ════════ PREVIEW MOBILE ════════ -->
+<button class="fab-preview" onclick="openPreviewModal()">👁 Vista Previa</button>
+<div class="preview-modal" id="previewModal">
+  <div class="preview-modal-hdr">
+    <span>Vista Previa del Formulario</span>
+    <button class="preview-modal-close" onclick="closePreviewModal()">✕</button>
+  </div>
+  <iframe id="pf-mobile" style="flex:1;border:none"></iframe>
 </div>
 
 <script>
@@ -264,447 +455,643 @@ let colors = [
   {id:2, name:'Azul',  hex:'#3498db'},
   {id:3, name:'Negro', hex:'#2c3e50'}
 ];
+let sizes = [];
 let packs = [
-  {id:1, label:'1 Unidad',   price:'29.99', savings:'',              img:'', vars:{1:'101',2:'103',3:'105'}},
-  {id:2, label:'2 Unidades', price:'50.00', savings:'Ahorras $9.98', img:'', vars:{1:'102',2:'104',3:'106'}}
+  {id:1, label:'1 Unidad',   price:'29.99', savings:'',              ofertaBadge:'',            precioAntes:'',    img:'', vars:{'1-0':'101','2-0':'103','3-0':'105'}},
+  {id:2, label:'2 Unidades', price:'50.00', savings:'Ahorras $9.98', ofertaBadge:'MÁS POPULAR', precioAntes:'59.98', img:'', vars:{'1-0':'102','2-0':'104','3-0':'106'}}
 ];
-let cid = 4, pid = 3;
+let cid = 4, sid = 1, pid = 3;
+let formStyle = 'clasico';
+
+let fields = [
+  {key:'nombre',   label:'Nombre',               placeholder:'María',                              required:true,  enabled:true},
+  {key:'apellido', label:'Apellido',              placeholder:'García',                             required:true,  enabled:true},
+  {key:'telefono', label:'Teléfono / WhatsApp',   placeholder:'0987654321',                         required:true,  enabled:true},
+  {key:'prov',     label:'Provincia',             placeholder:'',                                   required:true,  enabled:true},
+  {key:'city',     label:'Ciudad',                placeholder:'',                                   required:true,  enabled:true},
+  {key:'calle1',   label:'Calle Principal',        placeholder:'Av. Amazonas',                       required:true,  enabled:true},
+  {key:'calle2',   label:'Calle Secundaria',       placeholder:'N23-45 y Veintimilla',               required:false, enabled:true},
+  {key:'barrio',   label:'Barrio / Referencia',    placeholder:'Barrio El Ejido, frente al parque',  required:false, enabled:true},
+  {key:'numero',   label:'Número de casa / Dpto.', placeholder:'Casa 5, Dpto 2B',                    required:false, enabled:true},
+  {key:'cedula',   label:'Cédula de identidad',    placeholder:'1712345678',                         required:false, enabled:false},
+  {key:'email',    label:'Correo electrónico',     placeholder:'Para regalos y ofertas exclusivas',  required:false, enabled:false},
+  {key:'notas',    label:'Instrucciones adicionales', placeholder:'Ej: Llamar antes de entregar...', required:false, enabled:false},
+];
+
+let provincias = [
+  {code:'EC-A',  name:'Azuay',          cities:["CUENCA","CHAULLABAMBA","RICAURTE CUENCA","GUALACEO","SIG SIG","PAUTE","CHORDELEG","CUMBE","TARQUI","GIRON","YUNGUILLA","SANTA ISABEL","PONCE ENRIQUEZ"]},
+  {code:'EC-B',  name:'Bolívar',        cities:["GUARANDA","SALINAS DE GUARANDA","SAN JOSE DE CHIMBO","SAN MIGUEL DE BOLIVAR"]},
+  {code:'EC-F',  name:'Cañar',          cities:["AZOGUES","BIBLIAN","CANAR","EL TAMBO"]},
+  {code:'EC-C',  name:'Carchi',         cities:["TULCAN","SAN GABRIEL","EL ANGEL","JULIO ANDRADE","BOLIVAR","HUACA","MIRA"]},
+  {code:'EC-H',  name:'Chimborazo',     cities:["RIOBAMBA","GUANO","CAJABAMBA","CHUNCHI","LICAN","ALAUSI","GUAMOTE","COLTA","CHAMBO","YARUQUIES"]},
+  {code:'EC-X',  name:'Cotopaxi',       cities:["LATACUNGA","SALCEDO","SAQUISILI","LASSO","GUAYTACAMA","PASTOCALLE","MULALO","TANICUCHI","BELISARIO QUEVEDO","PUJILI","LA MANA"]},
+  {code:'EC-O',  name:'El Oro',         cities:["MACHALA","PINAS","ZARUMA","PORTOVELO","PUERTO BOLIVAR","ARENILLAS","PASAJE","SANTA ROSA","HUAQUILLAS","EL CAMBIO","EL GUABO"]},
+  {code:'EC-E',  name:'Esmeraldas',     cities:["ESMERALDAS","ATACAMES","TONSUPA","TACHINA","LA UNION","QUININDE","VICHE"]},
+  {code:'EC-G',  name:'Guayas',         cities:["GUAYAQUIL","DURAN","DAULE","SAMBORONDON","NOBOL","LOMAS DE SARGENTILLO","PEDRO CARBO","PALESTINA","SANTA LUCIA","BALZAR","SALITRE","PLAYAS","CERECITA","CHONGON","POSORJA","PROGRESO","MILAGRO","BUCAY","CUMANDA","YAGUACHI","NARANJITO","EL TRIUNFO","LA TRONCAL","NARANJAL","BALAO","PUERTO INCA"]},
+  {code:'EC-I',  name:'Imbabura',       cities:["IBARRA","CARANQUI","URCUQUI","YAGUARCOCHA","ATUNTAQUI","PIMAMPIRO","SAN ANTONIO IBARRA","OTAVALO","COTACACHI","SAN PABLO IMBABURA","QUIROGA","PEGUCHE"]},
+  {code:'EC-L',  name:'Loja',           cities:["LOJA","VILCABAMBA","CARIAMANGA","CATACOCHA","CATAMAYO","CELICA","SARAGURO","MALACATOS","GONZANAMA","MACARA"]},
+  {code:'EC-R',  name:'Los Ríos',       cities:["VALENCIA","MOCACHE","BABAHOYO","VINCES","BABA","MONTALVO","CALUMA","PUEBLO VIEJO","CATARAMA","SAN JUAN","VENTANAS","QUEVEDO","BUENA FE","EL EMPALME"]},
+  {code:'EC-M',  name:'Manabí',         cities:["PEDERNALES","EL CARMEN","CHONE","CALCETA","FLAVIO ALFARO","TOSAGUA","BAHIA DE CARAQUEZ","SAN VICENTE","JAMA","MANTA","MONTECRISTI","JARAMIJO","PORTOVIEJO","CHARAPOTO","CRUCITA","ROCAFUERTE","24 DE MAYO","OLMEDO","SANTA ANA","JIPIJAPA","PUERTO CAYO","PUERTO LOPEZ","PAJAN"]},
+  {code:'EC-S',  name:'Morona Santiago', cities:["MACAS","SUCUA","GUALAQUIZA"]},
+  {code:'EC-N',  name:'Napo',           cities:["EL CHACO","ARCHIDONA","TENA","MISAHUALLI","AROSEMENA TOLA"]},
+  {code:'EC-D',  name:'Orellana',       cities:["EL COCA","LA JOYA DE LOS SACHAS","LORETO"]},
+  {code:'EC-Y',  name:'Pastaza',        cities:["PUYO","SHELL"]},
+  {code:'EC-P',  name:'Pichincha',      cities:["TABACUNDO","CAYAMBE","PEDRO MONCAYO","QUITO","ALANGASI","ALOAG","AMAGUANA","CONOCOTO","CUMBAYA","GUAYLLABAMBA","LA ARMENIA","LLANO CHICO","MACHACHI","MIRAVALLE","MITAD DEL MUNDO","PIFO","PINTAG","POMASQUI","PUEMBO","EL QUINCHE","CALDERON","SAN RAFAEL","SANGOLQUI","TABABELA","TAMBILLO","TUMBACO","UYUMBICHO","VALLE DE LOS CHILLOS","YARUQUI","PEDRO V. MALDONADO","SAN MIGUEL DE LOS BANCOS","NANEGALITO","CALACALI"]},
+  {code:'EC-SE', name:'Santa Elena',    cities:["LA LIBERTAD","SANTA ELENA","BALLENITA","SALINAS","MUEY","MANGLARALTO","MONTANITA","OLON","AYANGUE"]},
+  {code:'EC-SD', name:'Santo Domingo de los Tsáchilas', cities:["SANTO DOMINGO","LUZ DE AMERICA","LA CONCORDIA","LAS VILLEGAS","MONTERREY","VALLE HERMOSO"]},
+  {code:'EC-U',  name:'Sucumbíos',      cities:["NUEVA LOJA - LAGO AGRIO","SHUSHUFINDI"]},
+  {code:'EC-T',  name:'Tungurahua',     cities:["AMBATO","MOCHA","CEVALLOS","QUERO","BANOS DE AGUA SANTA","PELILEO","PATATE","TISALEO","HUAMBALO","PILLARO"]},
+  {code:'EC-Z',  name:'Zamora Chinchipe', cities:["ZAMORA","YANTZAZA","CENTINELA DEL CONDOR"]},
+];
 
 // ═══════════════════════════════════════════════
-// NOMBRES → COLORES HEX (español)
+// NOMBRES → COLORES HEX
 // ═══════════════════════════════════════════════
 const COLOR_MAP = {
-  'rojo':'#e74c3c','roja':'#e74c3c','red':'#e74c3c',
-  'azul':'#3498db','blue':'#3498db','celeste':'#87CEEB',
-  'negro':'#2c3e50','negra':'#2c3e50','black':'#1a1a1a',
-  'blanco':'#f0f0f0','blanca':'#f0f0f0','white':'#f8f9fa',
-  'verde':'#27ae60','green':'#27ae60','lima':'#8BC34A',
-  'amarillo':'#f1c40f','yellow':'#f1c40f',
-  'naranja':'#e67e22','orange':'#e67e22',
-  'morado':'#9b59b6','violeta':'#9b59b6','purple':'#9b59b6','lila':'#B39DDB',
-  'rosa':'#e91e63','pink':'#e91e63','fucsia':'#FF1493',
-  'gris':'#95a5a6','gray':'#95a5a6','grey':'#95a5a6','plomo':'#95a5a6',
-  'cafe':'#795548','marrón':'#795548','marron':'#795548','brown':'#8B4513',
-  'dorado':'#FFD700','gold':'#FFD700','oro':'#FFD700',
-  'plateado':'#9E9E9E','silver':'#C0C0C0','plata':'#C0C0C0',
-  'beige':'#F5F5DC','crema':'#FFFDD0',
-  'turquesa':'#1ABC9C','turquoise':'#1ABC9C','aqua':'#00BCD4',
-  'lavanda':'#E6E6FA','lavender':'#E6E6FA',
+  'rojo':'#e74c3c','roja':'#e74c3c','red':'#e74c3c','azul':'#3498db','blue':'#3498db','celeste':'#87CEEB',
+  'negro':'#2c3e50','negra':'#2c3e50','black':'#1a1a1a','blanco':'#f0f0f0','blanca':'#f0f0f0','white':'#f8f9fa',
+  'verde':'#27ae60','green':'#27ae60','lima':'#8BC34A','amarillo':'#f1c40f','yellow':'#f1c40f',
+  'naranja':'#e67e22','orange':'#e67e22','morado':'#9b59b6','violeta':'#9b59b6','purple':'#9b59b6','lila':'#B39DDB',
+  'rosa':'#e91e63','pink':'#e91e63','fucsia':'#FF1493','gris':'#95a5a6','gray':'#95a5a6','grey':'#95a5a6','plomo':'#95a5a6',
+  'cafe':'#795548','marrón':'#795548','marron':'#795548','brown':'#8B4513','dorado':'#FFD700','gold':'#FFD700','oro':'#FFD700',
+  'plateado':'#9E9E9E','silver':'#C0C0C0','plata':'#C0C0C0','beige':'#F5F5DC','crema':'#FFFDD0',
+  'turquesa':'#1ABC9C','turquoise':'#1ABC9C','aqua':'#00BCD4','lavanda':'#E6E6FA','lavender':'#E6E6FA',
 };
 function colorFromName(name){
   if(!name) return '#8b5cf6';
   const k = name.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').trim();
   if(COLOR_MAP[k]) return COLOR_MAP[k];
-  for(const key of Object.keys(COLOR_MAP)){
-    if(k.includes(key)||key.includes(k)) return COLOR_MAP[key];
-  }
-  // Hash → color
+  for(const key of Object.keys(COLOR_MAP)){ if(k.includes(key)||key.includes(k)) return COLOR_MAP[key]; }
   let h=0; for(let i=0;i<name.length;i++) h=name.charCodeAt(i)+((h<<5)-h);
-  const hex=('000000'+((h&0x00AAAAAA)|0x444444).toString(16)).slice(-6);
-  return '#'+hex;
+  return '#'+ ('000000'+((h&0x00AAAAAA)|0x444444).toString(16)).slice(-6);
+}
+
+// ═══════════════════════════════════════════════
+// ESTILOS Y HELPERS
+// ═══════════════════════════════════════════════
+function setStyle(s){
+  formStyle = s;
+  document.getElementById('tabClasico').classList.toggle('active', s==='clasico');
+  document.getElementById('tabOferta').classList.toggle('active', s==='oferta');
+  renderPacks(); render(); saveState();
+}
+function getVarKey(colorId, sizeId){ return `${colorId}-${sizeId!==undefined?sizeId:0}`; }
+
+// ═══════════════════════════════════════════════
+// PERSISTENCIA: localStorage + Export / Import
+// ═══════════════════════════════════════════════
+let _saveTimer = null;
+function saveState(){
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(()=>{
+    const state = {
+      v:3, colors, sizes, packs, fields, provincias, formStyle, cid, sid, pid,
+      ui:{
+        productName: document.getElementById('productName')?.value||'',
+        subtitle:    document.getElementById('subtitle')?.value||'',
+        badge:       document.getElementById('badge')?.value||'',
+        apiUrl:      document.getElementById('apiUrl')?.value||'',
+        productId:   document.getElementById('productId')?.value||'',
+        btnColor:    document.getElementById('btnColor')?.value||'#1D9E75',
+        bgColor:     document.getElementById('bgColor')?.value||'#f0f4f8',
+        formBg:      document.getElementById('formBg')?.value||'#ffffff',
+        badgeColor:  document.getElementById('badgeColor')?.value||'#f59e0b',
+        textColor:   document.getElementById('textColor')?.value||'#374151',
+      }
+    };
+    try{ localStorage.setItem('dropi-constructor', JSON.stringify(state)); } catch(e){}
+    const ind = document.getElementById('save-ind');
+    if(ind){ ind.style.opacity='1'; setTimeout(()=>{ ind.style.opacity='0'; },1600); }
+  }, 500);
+}
+
+function loadState(){
+  try{
+    const raw = localStorage.getItem('dropi-constructor');
+    if(!raw) return false;
+    const s = JSON.parse(raw);
+    if(s.colors?.length) colors = s.colors;
+    if(s.sizes) sizes = s.sizes;
+    if(s.packs?.length) packs = s.packs;
+    if(s.fields?.length) fields = s.fields;
+    if(s.provincias?.length) provincias = s.provincias;
+    if(s.formStyle) formStyle = s.formStyle;
+    if(s.cid) cid = s.cid; if(s.sid) sid = s.sid; if(s.pid) pid = s.pid;
+    if(s.ui) setTimeout(()=>applyUI(s.ui), 0);
+    return true;
+  } catch(e){ return false; }
+}
+
+function applyUI(ui){
+  const set = (id,v)=>{ const el=document.getElementById(id); if(el&&v) el.value=v; };
+  set('productName',ui.productName); set('subtitle',ui.subtitle); set('badge',ui.badge);
+  set('apiUrl',ui.apiUrl); set('productId',ui.productId);
+  if(ui.btnColor){   set('btnColor',ui.btnColor);     set('btnColorHex',ui.btnColor);   }
+  if(ui.bgColor){    set('bgColor',ui.bgColor);       set('bgColorHex',ui.bgColor);     }
+  if(ui.formBg){     set('formBg',ui.formBg);         set('formBgHex',ui.formBg);       }
+  if(ui.badgeColor){ set('badgeColor',ui.badgeColor); set('badgeColorHex',ui.badgeColor); }
+  if(ui.textColor){  set('textColor',ui.textColor);   set('textColorHex',ui.textColor);  }
+  if(ui.formStyle){ formStyle=ui.formStyle; setStyle(ui.formStyle); } else render();
+}
+
+function getFullState(){
+  return {
+    v:3, colors, sizes, packs, fields, provincias, formStyle, cid, sid, pid,
+    ui:{
+      productName: document.getElementById('productName').value,
+      subtitle:    document.getElementById('subtitle').value,
+      badge:       document.getElementById('badge').value,
+      apiUrl:      document.getElementById('apiUrl').value,
+      productId:   document.getElementById('productId').value,
+      btnColor:    document.getElementById('btnColor').value,
+      bgColor:     document.getElementById('bgColor').value,
+      formBg:      document.getElementById('formBg').value,
+      badgeColor:  document.getElementById('badgeColor')?.value||'#f59e0b',
+      textColor:   document.getElementById('textColor')?.value||'#374151',
+    }
+  };
+}
+
+function exportConfig(){
+  const blob = new Blob([JSON.stringify(getFullState(),null,2)],{type:'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a'); a.href=url; a.download='dropi-config.json'; a.click();
+  URL.revokeObjectURL(url);
+}
+function importConfig(){ document.getElementById('importFile').click(); }
+function handleImport(input){
+  const file = input.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e){
+    try{
+      const s = JSON.parse(e.target.result);
+      if(s.colors?.length) colors=s.colors;
+      if(s.sizes) sizes=s.sizes;
+      if(s.packs?.length) packs=s.packs;
+      if(s.fields?.length) fields=s.fields;
+      if(s.provincias?.length) provincias=s.provincias;
+      if(s.formStyle) formStyle=s.formStyle;
+      if(s.cid) cid=s.cid; if(s.sid) sid=s.sid; if(s.pid) pid=s.pid;
+      if(s.formStyle){ document.getElementById('tabClasico').classList.toggle('active',s.formStyle==='clasico'); document.getElementById('tabOferta').classList.toggle('active',s.formStyle==='oferta'); }
+      if(s.ui) applyUI(s.ui);
+      renderAll(); saveState();
+      input.value='';
+    } catch(err){ alert('Error al importar: '+err.message); }
+  };
+  reader.readAsText(file);
+}
+function resetConfig(){
+  if(!confirm('¿Borrar toda la configuración guardada y volver al estado inicial?')) return;
+  localStorage.removeItem('dropi-constructor');
+  location.reload();
 }
 
 // ═══════════════════════════════════════════════
 // CARGAR VARIACIONES DESDE WORDPRESS
 // ═══════════════════════════════════════════════
-let _wpData = null; // guarda respuesta cruda del endpoint
-
+let _wpData = null;
 function getEndpoint(){
   const rawUrl = document.getElementById('apiUrl').value.trim();
   const pid    = document.getElementById('productId').value.trim();
-  const baseUrl = rawUrl.replace(/\/wp-json.*$/, '').replace(/\/$/, '');
-  return `${baseUrl}/wp-json/mi-tienda/v1/producto/${pid}`;
+  return rawUrl.replace(/\/wp-json.*$/,'').replace(/\/$/,'') + `/wp-json/mi-tienda/v1/producto/${pid}`;
 }
-
 function loadFromWP(){
-  const rawUrl = document.getElementById('apiUrl').value.trim();
-  const pid    = document.getElementById('productId').value.trim();
-  if(!rawUrl || !pid){ alert('Ingresa la URL y el ID del producto primero.'); return; }
-
-  const endpoint = getEndpoint();
-  const btn = document.getElementById('loadBtn');
-  const st  = document.getElementById('loadStatus');
-
-  btn.disabled = true;
-  document.getElementById('mapPanel').style.display  = 'none';
-  document.getElementById('jsonPanel').style.display = 'none';
-  st.className = 'ls loading'; st.textContent = '⏳ Conectando con WordPress...'; st.style.display='block';
-
-  // Timeout de 8 segundos
-  const controller = new AbortController();
-  const timer = setTimeout(()=>controller.abort(), 8000);
-
-  fetch(endpoint, { signal: controller.signal })
-    .then(r => {
-      clearTimeout(timer);
-      if(!r.ok) return r.json().then(d=>{ throw new Error(d.message||`HTTP ${r.status}`); });
-      return r.json();
-    })
-    .then(data => {
-      btn.disabled = false;
-      _wpData = data;
-      st.className = 'ls ok';
-      st.textContent = `✅ "${data.name}" — ${data.variations.length} variación(es) encontradas`;
-      document.getElementById('productName').value = data.name;
-
-      if(data.type === 'variable' && data.variations.length > 0){
-        showMapping(data);
-      } else {
-        st.textContent += ' · producto simple, sin variantes de color';
-        if(data.price && packs.length > 0){ packs[0].price = data.price; renderPacks(); }
-      }
-      render();
-    })
-    .catch(err => {
-      clearTimeout(timer);
-      btn.disabled = false;
-
-      const isCors    = err.message === 'Failed to fetch' || err.name === 'TypeError';
-      const isTimeout = err.name === 'AbortError';
-
-      if(isTimeout){
-        st.className = 'ls err';
-        st.textContent = '⏱ Tiempo de espera agotado. Verifica que el dominio esté correcto.';
-        showJsonFallback(endpoint);
-      } else if(isCors){
-        st.className = 'ls err';
-        st.innerHTML = '🚫 <strong>Error de CORS</strong> — el navegador bloqueó la conexión directa.<br>'
-          + '<span style="font-weight:400">Usa el método manual de abajo ↓</span>';
-        showJsonFallback(endpoint);
-      } else {
-        st.className = 'ls err';
-        st.textContent = `❌ ${err.message}`;
-        showJsonFallback(endpoint);
-      }
-    });
+  const rawUrl=document.getElementById('apiUrl').value.trim(), pid=document.getElementById('productId').value.trim();
+  if(!rawUrl||!pid){ alert('Ingresa la URL y el ID del producto primero.'); return; }
+  const endpoint=getEndpoint(), btn=document.getElementById('loadBtn'), st=document.getElementById('loadStatus');
+  btn.disabled=true;
+  document.getElementById('mapPanel').style.display='none'; document.getElementById('jsonPanel').style.display='none';
+  st.className='ls loading'; st.textContent='⏳ Conectando con WordPress...'; st.style.display='block';
+  const controller=new AbortController(); const timer=setTimeout(()=>controller.abort(),8000);
+  fetch(endpoint,{signal:controller.signal})
+    .then(r=>{ clearTimeout(timer); if(!r.ok) return r.json().then(d=>{throw new Error(d.message||`HTTP ${r.status}`);}); return r.json(); })
+    .then(data=>{ btn.disabled=false; _wpData=data; st.className='ls ok'; st.textContent=`✅ "${data.name}" — ${data.variations.length} variación(es) encontradas`; document.getElementById('productName').value=data.name; if(data.type==='variable'&&data.variations.length>0) showMapping(data); else{ st.textContent+=' · producto simple'; if(data.price&&packs.length>0){packs[0].price=data.price;renderPacks();} } render(); })
+    .catch(err=>{ clearTimeout(timer); btn.disabled=false; const isCors=err.message==='Failed to fetch'||err.name==='TypeError', isTimeout=err.name==='AbortError'; if(isTimeout){st.className='ls err';st.textContent='⏱ Tiempo agotado.';}else if(isCors){st.className='ls err';st.innerHTML='🚫 <strong>Error de CORS</strong> — usa el método manual de abajo ↓';}else{st.className='ls err';st.textContent=`❌ ${err.message}`;} showJsonFallback(endpoint); });
 }
-
-function showJsonFallback(endpoint){
-  document.getElementById('endpointUrl').textContent = endpoint;
-  document.getElementById('jsonPanel').style.display = 'block';
-}
-
+function showJsonFallback(endpoint){ document.getElementById('endpointUrl').textContent=endpoint; document.getElementById('jsonPanel').style.display='block'; }
 function parseJsonInput(){
-  const raw = document.getElementById('jsonInput').value.trim();
-  if(!raw){ alert('Pega el JSON primero.'); return; }
-  try{
-    const data = JSON.parse(raw);
-    if(!data.variations) throw new Error('El JSON no tiene el campo "variations"');
-    _wpData = data;
-    document.getElementById('productName').value = data.name || document.getElementById('productName').value;
-    const st = document.getElementById('loadStatus');
-    st.className = 'ls ok'; st.style.display='block';
-    st.textContent = `✅ JSON leído: "${data.name}" — ${data.variations.length} variación(es)`;
-    document.getElementById('jsonPanel').style.display = 'none';
-    if(data.type === 'variable' && data.variations.length > 0){
-      showMapping(data);
-    } else {
-      if(data.price && packs.length > 0){ packs[0].price = data.price; renderPacks(); }
-    }
-    render();
-  } catch(e){
-    alert('JSON inválido: ' + e.message);
-  }
+  const raw=document.getElementById('jsonInput').value.trim(); if(!raw){alert('Pega el JSON primero.');return;}
+  try{ const data=JSON.parse(raw); if(!data.variations) throw new Error('Falta "variations"'); _wpData=data; document.getElementById('productName').value=data.name||document.getElementById('productName').value; const st=document.getElementById('loadStatus'); st.className='ls ok';st.style.display='block';st.textContent=`✅ JSON leído: "${data.name}" — ${data.variations.length} variación(es)`; document.getElementById('jsonPanel').style.display='none'; if(data.type==='variable'&&data.variations.length>0) showMapping(data); else if(data.price&&packs.length>0){packs[0].price=data.price;renderPacks();} render(); } catch(e){ alert('JSON inválido: '+e.message); }
 }
-
 function showMapping(data){
-  // Recopilar todos los atributos únicos que aparecen en las variaciones
-  const attrSet = {};
-  data.variations.forEach(v => {
-    Object.keys(v.attributes).forEach(k => {
-      if(!attrSet[k]) attrSet[k] = new Set();
-      attrSet[k].add(v.attributes[k]);
-    });
-  });
-  const attrNames = Object.keys(attrSet);
-
-  // Mostrar pills con atributos detectados
-  document.getElementById('mapAttrPills').innerHTML = attrNames.map(a =>
-    `<span class="attr-pill">${a} <span style="opacity:.6">(${[...attrSet[a]].join(', ')})</span></span>`
-  ).join('');
-
-  // Llenar selects
-  const noneOpt  = '<option value="">— ninguno —</option>';
-  const opts = attrNames.map(a=>`<option value="${a}">${a} (${[...attrSet[a]].slice(0,3).join(' / ')}${attrSet[a].size>3?'…':''})</option>`).join('');
-  document.getElementById('mapColor').innerHTML = opts;
-  document.getElementById('mapPack').innerHTML  = noneOpt + opts;
-
-  // Auto-selección inteligente
-  const colorKeywords = ['color','colour','tono','talla','modelo','tipo','estilo'];
-  const packKeywords  = ['cantidad','pack','unidad','paquete','qty','size','tamaño'];
-  const lc = n => n.toLowerCase();
-  const guessColor = attrNames.find(a => colorKeywords.some(k=>lc(a).includes(k))) || attrNames[0] || '';
-  const guessPack  = attrNames.find(a => packKeywords.some(k=>lc(a).includes(k)) && a !== guessColor) || '';
-  document.getElementById('mapColor').value = guessColor;
-  document.getElementById('mapPack').value  = guessPack;
-
-  document.getElementById('mapPanel').style.display = 'block';
+  const attrSet={};
+  data.variations.forEach(v=>Object.keys(v.attributes).forEach(k=>{ if(!attrSet[k])attrSet[k]=new Set(); attrSet[k].add(v.attributes[k]); }));
+  const attrNames=Object.keys(attrSet);
+  document.getElementById('mapAttrPills').innerHTML=attrNames.map(a=>`<span class="attr-pill">${a} <span style="opacity:.6">(${[...attrSet[a]].join(', ')})</span></span>`).join('');
+  const noneOpt='<option value="">— ninguno —</option>', opts=attrNames.map(a=>`<option value="${a}">${a} (${[...attrSet[a]].slice(0,3).join(' / ')}${attrSet[a].size>3?'…':''})</option>`).join('');
+  document.getElementById('mapColor').innerHTML=opts; document.getElementById('mapTalla').innerHTML=noneOpt+opts; document.getElementById('mapPack').innerHTML=noneOpt+opts;
+  const lc=n=>n.toLowerCase();
+  const guessColor=attrNames.find(a=>['color','colour','tono','modelo','tipo','estilo'].some(k=>lc(a).includes(k)))||attrNames[0]||'';
+  const guessTalla=attrNames.find(a=>['talla','size','tamaño','tamano','medida'].some(k=>lc(a).includes(k))&&a!==guessColor)||'';
+  const guessPack=attrNames.find(a=>['cantidad','pack','unidad','paquete','qty'].some(k=>lc(a).includes(k))&&a!==guessColor&&a!==guessTalla)||'';
+  document.getElementById('mapColor').value=guessColor; document.getElementById('mapTalla').value=guessTalla; document.getElementById('mapPack').value=guessPack;
+  document.getElementById('mapPanel').style.display='block';
 }
-
 function applyMapping(){
   if(!_wpData) return;
-  const colorAttr = document.getElementById('mapColor').value;
-  const packAttr  = document.getElementById('mapPack').value;
-
-  if(!colorAttr){ alert('Selecciona al menos el atributo de color.'); return; }
-
-  // Recopilar valores únicos de cada atributo
-  const colorVals = [...new Set(_wpData.variations.map(v => v.attributes[colorAttr]).filter(Boolean))];
-  const packVals  = packAttr
-    ? [...new Set(_wpData.variations.map(v => v.attributes[packAttr]).filter(Boolean))]
-    : [];
-
-  // Construir nuevo estado colors[]
-  colors = colorVals.map((name, i) => ({
-    id: i+1,
-    name,
-    hex: colorFromName(name)
-  }));
-  cid = colors.length + 1;
-
-  // Construir nuevo estado packs[]
-  if(packVals.length > 0){
-    // Packs desde el atributo de WooCommerce
-    packs = packVals.map((label, i) => {
-      // Encontrar el precio de la primera variación con este pack + primer color
-      const firstVar = _wpData.variations.find(v =>
-        v.attributes[packAttr] === label &&
-        (!colorAttr || true)
-      );
-      const vars = {};
-      colors.forEach(c => {
-        const match = _wpData.variations.find(v =>
-          v.attributes[colorAttr] === c.name &&
-          v.attributes[packAttr]  === label
-        );
-        vars[c.id] = match ? String(match.id) : '';
-      });
-      return {
-        id: i+1,
-        label,
-        price: firstVar ? String(firstVar.price) : '0.00',
-        savings: '',
-        img: '',
-        vars
-      };
-    });
-    pid = packs.length + 1;
-  } else {
-    // Sin atributo de pack: cada color tiene su propio variation_id (1 pack por defecto)
-    packs = [{
-      id: 1,
-      label: '1 Unidad',
-      price: _wpData.variations[0]?.price || '0.00',
-      savings: '',
-      img: '',
-      vars: {}
-    }];
-    colors.forEach(c => {
-      const match = _wpData.variations.find(v => v.attributes[colorAttr] === c.name);
-      packs[0].vars[c.id] = match ? String(match.id) : '';
-    });
-    pid = 2;
+  const colorAttr=document.getElementById('mapColor').value, tallaAttr=document.getElementById('mapTalla').value, packAttr=document.getElementById('mapPack').value;
+  if(!colorAttr){alert('Selecciona al menos el atributo de color.');return;}
+  const colorVals=[...new Set(_wpData.variations.map(v=>v.attributes[colorAttr]).filter(Boolean))];
+  const tallaVals=tallaAttr?[...new Set(_wpData.variations.map(v=>v.attributes[tallaAttr]).filter(Boolean))]:[];
+  const packVals=packAttr?[...new Set(_wpData.variations.map(v=>v.attributes[packAttr]).filter(Boolean))]:[];
+  colors=colorVals.map((name,i)=>({id:i+1,name,hex:colorFromName(name)})); cid=colors.length+1;
+  if(tallaVals.length>0){sizes=tallaVals.map((name,i)=>({id:i+1,name}));sid=sizes.length+1;}else{sizes=[];sid=1;}
+  const eS=sizes.length>0?sizes:[{id:0,name:''}];
+  if(packVals.length>0){
+    packs=packVals.map((label,i)=>{ const firstVar=_wpData.variations.find(v=>v.attributes[colorAttr]===colorVals[0]&&(!tallaAttr||!tallaVals[0]||v.attributes[tallaAttr]===tallaVals[0])&&v.attributes[packAttr]===label); const vars={}; colors.forEach(c=>eS.forEach(s=>{const m=_wpData.variations.find(v=>v.attributes[colorAttr]===c.name&&(!tallaAttr||!s.name||v.attributes[tallaAttr]===s.name)&&v.attributes[packAttr]===label); vars[getVarKey(c.id,s.id)]=m?String(m.id):''; })); return{id:i+1,label,price:firstVar?String(firstVar.price):'0.00',savings:'',ofertaBadge:'',precioAntes:'',img:'',vars}; });
+    pid=packs.length+1;
+  }else{
+    packs=[{id:1,label:'1 Unidad',price:_wpData.variations[0]?.price||'0.00',savings:'',ofertaBadge:'',precioAntes:'',img:'',vars:{}}];
+    colors.forEach(c=>eS.forEach(s=>{const m=_wpData.variations.find(v=>v.attributes[colorAttr]===c.name&&(!tallaAttr||!s.name||v.attributes[tallaAttr]===s.name)); packs[0].vars[getVarKey(c.id,s.id)]=m?String(m.id):''; }));
+    pid=2;
   }
-
-  // Aplicar
-  renderPacks();
-  renderColors();
-  render();
-
-  document.getElementById('mapPanel').style.display = 'none';
-  document.getElementById('loadStatus').textContent += ' — ✅ variaciones aplicadas al formulario';
+  renderSizes(); renderPacks(); renderColors(); render();
+  document.getElementById('mapPanel').style.display='none';
+  document.getElementById('loadStatus').textContent+=' — ✅ variaciones aplicadas';
+  saveState();
 }
 
 // ═══════════════════════════════════════════════
-// SINC COLOR PICKERS ↔ HEX TEXT
+// SINC COLOR PICKERS
 // ═══════════════════════════════════════════════
-function syncHex(pickerId, hexId){
-  document.getElementById(hexId).value = document.getElementById(pickerId).value;
-}
-function syncColor(hexId, pickerId){
-  const v = document.getElementById(hexId).value;
-  if(/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById(pickerId).value = v;
-}
-
-// ═══════════════════════════════════════════════
-// CIUDADES DROPI ECUADOR
-// ═══════════════════════════════════════════════
-const CIUDADES = {
-  "EC-P":["TABACUNDO","CAYAMBE","PEDRO MONCAYO","QUITO","ALANGASI","ALOAG","AMAGUANA","CONOCOTO","CUMBAYA","GUAYLLABAMBA","LA ARMENIA","LLANO CHICO","MACHACHI","MIRAVALLE","MITAD DEL MUNDO","PIFO","PINTAG","POMASQUI","PUEMBO","EL QUINCHE","CALDERON","SAN RAFAEL","SANGOLQUI","TABABELA","TAMBILLO","TUMBACO","UYUMBICHO","VALLE DE LOS CHILLOS","YARUQUI","PEDRO V. MALDONADO","SAN MIGUEL DE LOS BANCOS","NANEGALITO","CALACALI"],
-  "EC-X":["LATACUNGA","SALCEDO","SAQUISILI","LASSO","GUAYTACAMA","PASTOCALLE","MULALO","TANICUCHI","BELISARIO QUEVEDO","PUJILI","LA MANA"],
-  "EC-C":["TULCAN","SAN GABRIEL","EL ANGEL","JULIO ANDRADE","BOLIVAR","HUACA","MIRA"],
-  "EC-I":["IBARRA","CARANQUI","URCUQUI","YAGUARCOCHA","ATUNTAQUI","PIMAMPIRO","SAN ANTONIO IBARRA","OTAVALO","COTACACHI","SAN PABLO IMBABURA","QUIROGA","PEGUCHE"],
-  "EC-B":["GUARANDA","SALINAS DE GUARANDA","SAN JOSE DE CHIMBO","SAN MIGUEL DE BOLIVAR"],
-  "EC-A":["CUENCA","CHAULLABAMBA","RICAURTE CUENCA","GUALACEO","SIG SIG","PAUTE","CHORDELEG","CUMBE","TARQUI","GIRON","YUNGUILLA","SANTA ISABEL","PONCE ENRIQUEZ"],
-  "EC-F":["AZOGUES","BIBLIAN","CANAR","EL TAMBO"],
-  "EC-H":["RIOBAMBA","GUANO","CAJABAMBA","CHUNCHI","LICAN","ALAUSI","GUAMOTE","COLTA","CHAMBO","YARUQUIES"],
-  "EC-O":["MACHALA","PINAS","ZARUMA","PORTOVELO","PUERTO BOLIVAR","ARENILLAS","PASAJE","SANTA ROSA","HUAQUILLAS","EL CAMBIO","EL GUABO"],
-  "EC-E":["ESMERALDAS","ATACAMES","TONSUPA","TACHINA","LA UNION","QUININDE","VICHE"],
-  "EC-G":["GUAYAQUIL","DURAN","DAULE","SAMBORONDON","NOBOL","LOMAS DE SARGENTILLO","PEDRO CARBO","PALESTINA","SANTA LUCIA","BALZAR","SALITRE","PLAYAS","CERECITA","CHONGON","POSORJA","PROGRESO","MILAGRO","BUCAY","CUMANDA","YAGUACHI","NARANJITO","EL TRIUNFO","LA TRONCAL","NARANJAL","BALAO","PUERTO INCA"],
-  "EC-L":["LOJA","VILCABAMBA","CARIAMANGA","CATACOCHA","CATAMAYO","CELICA","SARAGURO","MALACATOS","GONZANAMA","MACARA"],
-  "EC-R":["VALENCIA","MOCACHE","BABAHOYO","VINCES","BABA","MONTALVO","CALUMA","PUEBLO VIEJO","CATARAMA","SAN JUAN","VENTANAS","QUEVEDO","BUENA FE","EL EMPALME"],
-  "EC-M":["PEDERNALES","EL CARMEN","CHONE","CALCETA","FLAVIO ALFARO","TOSAGUA","BAHIA DE CARAQUEZ","SAN VICENTE","JAMA","MANTA","MONTECRISTI","JARAMIJO","PORTOVIEJO","CHARAPOTO","CRUCITA","ROCAFUERTE","24 DE MAYO","OLMEDO","SANTA ANA","JIPIJAPA","PUERTO CAYO","PUERTO LOPEZ","PAJAN"],
-  "EC-S":["MACAS","SUCUA","GUALAQUIZA"],
-  "EC-N":["EL CHACO","ARCHIDONA","TENA","MISAHUALLI","AROSEMENA TOLA"],
-  "EC-D":["EL COCA","LA JOYA DE LOS SACHAS","LORETO"],
-  "EC-Y":["PUYO","SHELL"],
-  "EC-SE":["LA LIBERTAD","SANTA ELENA","BALLENITA","SALINAS","MUEY","MANGLARALTO","MONTANITA","OLON","AYANGUE"],
-  "EC-SD":["SANTO DOMINGO","LUZ DE AMERICA","LA CONCORDIA","LAS VILLEGAS","MONTERREY","VALLE HERMOSO"],
-  "EC-U":["NUEVA LOJA - LAGO AGRIO","SHUSHUFINDI"],
-  "EC-T":["AMBATO","MOCHA","CEVALLOS","QUERO","BANOS DE AGUA SANTA","PELILEO","PATATE","TISALEO","HUAMBALO","PILLARO"],
-  "EC-Z":["ZAMORA","YANTZAZA","CENTINELA DEL CONDOR"]
-};
+function syncHex(p,h){ document.getElementById(h).value=document.getElementById(p).value; }
+function syncColor(h,p){ const v=document.getElementById(h).value; if(/^#[0-9a-fA-F]{6}$/.test(v)) document.getElementById(p).value=v; }
 
 // ═══════════════════════════════════════════════
 // COLORES
 // ═══════════════════════════════════════════════
 function renderColors(){
-  document.getElementById('colorsList').innerHTML = colors.map(c=>`
+  const eS=sizes.length>0?sizes:[{id:0,name:'(sin talla)'}];
+  document.getElementById('colorsList').innerHTML=colors.map(c=>`
     <div class="ci">
       <div class="ci-hdr">
         <input type="color" value="${c.hex}" onchange="setC(${c.id},'hex',this.value)">
-        <input type="text"  value="${c.name}" oninput="setC(${c.id},'name',this.value)" placeholder="Nombre">
+        <input type="text" value="${esc(c.name)}" oninput="setC(${c.id},'name',this.value)" placeholder="Nombre">
         <button class="x" onclick="delColor(${c.id})">✕</button>
       </div>
-      <div style="font-size:.67rem;color:#64748b;margin-bottom:6px">Variation ID por pack (de WooCommerce):</div>
-      <div class="var-grid">${packs.map(p=>`
+      <div style="font-size:.67rem;color:#64748b;margin-bottom:6px">Variation ID por pack/talla:</div>
+      <div class="var-grid">${packs.map(p=>eS.map(s=>`
         <div class="var-row">
-          <span>${p.label}</span>
-          <input type="number" value="${p.vars[c.id]||''}" placeholder="ID" oninput="setVar(${p.id},${c.id},this.value)">
-        </div>`).join('')}
+          <span>${esc(p.label)}${sizes.length>0?' · '+esc(s.name):''}</span>
+          <input type="number" value="${p.vars[getVarKey(c.id,s.id)]||''}" placeholder="ID" oninput="setVar('${getVarKey(c.id,s.id)}',${p.id},this.value)">
+        </div>`).join('')).join('')}
       </div>
     </div>`).join('');
   render();
 }
-function addColor(){
-  const id=cid++;
-  colors.push({id,name:'Color',hex:'#8b5cf6'});
-  packs.forEach(p=>p.vars[id]='');
-  renderColors(); renderPacks();
+function addColor(){ const id=cid++; colors.push({id,name:'Color',hex:'#8b5cf6'}); const eS=sizes.length>0?sizes:[{id:0}]; packs.forEach(p=>eS.forEach(s=>{p.vars[getVarKey(id,s.id)]=''})); renderColors();renderPacks();saveState(); }
+function delColor(id){ colors=colors.filter(c=>c.id!==id); const eS=sizes.length>0?sizes:[{id:0}]; packs.forEach(p=>eS.forEach(s=>{delete p.vars[getVarKey(id,s.id)]})); renderColors();renderPacks();saveState(); }
+function setC(id,k,v){ const c=colors.find(c=>c.id===id); if(c){c[k]=v;render();saveState();} }
+function setVar(varKey,packId,v){ const p=packs.find(p=>p.id===packId); if(p){p.vars[varKey]=v;render();saveState();} }
+
+// ═══════════════════════════════════════════════
+// TALLAS
+// ═══════════════════════════════════════════════
+function renderSizes(){
+  document.getElementById('sizesList').innerHTML=sizes.length===0
+    ?'<div style="font-size:.7rem;color:#475569;padding:4px 0">Sin tallas — el formulario solo mostrará colores y packs.</div>'
+    :sizes.map(s=>`<div class="si"><input type="text" value="${esc(s.name)}" oninput="setSize(${s.id},this.value)" placeholder="Ej: S, M, L, XL"><button class="x" onclick="delSize(${s.id})">✕</button></div>`).join('');
 }
-function delColor(id){
-  colors=colors.filter(c=>c.id!==id);
-  packs.forEach(p=>delete p.vars[id]);
-  renderColors(); renderPacks();
-}
-function setC(id,k,v){ const c=colors.find(c=>c.id===id); if(c){c[k]=v;render();} }
-function setVar(pid,cid,v){ const p=packs.find(p=>p.id===pid); if(p){p.vars[cid]=v;render();} }
+function addSize(){ const id=sid++; sizes.push({id,name:'M'}); colors.forEach(c=>packs.forEach(p=>{p.vars[getVarKey(c.id,id)]=''})); renderSizes();renderColors();saveState(); }
+function delSize(id){ sizes=sizes.filter(s=>s.id!==id); colors.forEach(c=>packs.forEach(p=>{delete p.vars[getVarKey(c.id,id)]})); if(sizes.length===0) colors.forEach(c=>packs.forEach(p=>{if(!(getVarKey(c.id,0) in p.vars))p.vars[getVarKey(c.id,0)]=''})); renderSizes();renderColors();saveState(); }
+function setSize(id,v){ const s=sizes.find(s=>s.id===id); if(s){s.name=v;renderColors();saveState();} }
 
 // ═══════════════════════════════════════════════
 // PACKS
 // ═══════════════════════════════════════════════
 function renderPacks(){
-  document.getElementById('packsList').innerHTML = packs.map(p=>`
+  const isOferta=formStyle==='oferta';
+  document.getElementById('packsList').innerHTML=packs.map(p=>`
     <div class="pi">
-      <div class="pi-hdr">
-        <span>Pack</span>
-        ${packs.length>1?`<button class="x" onclick="delPack(${p.id})">✕</button>`:''}
-      </div>
+      <div class="pi-hdr"><span>Pack</span>${packs.length>1?`<button class="x" onclick="delPack(${p.id})">✕</button>`:''}</div>
       <div class="grid2" style="margin-bottom:6px">
-        <div class="fl"><div class="fl-label">Etiqueta</div>
-          <input type="text" value="${p.label}" oninput="setP(${p.id},'label',this.value)">
-        </div>
-        <div class="fl"><div class="fl-label">Precio $</div>
-          <input type="number" step="0.01" value="${p.price}" oninput="setP(${p.id},'price',this.value)">
-        </div>
+        <div class="fl"><div class="fl-label">Etiqueta</div><input type="text" value="${esc(p.label)}" oninput="setP(${p.id},'label',this.value)"></div>
+        <div class="fl"><div class="fl-label">Precio $</div><input type="number" step="0.01" value="${p.price}" oninput="setP(${p.id},'price',this.value)"></div>
       </div>
-      <div class="fl"><div class="fl-label">Badge de ahorro (vacío = ocultar)</div>
-        <input type="text" value="${p.savings}" placeholder="Ej: Ahorras $9.98" oninput="setP(${p.id},'savings',this.value)">
-      </div>
+      <div class="fl"><div class="fl-label">Badge de ahorro (vacío = ocultar)</div><input type="text" value="${esc(p.savings)}" placeholder="Ej: Ahorras $9.98" oninput="setP(${p.id},'savings',this.value)"></div>
+      ${isOferta?`<div class="grid2" style="margin-bottom:6px">
+        <div class="fl"><div class="fl-label">Precio antes (tachado)</div><input type="text" value="${esc(p.precioAntes||'')}" placeholder="Ej: 59.98" oninput="setP(${p.id},'precioAntes',this.value)"></div>
+        <div class="fl"><div class="fl-label">Badge oferta</div><input type="text" value="${esc(p.ofertaBadge||'')}" placeholder="Ej: MÁS POPULAR" oninput="setP(${p.id},'ofertaBadge',this.value)"></div>
+      </div>`:''}
       <div class="pi-img-wrap">
-        <div class="fl-label">🖼 Foto del pack (URL de imagen)</div>
-        <input type="url" value="${p.img||''}" placeholder="https://... jpg / png / webp"
-               oninput="setP(${p.id},'img',this.value);updateImgPreview(${p.id},this.value)">
-        <img id="prev-${p.id}" class="pi-img-preview"
-             src="${p.img||''}" alt="preview"
-             style="${p.img?'display:block':'display:none'}"
-             onerror="this.style.display='none'">
+        <div class="fl-label">🖼 Foto del pack (URL)</div>
+        <input type="url" value="${esc(p.img||'')}" placeholder="https://..." oninput="setP(${p.id},'img',this.value);updateImgPreview(${p.id},this.value)">
+        <img id="prev-${p.id}" class="pi-img-preview" src="${esc(p.img||'')}" style="${p.img?'display:block':'display:none'}" onerror="this.style.display='none'">
       </div>
     </div>`).join('');
   renderColors();
 }
+function updateImgPreview(id,url){ const img=document.getElementById('prev-'+id); if(!img) return; if(url){img.src=url;img.style.display='block';img.onerror=()=>img.style.display='none';}else img.style.display='none'; }
+function addPack(){ const id=pid++; const vars={}; const eS=sizes.length>0?sizes:[{id:0}]; colors.forEach(c=>eS.forEach(s=>{vars[getVarKey(c.id,s.id)]=''})); packs.push({id,label:`${packs.length+1} Unidades`,price:'0.00',savings:'',ofertaBadge:'',precioAntes:'',img:'',vars}); renderPacks();saveState(); }
+function delPack(id){ packs=packs.filter(p=>p.id!==id); renderPacks();saveState(); }
+function setP(id,k,v){ const p=packs.find(p=>p.id===id); if(p){p[k]=v;} renderColors();saveState(); }
 
-function updateImgPreview(id, url){
-  const img = document.getElementById('prev-'+id);
-  if(!img) return;
-  if(url){
-    img.src = url;
-    img.style.display = 'block';
-    img.onerror = ()=>img.style.display='none';
-  } else {
-    img.style.display = 'none';
-  }
+// ═══════════════════════════════════════════════
+// CAMPOS DEL FORMULARIO
+// ═══════════════════════════════════════════════
+function renderFields(){
+  document.getElementById('fieldsList').innerHTML = fields.map((f,i)=>`
+    <div class="fi ${f.enabled?'':'fi-off'}">
+      <div class="fi-top">
+        <label class="tog" title="${f.enabled?'Ocultar campo':'Mostrar campo'}">
+          <input type="checkbox" ${f.enabled?'checked':''} onchange="setField(${i},'enabled',this.checked)">
+          <span class="tog-sl"></span>
+        </label>
+        <input class="fi-lbl" type="text" value="${esc(f.label)}" placeholder="Título del campo"
+               oninput="setFieldText(${i},'label',this.value)" title="Título visible del campo">
+        <label class="fi-req" title="Si está marcado, el campo es obligatorio">
+          <input type="checkbox" ${f.required?'checked':''} onchange="setField(${i},'required',this.checked)"> *oblig.
+        </label>
+      </div>
+      ${f.key!=='prov'&&f.key!=='city'
+        ?`<input class="fi-plc" type="text" value="${esc(f.placeholder||'')}" placeholder="Texto de ayuda dentro del campo..."
+                 oninput="setFieldText(${i},'placeholder',this.value)" title="Placeholder (texto gris dentro del campo)">`
+        :`<div class="fi-prov-note">📍 Los valores provienen de la sección Provincias y Ciudades</div>`
+      }
+    </div>`).join('');
+}
+function setField(idx, key, val){
+  fields[idx][key] = val;
+  renderFields();
+  render(); saveState();
+}
+function setFieldText(idx, key, val){
+  fields[idx][key] = val;
+  render(); saveState();
 }
 
-function addPack(){
-  const id=pid++;
-  const vars={};
-  colors.forEach(c=>vars[c.id]='');
-  packs.push({id,label:`${packs.length+1} Unidades`,price:'0.00',savings:'',img:'',vars});
-  renderPacks();
+// ═══════════════════════════════════════════════
+// PROVINCIAS Y CIUDADES
+// ═══════════════════════════════════════════════
+function renderProvincias(){
+  document.getElementById('provinciasList').innerHTML = provincias.map((p,i)=>`
+    <div class="prov-item">
+      <div class="prov-hdr" onclick="toggleProv(${i})">
+        <input class="prov-code" type="text" value="${esc(p.code)}" placeholder="Código"
+               onclick="event.stopPropagation()" oninput="setProv(${i},'code',this.value)" title="Código de provincia (ej: EC-G)">
+        <input class="prov-name" type="text" value="${esc(p.name)}" placeholder="Nombre de provincia"
+               onclick="event.stopPropagation()" oninput="setProv(${i},'name',this.value)">
+        <span style="font-size:.65rem;color:#64748b;flex-shrink:0">${p.cities.length} ciudades</span>
+        <button class="x" style="background:none;border:none;color:#ef4444;cursor:pointer;font-size:.85rem;flex-shrink:0"
+                onclick="delProvincia(${i});event.stopPropagation()">✕</button>
+        <span class="prov-arrow" id="parr-${i}">▸</span>
+      </div>
+      <div class="prov-cities" id="prov-cities-${i}" style="display:none">
+        <div class="city-chips" id="chips-${i}">${p.cities.map((c,ci)=>`
+          <span class="city-chip">${esc(c)}<button onclick="delCity(${i},${ci})" title="Eliminar">✕</button></span>`).join('')}
+          ${p.cities.length===0?'<span style="font-size:.67rem;color:#475569">Sin ciudades — agrega abajo</span>':''}
+        </div>
+        <div class="city-add">
+          <input type="text" id="new-city-${i}" placeholder="Nueva ciudad / pueblo / parroquia..."
+                 onkeydown="if(event.key==='Enter')addCity(${i})">
+          <button onclick="addCity(${i})">+ Agregar</button>
+        </div>
+      </div>
+    </div>`).join('');
 }
-function delPack(id){ packs=packs.filter(p=>p.id!==id); renderPacks(); }
-function setP(id,k,v){ const p=packs.find(p=>p.id===id); if(p){p[k]=v;} renderColors(); }
+function toggleProv(i){
+  const el=document.getElementById('prov-cities-'+i);
+  const arr=document.getElementById('parr-'+i);
+  if(!el) return;
+  const open = el.style.display==='none';
+  el.style.display=open?'block':'none';
+  if(arr) arr.textContent=open?'▾':'▸';
+}
+function setProv(i, key, val){
+  provincias[i][key] = val;
+  render(); saveState();
+}
+function delProvincia(i){
+  if(!confirm(`¿Eliminar provincia "${provincias[i].name}" con ${provincias[i].cities.length} ciudades?`)) return;
+  provincias.splice(i,1); renderProvincias(); render(); saveState();
+}
+function addProvincia(){
+  provincias.push({code:'COD',name:'Nueva Provincia',cities:[]});
+  renderProvincias(); saveState();
+  // Auto-expand the new province
+  setTimeout(()=>toggleProv(provincias.length-1), 50);
+}
+function addCity(i){
+  const input=document.getElementById('new-city-'+i);
+  const val=input.value.trim().toUpperCase();
+  if(!val) return;
+  provincias[i].cities.push(val);
+  input.value='';
+  renderProvincias();
+  // Re-expand the province that was open
+  const el=document.getElementById('prov-cities-'+i);
+  const arr=document.getElementById('parr-'+i);
+  if(el){el.style.display='block';if(arr)arr.textContent='▾';}
+  render(); saveState();
+}
+function delCity(i, ci){
+  provincias[i].cities.splice(ci,1);
+  renderProvincias();
+  // Re-expand
+  const el=document.getElementById('prov-cities-'+i);
+  const arr=document.getElementById('parr-'+i);
+  if(el){el.style.display='block';if(arr)arr.textContent='▾';}
+  render(); saveState();
+}
 
 // ═══════════════════════════════════════════════
 // GENERADOR DE HTML
 // ═══════════════════════════════════════════════
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
 function genHTML(){
-  const api      = document.getElementById('apiUrl').value;
-  const pid2     = document.getElementById('productId').value;
-  const pname    = document.getElementById('productName').value;
-  const sub      = document.getElementById('subtitle').value;
-  const badge    = document.getElementById('badge').value;
-  const btnColor = document.getElementById('btnColor').value;
-  const bgColor  = document.getElementById('bgColor').value;
-  const formBg   = document.getElementById('formBg').value;
-  const c2       = document.getElementById('oCalle2').checked;
-  const bar      = document.getElementById('oBarrio').checked;
-  const num      = document.getElementById('oNumero').checked;
-  const ced      = document.getElementById('oCedula').checked;
-  const eml      = document.getElementById('oEmail').checked;
-  const not      = document.getElementById('oNotas').checked;
+  const api    = document.getElementById('apiUrl').value;
+  const pid2   = document.getElementById('productId').value;
+  const pname  = document.getElementById('productName').value;
+  const sub    = document.getElementById('subtitle').value;
+  const badge  = document.getElementById('badge').value;
+  const btnColor   = document.getElementById('btnColor').value;
+  const bgColor    = document.getElementById('bgColor').value;
+  const formBg     = document.getElementById('formBg').value;
+  const badgeColor = document.getElementById('badgeColor')?.value || '#f59e0b';
+  const textColor  = document.getElementById('textColor')?.value  || '#374151';
   const def      = packs[0]?.price||'0.00';
+  const isOferta = formStyle==='oferta';
 
-  // Derivar color oscuro del botón para hover/gradient
-  function darken(hex, pct){
-    let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-    r=Math.max(0,Math.round(r*(1-pct)));g=Math.max(0,Math.round(g*(1-pct)));b=Math.max(0,Math.round(b*(1-pct)));
-    return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
-  }
-  const btnDark = darken(btnColor, 0.20);
+  function darken(hex,pct){ let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); r=Math.max(0,Math.round(r*(1-pct)));g=Math.max(0,Math.round(g*(1-pct)));b=Math.max(0,Math.round(b*(1-pct))); return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join(''); }
+  const btnDark=darken(btnColor,0.20);
+  function hexAlpha(hex,a){ const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); return `rgba(${r},${g},${b},${a})`; }
 
-  // hex → rgba para sombras
-  function hexAlpha(hex, a){
-    const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
-    return `rgba(${r},${g},${b},${a})`;
-  }
+  // Build CIUDADES from provincias state
+  const ciudadesObj={};
+  provincias.forEach(p=>{ ciudadesObj[p.code]=p.cities; });
 
-  // Mapa variaciones
+  // Province select options
+  const provOptions = provincias.map(p=>`<option value="${p.code}">${p.name}</option>`).join('\n        ');
+
+  // Vmap: colorId-sizeId-packId → variationId
   const vmap={};
-  packs.forEach(p=>colors.forEach(c=>{ vmap[`${c.id}-${p.id}`]=p.vars[c.id]||'0'; }));
+  const eS=sizes.length>0?sizes:[{id:0}];
+  packs.forEach(p=>colors.forEach(c=>eS.forEach(s=>{ vmap[`${c.id}-${s.id}-${p.id}`]=p.vars[getVarKey(c.id,s.id)]||'0'; })));
 
+  // Pack data for oferta summary
+  const packData={};
+  packs.forEach(p=>{ packData[p.id]={price:p.price,precioAntes:p.precioAntes||''}; });
+
+  // Field helpers
+  const fMap={};
+  fields.forEach(f=>{fMap[f.key]=f;});
+  const fEn = k => fMap[k]?.enabled!==false;
+  const fReq = k => fMap[k]?.required!==false;
+  const fLbl = k => (fMap[k]?.label||k).replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  const fPlc = k => (fMap[k]?.placeholder||'').replace(/'/g,"\\'").replace(/"/g,'&quot;');
+  const fReqStar = k => fReq(k)?' *':'';
+
+  // Color buttons
   const colBtns = colors.map((c,i)=>`
             <div class="co">
               <input type="radio" name="color" id="cl${c.id}" value="${c.id}" ${i===0?'checked':''}>
-              <label for="cl${c.id}">
-                <span class="sw" style="background:${c.hex}"></span>
-                ${c.name}
-              </label>
+              <label for="cl${c.id}"><span class="sw" style="background:${c.hex}"></span>${c.name}</label>
             </div>`).join('');
 
-  const packBtns = packs.map((p,i)=>`
+  // Talla buttons
+  const tallaBtns = sizes.length>0 ? sizes.map((s,i)=>`
+            <div class="sz">
+              <input type="radio" name="talla" id="sz${s.id}" value="${s.id}" ${i===0?'checked':''}>
+              <label for="sz${s.id}">${s.name}</label>
+            </div>`).join('') : '';
+
+  // Pack buttons clasico
+  const packBtnsClasico = packs.map((p,i)=>`
             <div class="qo">
               <input type="radio" name="pack" id="pk${p.id}" value="${p.id}" data-price="${p.price}" ${i===0?'checked':''}>
               <label for="pk${p.id}">
-                ${p.img?`<img src="${p.img}" alt="${p.label}" class="pk-img" onerror="this.style.display='none'">`:'' }
-                <span class="qu">${p.label}</span>
-                <span class="qp">$${p.price}</span>
+                ${p.img?`<img src="${p.img}" alt="${p.label}" class="pk-img" onerror="this.style.display='none'">`:''}
+                <span class="qu">${p.label}</span><span class="qp">$${p.price}</span>
                 ${p.savings?`<span class="qs">${p.savings}</span>`:''}
               </label>
             </div>`).join('');
 
-  const cols = packs.length > 2 ? 'repeat(3,1fr)' : '1fr 1fr';
+  // Pack buttons oferta
+  const packBtnsOferta = packs.map((p,i)=>`
+            <div class="qof">
+              <input type="radio" name="pack" id="pk${p.id}" value="${p.id}" data-price="${p.price}" ${i===0?'checked':''}>
+              <label for="pk${p.id}">
+                ${p.img?`<img src="${p.img}" alt="${p.label}" class="of-img" onerror="this.style.display='none'">`:`<div class="of-img-ph">📦</div>`}
+                <div class="of-info">
+                  ${p.ofertaBadge?`<span class="of-badge">${p.ofertaBadge}</span>`:''}
+                  <span class="of-label">${p.label}</span>
+                  <div class="of-prices">
+                    ${p.precioAntes?`<span class="of-antes">$${p.precioAntes}</span>`:''}
+                    <span class="of-precio">$${p.price}</span>
+                  </div>
+                  ${p.savings?`<span class="qs">${p.savings}</span>`:''}
+                </div>
+              </label>
+            </div>`).join('');
+
+  const cols = packs.length>2?'repeat(3,1fr)':'1fr 1fr';
+
+  // Dynamic form fields HTML
+  const fHTML = {
+    nombre:   fEn('nombre')   ? `<div class="fg"><label>${fLbl('nombre')}${fReqStar('nombre')}</label><input id="fn" type="text" placeholder="${fPlc('nombre')}" ${fReq('nombre')?'required':''}></div>` : '',
+    apellido: fEn('apellido') ? `<div class="fg"><label>${fLbl('apellido')}${fReqStar('apellido')}</label><input id="ln" type="text" placeholder="${fPlc('apellido')}" ${fReq('apellido')?'required':''}></div>` : '',
+    telefono: fEn('telefono') ? `<div class="fg"><label>${fLbl('telefono')}${fReqStar('telefono')}</label><input id="tel" type="tel" placeholder="${fPlc('telefono')}" ${fReq('telefono')?'required':''}></div>` : '',
+    calle1:   fEn('calle1')   ? `<div class="fg"><label>${fLbl('calle1')}${fReqStar('calle1')}</label><input id="calle1" type="text" placeholder="${fPlc('calle1')}" ${fReq('calle1')?'required':''}></div>` : '',
+    calle2:   fEn('calle2')   ? `<div class="fg"><label>${fLbl('calle2')}${fReqStar('calle2')}</label><input id="calle2" type="text" placeholder="${fPlc('calle2')}"></div>` : '',
+    barrio:   fEn('barrio')   ? `<div class="fg"><label>${fLbl('barrio')}${fReqStar('barrio')}</label><input id="barrio" type="text" placeholder="${fPlc('barrio')}"></div>` : '',
+    numero:   fEn('numero')   ? `<div class="fg"><label>${fLbl('numero')}${fReqStar('numero')}</label><input id="num" type="text" placeholder="${fPlc('numero')}"></div>` : '',
+    cedula:   fEn('cedula')   ? `<div class="fg"><label>${fLbl('cedula')}${fReqStar('cedula')}</label><input id="ced" type="text" placeholder="${fPlc('cedula')}" maxlength="10"></div>` : '',
+    email:    fEn('email')    ? `<div class="fg"><label>${fLbl('email')}${fReqStar('email')}</label><input id="eml" type="email" placeholder="${fPlc('email')}"></div>` : '',
+    notas:    fEn('notas')    ? `<div class="fg"><label>${fLbl('notas')}${fReqStar('notas')}</label><textarea id="not" placeholder="${fPlc('notas')}"></textarea></div>` : '',
+  };
+
+  // Dynamic validation for send()
+  const reqChecks = [
+    fEn('nombre')   && fReq('nombre')   ? `if(!fn)   miss.push('${fLbl('nombre')}');`   : '',
+    fEn('apellido') && fReq('apellido') ? `if(!ln)   miss.push('${fLbl('apellido')}');` : '',
+    fEn('telefono') && fReq('telefono') ? `if(!tel)  miss.push('${fLbl('telefono')}');` : '',
+    `if(!prov) miss.push('${fLbl('prov')}');`,
+    `if(!city) miss.push('${fLbl('city')}');`,
+    fEn('calle1')   && fReq('calle1')   ? `if(!c1)   miss.push('${fLbl('calle1')}');`   : '',
+    fEn('calle2')   && fReq('calle2')   ? `if(!c2v)  miss.push('${fLbl('calle2')}');`   : '',
+    fEn('barrio')   && fReq('barrio')   ? `if(!bv)   miss.push('${fLbl('barrio')}');`   : '',
+    fEn('numero')   && fReq('numero')   ? `if(!nv)   miss.push('${fLbl('numero')}');`   : '',
+    fEn('cedula')   && fReq('cedula')   ? `if(!cedv) miss.push('${fLbl('cedula')}');`   : '',
+    fEn('email')    && fReq('email')    ? `if(!emlv) miss.push('${fLbl('email')}');`     : '',
+    fEn('notas')    && fReq('notas')    ? `if(!notv) miss.push('${fLbl('notas')}');`     : '',
+  ].filter(Boolean).join('\n  ');
+
+  // Clear IDs after submit
+  const clearIds = JSON.stringify(
+    (fEn('nombre')?['fn']:[]).concat(fEn('apellido')?['ln']:[]).concat(fEn('telefono')?['tel']:[])
+    .concat(fEn('calle1')?['calle1']:[]).concat(fEn('calle2')?['calle2']:[])
+    .concat(fEn('barrio')?['barrio']:[]).concat(fEn('numero')?['num']:[])
+    .concat(fEn('cedula')?['ced']:[]).concat(fEn('email')?['eml']:[]).concat(fEn('notas')?['not']:[])
+  );
+
+  // Talla JS
+  const tallaVarJS = sizes.length>0 ? `var szEl=document.querySelector('input[name="talla"]:checked');` : `var szEl=null;`;
+  const tallaIdJS  = sizes.length>0 ? `var szId=szEl?szEl.value:'${sizes[0]?.id||0}';` : `var szId='0';`;
+
+  // Pack change JS
+  const packChangeJS = isOferta ? `
+var PACK_DATA=${JSON.stringify(packData)};
+function updateSummary(){
+  var pkEl=document.querySelector('input[name="pack"]:checked');
+  if(!pkEl) return;
+  var pd=PACK_DATA[pkEl.value], price=parseFloat(pd.price)||0, antes=parseFloat(pd.precioAntes)||0;
+  var rs=document.getElementById('resumen'); if(!rs) return;
+  rs.style.display='block';
+  document.getElementById('res-subtotal').textContent='$'+(antes>0?antes:price).toFixed(2);
+  var desc=antes>price?(antes-price):0, rowDesc=document.getElementById('res-desc-row');
+  if(desc>0){rowDesc.style.display='flex';document.getElementById('res-descuento').textContent='-$'+desc.toFixed(2);}else{rowDesc.style.display='none';}
+  document.getElementById('res-total').textContent='$'+price.toFixed(2);
+}
+document.querySelectorAll('input[name="pack"]').forEach(function(r){ r.addEventListener('change',function(){document.getElementById('totP').textContent='$'+this.dataset.price;updateSummary();}); });
+updateSummary();` : `document.querySelectorAll('input[name="pack"]').forEach(function(r){ r.addEventListener('change',function(){document.getElementById('totP').textContent='$'+this.dataset.price;}); });`;
+
+  const colorCSS=`
+.co-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.co{position:relative}.co input{position:absolute;opacity:0;width:0;height:0}
+.co label{display:flex;align-items:center;gap:8px;border:2px solid #e5e7eb;border-radius:12px;padding:9px 16px;cursor:pointer;font-size:.87rem;font-weight:600;color:${textColor};transition:.15s}
+.co input:checked+label{border-color:${btnColor};background:${hexAlpha(btnColor,.06)}}.co label:hover{border-color:${btnColor}}
+.sw{width:18px;height:18px;border-radius:50%;border:2px solid rgba(0,0,0,.12);flex-shrink:0}`;
+
+  const tallaCSS = sizes.length>0 ? `
+.sz-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
+.sz{position:relative}.sz input{position:absolute;opacity:0;width:0;height:0}
+.sz label{display:inline-flex;align-items:center;justify-content:center;min-width:48px;border:2px solid #e5e7eb;border-radius:8px;padding:8px 14px;cursor:pointer;font-size:.87rem;font-weight:700;color:#374151;transition:.15s}
+.sz input:checked+label{border-color:${btnColor};background:${hexAlpha(btnColor,.06)};color:${btnColor}}.sz label:hover{border-color:${btnColor}}` : '';
+
+  const packCSS = isOferta ? `
+.qof-wrap{display:flex;flex-direction:column;gap:10px;margin-bottom:20px}
+.qof{position:relative}.qof input{position:absolute;opacity:0;width:0;height:0}
+.qof label{display:flex;align-items:center;gap:14px;border:2px solid #e5e7eb;border-radius:14px;padding:12px 16px;cursor:pointer;transition:.15s;background:#fff}
+.qof input:checked+label{border-color:${btnColor};background:${hexAlpha(btnColor,.04)}}.qof label:hover{border-color:${btnColor}}
+.of-img{width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0}
+.of-img-ph{width:72px;height:72px;border-radius:10px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0}
+.of-info{flex:1;display:flex;flex-direction:column;gap:3px}
+.of-badge{display:inline-block;background:${badgeColor};color:#fff;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:20px;align-self:flex-start;letter-spacing:.5px}
+.of-label{font-size:.95rem;font-weight:700;color:${textColor}}
+.of-prices{display:flex;align-items:baseline;gap:8px}
+.of-antes{font-size:.85rem;color:#9ca3af;text-decoration:line-through}
+.of-precio{font-size:1.4rem;font-weight:900;color:${btnColor}}` : `
+.qo-wrap{display:grid;grid-template-columns:${cols};gap:10px;margin-bottom:20px}
+.qo{position:relative}.qo input{position:absolute;opacity:0;width:0;height:0}
+.qo label{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #e5e7eb;border-radius:14px;padding:10px 8px 14px;cursor:pointer;text-align:center;min-height:82px;transition:.15s;overflow:hidden;gap:4px}
+.qo input:checked+label{border-color:${btnColor};background:${hexAlpha(btnColor,.06)}}.qo label:hover{border-color:${btnColor}}
+.pk-img{width:100%;height:80px;object-fit:cover;border-radius:8px;margin-bottom:4px}
+.qu{font-size:.82rem;font-weight:700;color:${textColor}}.qp{font-size:1.4rem;font-weight:900;color:${btnColor}}`;
+
+  const resumenCSS = isOferta ? `
+.resumen{background:#f9fafb;border-radius:12px;padding:14px 16px;margin-bottom:16px;display:none}
+.res-row{display:flex;justify-content:space-between;font-size:.85rem;color:#6b7280;margin-bottom:6px}
+.res-row.desc{color:#16a34a;font-weight:600}
+.res-row.total{font-size:1rem;font-weight:800;color:#111827;border-top:1px solid #e5e7eb;padding-top:8px;margin-top:2px}` : '';
+
+  const resumenHTML = isOferta ? `
+  <div class="resumen" id="resumen">
+    <div class="res-row"><span>Subtotal:</span><span id="res-subtotal">$0.00</span></div>
+    <div class="res-row desc" id="res-desc-row" style="display:none"><span>Descuento:</span><span id="res-descuento">-$0.00</span></div>
+    <div class="res-row"><span style="color:#16a34a;font-weight:600">✔ Envío gratis</span><span style="color:#16a34a;font-weight:600">$0.00</span></div>
+    <div class="res-row total"><span>Total a pagar:</span><span id="res-total">$0.00</span></div>
+  </div>` : '';
 
 return `<!DOCTYPE html>
 <html lang="es">
@@ -717,131 +1104,76 @@ return `<!DOCTYPE html>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:${bgColor};color:#111827;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px}
 .wrap{background:${formBg};border-radius:24px;box-shadow:0 12px 60px rgba(0,0,0,.12);max-width:540px;width:100%;padding:36px 32px}
-/* Header */
 .fhdr{text-align:center;margin-bottom:28px}
-.bdg{display:inline-block;background:${hexAlpha(btnColor,.12)};color:${btnColor};padding:5px 16px;border-radius:50px;font-size:.75rem;font-weight:700;margin-bottom:12px}
-.fhdr h2{font-size:1.65rem;font-weight:900;margin-bottom:6px}
-.fhdr p{font-size:.87rem;color:#6b7280}
-/* Section label */
+.bdg{display:block;width:fit-content;margin:0 auto 12px;background:${hexAlpha(btnColor,.12)};color:${btnColor};padding:5px 16px;border-radius:50px;font-size:.75rem;font-weight:700}
+.fhdr h2{font-size:1.65rem;font-weight:900;margin-bottom:6px;color:${textColor}}.fhdr p{font-size:.87rem;color:#6b7280}
 .slbl{font-size:.7rem;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px}
-/* Colors */
-.co-wrap{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:20px}
-.co{position:relative}
-.co input{position:absolute;opacity:0;width:0;height:0}
-.co label{display:flex;align-items:center;gap:8px;border:2px solid #e5e7eb;border-radius:12px;padding:9px 16px;cursor:pointer;font-size:.87rem;font-weight:600;color:#374151;transition:.15s}
-.co input:checked+label{border-color:${btnColor};background:${hexAlpha(btnColor,.06)}}
-.co label:hover{border-color:${btnColor}}
-.sw{width:18px;height:18px;border-radius:50%;border:2px solid rgba(0,0,0,.12);flex-shrink:0}
-/* Packs */
-.qo-wrap{display:grid;grid-template-columns:${cols};gap:10px;margin-bottom:20px}
-.qo{position:relative}
-.qo input{position:absolute;opacity:0;width:0;height:0}
-.qo label{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #e5e7eb;border-radius:14px;padding:10px 8px 14px;cursor:pointer;text-align:center;min-height:82px;transition:.15s;overflow:hidden;gap:4px}
-.qo input:checked+label{border-color:${btnColor};background:${hexAlpha(btnColor,.06)}}
-.qo label:hover{border-color:${btnColor}}
-.pk-img{width:100%;height:80px;object-fit:cover;border-radius:8px;margin-bottom:4px}
-.qu{font-size:.82rem;font-weight:700;color:#374151}
-.qp{font-size:1.4rem;font-weight:900;color:${btnColor}}
-.qs{font-size:.7rem;font-weight:700;color:#fff;background:#f59e0b;padding:2px 8px;border-radius:20px}
-/* Divider */
+${colorCSS}${tallaCSS}${packCSS}
+.qs{display:inline-block;align-self:flex-start;font-size:.7rem;font-weight:700;color:#fff;background:${badgeColor};padding:2px 8px;border-radius:20px}
+${resumenCSS}
 .dv{border:none;border-top:1px solid #f3f4f6;margin:20px 0}
-/* Fields */
 .fg{margin-bottom:14px}
-.fg label{display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:5px}
+.fg label{display:block;font-size:.8rem;font-weight:600;color:${textColor};margin-bottom:5px}
 .fg input,.fg select,.fg textarea{width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:11px 14px;font-size:.93rem;font-family:'Inter',sans-serif;color:#111827;outline:none;transition:.2s;background:#fff}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:${btnColor};box-shadow:0 0 0 3px ${hexAlpha(btnColor,.1)}}
 .fg input::placeholder,.fg textarea::placeholder{color:#9ca3af}
 .fg select:disabled{background:#f9fafb;color:#9ca3af;cursor:not-allowed}
 .fg textarea{resize:vertical;min-height:68px}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-/* Total */
 .tot{background:linear-gradient(135deg,${hexAlpha(btnColor,.08)},${hexAlpha(btnColor,.15)});border-radius:14px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;margin:20px 0}
-.tot-l{font-size:.87rem;font-weight:600;color:#166534}
-.tot-p{font-size:1.6rem;font-weight:900;color:${btnColor}}
-/* Button */
+.tot-l{font-size:.87rem;font-weight:600;color:#166534}.tot-p{font-size:1.6rem;font-weight:900;color:${btnColor}}
 .btn{width:100%;background:linear-gradient(135deg,${btnColor},${btnDark});color:#fff;border:none;border-radius:50px;padding:16px;font-size:1.05rem;font-weight:800;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 6px 24px ${hexAlpha(btnColor,.35)};transition:.2s;letter-spacing:.3px}
 .btn:hover{box-shadow:0 10px 32px ${hexAlpha(btnColor,.5)};transform:translateY(-1px)}
 .btn:disabled{background:#9ca3af;box-shadow:none;cursor:not-allowed;transform:none}
-/* Trust */
 .trust{display:flex;justify-content:center;gap:16px;margin-top:14px;flex-wrap:wrap;font-size:.77rem;color:#6b7280}
-/* Messages */
 .msg{display:none;border-radius:12px;padding:15px 18px;margin-top:14px;font-size:.87rem;font-weight:600;text-align:center}
-.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}
-.er{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
-/* Spinner */
+.ok{background:#f0fdf4;color:#15803d;border:1px solid #bbf7d0}.er{background:#fef2f2;color:#dc2626;border:1px solid #fecaca}
 .sp{display:inline-block;width:17px;height:17px;border:2px solid rgba(255,255,255,.4);border-top-color:#fff;border-radius:50%;animation:spin .7s linear infinite;vertical-align:middle;margin-right:7px}
 @keyframes spin{to{transform:rotate(360deg)}}
-@media(max-width:480px){.wrap{padding:24px 16px}.row2{grid-template-columns:1fr}.qp{font-size:1.15rem}}
+@media(max-width:480px){.wrap{padding:24px 16px}.row2{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
 <div class="wrap">
-
   <div class="fhdr">
     <div class="bdg">${badge}</div>
     <h2>Completa tu pedido</h2>
     <p>${sub}</p>
   </div>
 
-  ${colors.length>0?`
-  <div class="slbl">Elige tu color:</div>
-  <div class="co-wrap">${colBtns}</div>`:''}
+  ${colors.length>0?`<div class="slbl">Elige tu color:</div><div class="co-wrap">${colBtns}</div>`:''}
+  ${sizes.length>0?`<div class="slbl">Elige tu talla:</div><div class="sz-wrap">${tallaBtns}</div>`:''}
 
   <div class="slbl">Elige tu pack:</div>
-  <div class="qo-wrap">${packBtns}</div>
+  ${isOferta?`<div class="qof-wrap">${packBtnsOferta}</div>`:`<div class="qo-wrap">${packBtnsClasico}</div>`}
+  ${resumenHTML}
 
   <hr class="dv">
 
-  <div class="row2">
-    <div class="fg"><label>Nombre *</label><input id="fn" type="text" placeholder="María" required></div>
-    <div class="fg"><label>Apellido *</label><input id="ln" type="text" placeholder="García" required></div>
-  </div>
-
-  <div class="fg"><label>Teléfono / WhatsApp *</label><input id="tel" type="tel" placeholder="0987654321" required></div>
+  <div class="row2">${fHTML.nombre}${fHTML.apellido}</div>
+  ${fHTML.telefono}
 
   <div class="row2">
     <div class="fg">
-      <label>Provincia *</label>
+      <label>${fLbl('prov')} *</label>
       <select id="prov" required onchange="fillC()">
         <option value="">Selecciona</option>
-        <option value="EC-A">Azuay</option>
-        <option value="EC-B">Bolívar</option>
-        <option value="EC-F">Cañar</option>
-        <option value="EC-C">Carchi</option>
-        <option value="EC-H">Chimborazo</option>
-        <option value="EC-X">Cotopaxi</option>
-        <option value="EC-O">El Oro</option>
-        <option value="EC-E">Esmeraldas</option>
-        <option value="EC-G">Guayas</option>
-        <option value="EC-I">Imbabura</option>
-        <option value="EC-L">Loja</option>
-        <option value="EC-R">Los Ríos</option>
-        <option value="EC-M">Manabí</option>
-        <option value="EC-S">Morona Santiago</option>
-        <option value="EC-N">Napo</option>
-        <option value="EC-D">Orellana</option>
-        <option value="EC-Y">Pastaza</option>
-        <option value="EC-P">Pichincha</option>
-        <option value="EC-SE">Santa Elena</option>
-        <option value="EC-SD">Santo Domingo de los Tsáchilas</option>
-        <option value="EC-U">Sucumbíos</option>
-        <option value="EC-T">Tungurahua</option>
-        <option value="EC-Z">Zamora Chinchipe</option>
+        ${provOptions}
       </select>
     </div>
     <div class="fg">
-      <label>Ciudad *</label>
+      <label>${fLbl('city')} *</label>
       <select id="city" required disabled><option value="">— primero provincia —</option></select>
     </div>
   </div>
 
-  <div class="fg"><label>Calle Principal *</label><input id="calle1" type="text" placeholder="Av. Amazonas" required></div>
-  ${c2?`<div class="fg"><label>Calle Secundaria</label><input id="calle2" type="text" placeholder="N23-45 y Veintimilla"></div>`:''}
-  ${bar?`<div class="fg"><label>Barrio / Referencia</label><input id="barrio" type="text" placeholder="Barrio El Ejido, frente al parque"></div>`:''}
-  ${num?`<div class="fg"><label>Número de casa / Dpto.</label><input id="num" type="text" placeholder="Casa 5, Dpto 2B"></div>`:''}
-  ${ced?`<div class="fg"><label>Cédula de identidad</label><input id="ced" type="text" placeholder="1712345678" maxlength="10"></div>`:''}
-  ${eml?`<div class="fg"><label>Correo electrónico</label><input id="eml" type="email" placeholder="correo@gmail.com"></div>`:''}
-  ${not?`<div class="fg"><label>Instrucciones adicionales</label><textarea id="not" placeholder="Ej: Llamar antes de entregar..."></textarea></div>`:''}
+  ${fHTML.calle1}
+  ${fHTML.calle2}
+  ${fHTML.barrio}
+  ${fHTML.numero}
+  ${fHTML.cedula}
+  ${fHTML.email}
+  ${fHTML.notas}
 
   <div class="tot">
     <span class="tot-l">Total a pagar al recibir:</span>
@@ -851,18 +1183,15 @@ body{font-family:'Inter',sans-serif;background:${bgColor};color:#111827;min-heig
   <button class="btn" id="btn" onclick="send()">🛵 REALIZAR PEDIDO — Pago al recibir</button>
 
   <div class="trust">
-    <span>✔ Envío gratis</span>
-    <span>✔ Pago al recibir</span>
-    <span>✔ Garantía 100%</span>
+    <span>✔ Envío gratis</span><span>✔ Pago al recibir</span><span>✔ Garantía 100%</span>
   </div>
 
   <div class="msg ok" id="mOk">✅ ¡Pedido realizado con éxito! Te contactaremos pronto. 🎉</div>
   <div class="msg er" id="mEr">❌ Error al procesar el pedido. Intenta de nuevo.</div>
-
 </div>
 <script>
 const API='${api}', PID=${pid2};
-const CDS=${JSON.stringify(CIUDADES)};
+const CDS=${JSON.stringify(ciudadesObj)};
 const VM=${JSON.stringify(vmap)};
 
 function fillC(){
@@ -873,40 +1202,43 @@ function fillC(){
   CDS[p].forEach(function(c){var o=document.createElement('option');o.value=c;o.textContent=c;s.appendChild(o);});
   s.disabled=false;
 }
-document.querySelectorAll('input[name="pack"]').forEach(function(r){
-  r.addEventListener('change',function(){document.getElementById('totP').textContent='$'+this.dataset.price;});
-});
+${packChangeJS}
 async function send(){
-  var fn=document.getElementById('fn').value.trim();
-  var ln=document.getElementById('ln').value.trim();
-  var tel=document.getElementById('tel').value.trim();
+  var fn=document.getElementById('fn')?document.getElementById('fn').value.trim():'';
+  var ln=document.getElementById('ln')?document.getElementById('ln').value.trim():'';
+  var tel=document.getElementById('tel')?document.getElementById('tel').value.trim():'';
   var prov=document.getElementById('prov').value;
   var city=document.getElementById('city').value;
-  var c1=document.getElementById('calle1').value.trim();
-  ${c2?"var c2v=document.getElementById('calle2').value.trim();":"var c2v='';"}
-  ${bar?"var bv=document.getElementById('barrio').value.trim();":"var bv='';"}
-  ${num?"var nv=document.getElementById('num').value.trim();":"var nv='';"}
+  var c1=document.getElementById('calle1')?document.getElementById('calle1').value.trim():'';
+  var c2v=document.getElementById('calle2')?document.getElementById('calle2').value.trim():'';
+  var bv=document.getElementById('barrio')?document.getElementById('barrio').value.trim():'';
+  var nv=document.getElementById('num')?document.getElementById('num').value.trim():'';
+  var cedv=document.getElementById('ced')?document.getElementById('ced').value.trim():'';
+  var emlv=document.getElementById('eml')?document.getElementById('eml').value.trim():'';
+  var notv=document.getElementById('not')?document.getElementById('not').value.trim():'';
   var colEl=document.querySelector('input[name="color"]:checked');
   var pkEl=document.querySelector('input[name="pack"]:checked');
-  if(!fn||!ln||!tel||!prov||!city||!c1){alert('Completa todos los campos obligatorios.');return;}
+  ${tallaVarJS}
+  var miss=[];
+  ${reqChecks}
+  if(miss.length){alert('Por favor completa: '+miss.join(', '));return;}
   var dir=c1;
-  if(c2v)dir+=' y '+c2v;
-  if(bv)dir+=', '+bv;
-  if(nv)dir+=', '+nv;
+  if(c2v)dir+=' y '+c2v; if(bv)dir+=', '+bv; if(nv)dir+=', '+nv;
   var colId=colEl?colEl.value:'${colors[0]?.id||1}';
   var pkId=pkEl?pkEl.value:'${packs[0]?.id||1}';
-  var varId=parseInt(VM[colId+'-'+pkId]||'0');
+  ${tallaIdJS}
+  var varId=parseInt(VM[colId+'-'+szId+'-'+pkId]||'0');
   var btn=document.getElementById('btn');
-  btn.disabled=true;btn.innerHTML='<span class="sp"></span>Procesando...';
+  btn.disabled=true; btn.innerHTML='<span class="sp"></span>Procesando...';
   document.getElementById('mOk').style.display='none';
   document.getElementById('mEr').style.display='none';
   try{
     var r=await fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({nombre:fn+' '+ln,telefono:tel,provincia:prov,ciudad:city,direccion:dir,product_id:PID,variation_id:varId})});
+      body:JSON.stringify({nombre:fn+' '+ln,telefono:tel,provincia:prov,ciudad:city,direccion:dir,correo:emlv,cedula:cedv,product_id:PID,variation_id:varId})});
     var d=await r.json();
     if(r.ok&&d.success){
       document.getElementById('mOk').style.display='block';
-      ['fn','ln','tel','calle1'${c2?",'calle2'":""}${bar?",'barrio'":""}${num?",'num'":""}].forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
+      ${clearIds}.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
       document.getElementById('prov').value='';
       document.getElementById('city').innerHTML='<option value="">— primero provincia —</option>';
       document.getElementById('city').disabled=true;
@@ -914,7 +1246,7 @@ async function send(){
     }else throw new Error(JSON.stringify(d));
   }catch(e){
     document.getElementById('mEr').style.display='block';
-    btn.disabled=false;btn.innerHTML='🛵 REALIZAR PEDIDO — Pago al recibir';
+    btn.disabled=false; btn.innerHTML='🛵 REALIZAR PEDIDO — Pago al recibir';
   }
 }
 <\/script>
@@ -923,26 +1255,177 @@ async function send(){
 }
 
 // ═══════════════════════════════════════════════
-// PREVIEW + DOWNLOAD
+// RENDER + DOWNLOAD
 // ═══════════════════════════════════════════════
-function render(){
-  document.getElementById('pf').srcdoc = genHTML();
-}
+function render(){ document.getElementById('pf').srcdoc = genHTML(); }
 function downloadForm(){
-  const h=genHTML();
-  const b=new Blob([h],{type:'text/html;charset=utf-8'});
-  const u=URL.createObjectURL(b);
-  const a=document.createElement('a');
-  a.href=u; a.download='formulario_pedido.html'; a.click();
+  const h=genHTML(), b=new Blob([h],{type:'text/html;charset=utf-8'}), u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download='formulario_pedido.html'; a.click();
   URL.revokeObjectURL(u);
+}
+function renderAll(){ renderSizes(); renderPacks(); renderColors(); renderFields(); renderProvincias(); render(); }
+
+// ═══════════════════════════════════════════════
+// WIZARD PRIMER USO
+// ═══════════════════════════════════════════════
+const WIZ_STEPS = [
+  {
+    icon: '🚀',
+    title: 'Bienvenido al Constructor',
+    text: 'Este constructor genera formularios de pedido listos para publicar en tu tienda. <br><br>Conéctate a WordPress para cargar las variaciones de tu producto automáticamente, ajusta el diseño y descarga el formulario en un clic.'
+  },
+  {
+    icon: '🔗',
+    title: 'Conectar tu WordPress',
+    text: 'En la sección <strong>Conexión WordPress</strong>, escribe la URL de tu tienda (ej: <code>https://vidaydetalledl.com</code>) y el ID del producto.<br><br>Luego clic en <strong>Cargar variaciones</strong>. Si hay error CORS, usa la opción de pegado manual.'
+  },
+  {
+    icon: '🎨',
+    title: 'Personalizar el formulario',
+    text: 'Ajusta colores, tallas, packs y precios en el panel izquierdo. Elige entre el estilo <strong>Clásico</strong> (swatches) o <strong>Oferta</strong> (tarjetas horizontales con precio tachado).<br><br>La vista previa se actualiza en tiempo real.'
+  },
+  {
+    icon: '⬇️',
+    title: 'Descargar y publicar',
+    text: 'Cuando el formulario se vea bien, clic en <strong>⬇ Descargar</strong>. Sube el archivo <code>.html</code> a Hostinger → <code>public_html</code>.<br><br>Tu configuración se guarda automáticamente en este navegador. ¡Todo listo!'
+  }
+];
+let wizStep = 0;
+
+function showWizStep(n){
+  const s = WIZ_STEPS[n];
+  document.getElementById('wiz-content').innerHTML =
+    `<div style="text-align:center;margin-bottom:16px;font-size:2.4rem">${s.icon}</div>
+     <div style="font-size:1rem;font-weight:700;color:#f1f5f9;margin-bottom:10px;text-align:center">${s.title}</div>
+     <div style="font-size:.85rem;color:#94a3b8;line-height:1.6;text-align:center">${s.text}</div>`;
+  document.querySelectorAll('.wiz-dot').forEach((d,i)=>d.classList.toggle('active',i===n));
+  document.getElementById('wiz-prev').style.display = n===0 ? 'none' : '';
+  document.getElementById('wiz-next').textContent = n===WIZ_STEPS.length-1 ? 'Empezar ✓' : 'Siguiente →';
+}
+
+function wizNav(dir){
+  wizStep += dir;
+  if(wizStep >= WIZ_STEPS.length) closeWizard();
+  else showWizStep(wizStep);
+}
+
+function closeWizard(){
+  document.getElementById('wizard').style.display = 'none';
+  localStorage.setItem('dropi-wizard-done','1');
+}
+
+// ═══════════════════════════════════════════════
+// MODAL AYUDA
+// ═══════════════════════════════════════════════
+const HELP_CONTENT = [
+  // Tab 0 — Configuración inicial
+  `<div class="help-section">
+    <h4>Configuración inicial (una sola vez)</h4>
+    <ol>
+      <li>Tener <strong>WordPress + WooCommerce</strong> en Hostinger.</li>
+      <li>Instalar el plugin <strong>Dropi (Dropify)</strong> y activar con tu token.</li>
+      <li>Activar <strong>Autosync</strong> en Dropify → Tokens.</li>
+      <li>Instalar <strong>WPCode Lite</strong> en WordPress.</li>
+      <li>En WPCode crear el <strong>Snippet de pedidos</strong> (ver GUIA_USUARIO.md).</li>
+      <li>En WPCode crear el <strong>Snippet de variaciones</strong> (ver GUIA_USUARIO.md).</li>
+      <li>Verificar abriendo en el navegador:<br>
+        <code>https://tu-tienda.com/wp-json/mi-tienda/v1/producto/116</code><br>
+        Debe mostrar JSON con las variaciones.</li>
+    </ol>
+    <p style="margin-top:12px;padding:10px;background:#0f172a;border-radius:8px;font-size:.78rem;color:#64748b">
+      ⚠️ El campo <strong>estado</strong> (provincia) usa códigos WooCommerce: EC-P (Pichincha), EC-G (Guayas), etc. Las ciudades deben ir en MAYÚSCULAS tal como están en Dropi.
+    </p>
+  </div>`,
+
+  // Tab 1 — Producto nuevo
+  `<div class="help-section">
+    <h4>Por cada producto nuevo</h4>
+    <ol>
+      <li>Importar el producto desde <strong>Dropi → WooCommerce</strong>.</li>
+      <li>Obtener el <strong>ID del producto</strong> en WooCommerce (se ve en la URL al editar).</li>
+      <li>Escribir la <strong>URL de tu tienda</strong> y el <strong>ID del producto</strong> arriba.</li>
+      <li>Clic en <strong>Cargar variaciones desde WordPress</strong>.<br>
+        • Si funciona: selecciona qué atributo es Color y cuál es Pack → Aplicar.<br>
+        • Si da error CORS: copia la URL, ábrela en el navegador, pega el JSON.</li>
+      <li>Ajustar <strong>precios, textos, badge y colores</strong> de diseño.</li>
+      <li>Agregar <strong>fotos</strong> a los packs si deseas (URL de imagen).</li>
+      <li>Clic en <strong>⬇ Descargar</strong>.</li>
+      <li>Subir el archivo a <strong>Hostinger → public_html</strong>.</li>
+      <li>Hacer un <strong>pedido de prueba</strong>: Pichincha → QUITO.</li>
+      <li>Verificar en <strong>WooCommerce → Pedidos</strong> que aparezca en "Procesando".</li>
+      <li>Verificar en <strong>Dropi → Pedidos</strong> que esté sincronizado.</li>
+    </ol>
+    <p style="margin-top:12px;padding:10px;background:#0f172a;border-radius:8px;font-size:.78rem;color:#64748b">
+      ✅ Tu configuración se guarda automáticamente. Usa <strong>Exportar Config</strong> para respaldarla o pasarla a otro navegador.
+    </p>
+  </div>`
+];
+
+function openHelp(){
+  document.getElementById('helpOverlay').classList.add('open');
+  helpTab(0);
+}
+
+function closeHelp(e){
+  if(!e || e.target === document.getElementById('helpOverlay')){
+    document.getElementById('helpOverlay').classList.remove('open');
+  }
+}
+
+function helpTab(n){
+  document.getElementById('htab0').classList.toggle('active', n===0);
+  document.getElementById('htab1').classList.toggle('active', n===1);
+  document.getElementById('helpBody').innerHTML = HELP_CONTENT[n];
+}
+
+// ═══════════════════════════════════════════════
+// LAYOUT: COLAPSAR PANEL CONFIG
+// ═══════════════════════════════════════════════
+function toggleCfg(){
+  const cfg = document.querySelector('.cfg');
+  const btn = document.getElementById('cfg-toggle');
+  const collapsed = cfg.classList.toggle('collapsed');
+  btn.textContent = collapsed ? '▶ Config' : '◀ Config';
+  btn.title = collapsed ? 'Expandir panel de configuración' : 'Colapsar panel de configuración';
+}
+
+// ═══════════════════════════════════════════════
+// DEVICE PREVIEW
+// ═══════════════════════════════════════════════
+function setDevice(d){
+  ['desktop','tablet','mobile'].forEach(x=>{
+    document.getElementById('dev-'+x).classList.toggle('active', x===d);
+  });
+  const wrap = document.getElementById('pv-wrap');
+  wrap.className = 'pv-wrap' + (d!=='desktop' ? ' dev-'+d : '');
+}
+
+// ═══════════════════════════════════════════════
+// PREVIEW MOBILE
+// ═══════════════════════════════════════════════
+function openPreviewModal(){
+  const m = document.getElementById('previewModal');
+  m.classList.add('open');
+  document.getElementById('pf-mobile').srcdoc = genHTML();
+}
+
+function closePreviewModal(){
+  document.getElementById('previewModal').classList.remove('open');
 }
 
 // ═══════════════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════════════
-renderColors();
-renderPacks();
-render();
+loadState();
+renderAll();
+
+// Mostrar wizard solo si es la primera vez
+if(!localStorage.getItem('dropi-wizard-done')){
+  setTimeout(()=>{
+    document.getElementById('wizard').style.display = 'flex';
+    showWizStep(0);
+  }, 400);
+}
 </script>
 </body>
 </html>

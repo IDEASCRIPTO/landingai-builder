@@ -1,0 +1,1104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Constructor Web — LandingAI Builder</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+
+/* ── Header ── */
+.hdr{background:#1e293b;padding:9px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #334155;flex-shrink:0;gap:10px}
+.hdr-left{display:flex;align-items:center;gap:10px;min-width:0}
+.hdr-back{background:transparent;color:#64748b;border:1px solid #334155;border-radius:7px;padding:5px 10px;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;transition:.15s}
+.hdr-back:hover{color:#1D9E75;border-color:#1D9E75}
+.hdr-type{background:#1D9E75;color:#fff;padding:3px 10px;border-radius:6px;font-size:.68rem;font-weight:800;white-space:nowrap}
+.hdr-name{font-size:.85rem;font-weight:700;color:#f1f5f9;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.save-ind{font-size:.67rem;color:#1D9E75;opacity:0;transition:opacity .3s;white-space:nowrap}
+.btn-sm{background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:7px;padding:6px 11px;font-size:.72rem;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn-sm:hover{border-color:#1D9E75;color:#1D9E75}
+.btn-dl{background:#1D9E75;color:#fff;border:none;border-radius:8px;padding:8px 16px;font-size:.8rem;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
+.btn-dl:hover{background:#0f7d5a}
+
+/* ── Layout ── */
+.body{display:flex;flex:1;overflow:hidden;min-height:0}
+
+/* ── Config Panel ── */
+.cfg{background:#1e293b;border-right:1px solid #334155;overflow-y:auto;padding:14px;width:380px;flex-shrink:0;transition:width .25s ease,padding .25s ease,border .25s ease}
+.cfg.collapsed{width:0;padding:0;border:none;overflow:hidden}
+.sec{background:#0f172a;border-radius:10px;padding:13px;margin-bottom:10px}
+.sec-ttl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#64748b;margin-bottom:11px;display:flex;align-items:center;gap:5px}
+.fl{margin-bottom:9px}
+.fl label,.fl-label{display:block;font-size:.71rem;color:#94a3b8;margin-bottom:3px}
+.fl input[type=text],.fl input[type=number],.fl input[type=url],.fl input[type=tel],.fl input[type=email],.fl select,.fl textarea{width:100%;background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:7px;padding:7px 10px;font-size:.82rem;font-family:inherit;outline:none;resize:vertical}
+.fl input:focus,.fl select:focus,.fl textarea:focus{border-color:#1D9E75}
+.fl textarea{min-height:60px}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+.color-row{display:flex;align-items:center;gap:8px;margin-bottom:9px}
+.color-row label{font-size:.71rem;color:#94a3b8;flex:1}
+.color-row input[type=color]{width:40px;height:28px;border:2px solid #334155;background:none;cursor:pointer;padding:0;border-radius:5px}
+.color-row .hex{width:76px;background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:6px;padding:5px 7px;font-size:.75rem;font-family:monospace;outline:none}
+.color-row .hex:focus{border-color:#1D9E75}
+
+/* Item cards (servicios, proceso, testimonios) */
+.item-card{background:#1e293b;border:1px solid #334155;border-radius:9px;padding:11px;margin-bottom:8px}
+.item-card-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px}
+.item-num{font-size:.65rem;font-weight:700;color:#1D9E75;background:rgba(29,158,117,.1);padding:2px 8px;border-radius:10px}
+.item-del{background:none;border:none;color:#475569;cursor:pointer;font-size:.8rem;padding:2px 5px;transition:.15s}
+.item-del:hover{color:#ef4444}
+.add-btn{width:100%;background:rgba(29,158,117,.08);border:1px dashed #334155;color:#1D9E75;border-radius:8px;padding:8px;font-size:.75rem;font-weight:600;cursor:pointer;transition:.15s;margin-top:4px}
+.add-btn:hover{background:rgba(29,158,117,.15);border-color:#1D9E75}
+
+/* ── AI Panel ── */
+.ai-panel{background:linear-gradient(135deg,rgba(29,158,117,.12),rgba(29,158,117,.04));border:1px solid rgba(29,158,117,.35);border-radius:12px;padding:14px;margin-bottom:12px}
+.ai-panel-ttl{font-size:.7rem;font-weight:800;color:#1D9E75;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
+.ai-panel textarea{width:100%;background:#0f172a;border:1px solid #334155;color:#f1f5f9;border-radius:8px;padding:9px 11px;font-size:.82rem;font-family:inherit;outline:none;resize:vertical;min-height:78px;line-height:1.55}
+.ai-panel textarea:focus{border-color:#1D9E75}
+.ai-panel textarea::placeholder{color:#475569}
+.ai-gen-btn{width:100%;margin-top:8px;background:linear-gradient(135deg,#1D9E75,#0f7d5a);color:#fff;border:none;border-radius:8px;padding:10px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px}
+.ai-gen-btn:hover:not(:disabled){background:linear-gradient(135deg,#0f7d5a,#065f46);transform:translateY(-1px)}
+.ai-gen-btn:disabled{opacity:.6;cursor:not-allowed}
+.ai-error{font-size:.74rem;color:#f87171;background:rgba(248,113,113,.08);border:1px solid rgba(248,113,113,.2);border-radius:7px;padding:8px 10px;margin-top:8px;display:none;line-height:1.5}
+.ai-hint{font-size:.68rem;color:#475569;margin-top:8px;line-height:1.55}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* Scrollbar */
+.cfg::-webkit-scrollbar{width:5px}
+.cfg::-webkit-scrollbar-track{background:#0f172a}
+.cfg::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
+
+/* ── Preview Panel ── */
+.pv{display:flex;flex-direction:column;background:#cbd5e1;flex:1;min-width:0}
+.pv-hdr{background:#94a3b8;padding:7px 12px;font-size:.72rem;color:#1e293b;font-weight:600;display:flex;align-items:center;gap:6px;flex-shrink:0}
+.dot{width:9px;height:9px;border-radius:50%}
+.pv-toggle{background:none;border:1px solid #64748b;color:#1e293b;border-radius:6px;padding:3px 9px;font-size:.72rem;font-weight:700;cursor:pointer;transition:.15s;margin-right:4px;flex-shrink:0}
+.pv-toggle:hover{background:#64748b;color:#fff}
+.pv-dev-btns{margin-left:auto;display:flex;gap:4px}
+.pv-dev-btn{background:none;border:1px solid #64748b;color:#334155;border-radius:6px;padding:3px 9px;font-size:.68rem;font-weight:600;cursor:pointer;transition:.15s}
+.pv-dev-btn.active{border-color:#0f7d5a;color:#0f7d5a;background:rgba(15,125,90,.1)}
+.pv-wrap{flex:1;display:flex;justify-content:center;align-items:flex-start;overflow:auto;background:linear-gradient(135deg,#e2e8f0,#cbd5e1);padding:24px 16px}
+.pv-wrap iframe{width:100%;max-width:960px;min-height:600px;border:none;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18)}
+.pv-wrap.dev-tablet{padding:16px}.pv-wrap.dev-tablet iframe{max-width:768px;border-radius:10px}
+.pv-wrap.dev-mobile{padding:16px}.pv-wrap.dev-mobile iframe{max-width:390px;border-radius:20px}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header class="hdr">
+  <div class="hdr-left">
+    <a class="hdr-back" href="../dashboard.html">← Dashboard</a>
+    <a class="hdr-back" href="index.html" style="margin-left:2px">Plantillas</a>
+    <span class="hdr-type" id="typeLabel">Web</span>
+    <span class="hdr-name" id="pageTitle">Constructor</span>
+  </div>
+  <div class="hdr-right">
+    <span class="save-ind" id="saveInd">✓ Guardado</span>
+    <button class="btn-sm" onclick="resetState()">↺ Reiniciar</button>
+    <button class="btn-dl" onclick="downloadPage()">⬇ Descargar HTML</button>
+  </div>
+</header>
+
+<div class="body">
+  <!-- CONFIG PANEL -->
+  <aside class="cfg" id="cfg">
+
+    <!-- AI GENERATION PANEL -->
+    <div class="ai-panel">
+      <div class="ai-panel-ttl">✨ Generar con IA</div>
+      <textarea id="aiDesc" placeholder="Describe tu negocio en 2-3 líneas&#10;Ej: Soy dentista en Quito, especialista en ortodoncia y blanqueamiento. Atiendo adultos y niños, precios accesibles, pago en cuotas sin intereses."></textarea>
+      <div class="ai-error" id="aiError"></div>
+      <button class="ai-gen-btn" id="aiBtn" onclick="generarConIA()">✨ Generar contenido con IA</button>
+      <div class="ai-hint">La IA crea nombre, slogan, servicios, proceso, testimonios y todos los textos de la página según tu descripción.</div>
+    </div>
+
+    <!-- NEGOCIO -->
+    <div class="sec">
+      <div class="sec-ttl">🏢 Tu Negocio</div>
+      <div class="fl"><label>Nombre del negocio</label>
+        <input type="text" id="bizName" oninput="syncTitle();render();save()">
+      </div>
+      <div class="fl"><label>Tagline / slogan</label>
+        <input type="text" id="bizTagline" oninput="render();save()">
+      </div>
+      <div class="fl"><label>Descripción breve (2-3 líneas)</label>
+        <textarea id="bizDesc" oninput="render();save()"></textarea>
+      </div>
+      <div class="fl"><label>Badge superior del formulario</label>
+        <input type="text" id="bizBadge" oninput="render();save()">
+      </div>
+    </div>
+
+    <!-- DISEÑO -->
+    <div class="sec">
+      <div class="sec-ttl">🎨 Diseño</div>
+      <div class="color-row">
+        <label>Color primario</label>
+        <input type="color" id="colorPrimary" oninput="syncHex('colorPrimary','hexPrimary');render();save()">
+        <input type="text" class="hex" id="hexPrimary" maxlength="7" oninput="syncColor('hexPrimary','colorPrimary');render();save()">
+      </div>
+      <div class="color-row">
+        <label>Color de fondo de página</label>
+        <input type="color" id="colorBg" oninput="syncHex('colorBg','hexBg');render();save()">
+        <input type="text" class="hex" id="hexBg" maxlength="7" oninput="syncColor('hexBg','colorBg');render();save()">
+      </div>
+      <div class="color-row">
+        <label>Color del hero</label>
+        <input type="color" id="colorHero" oninput="syncHex('colorHero','hexHero');render();save()">
+        <input type="text" class="hex" id="hexHero" maxlength="7" oninput="syncColor('hexHero','colorHero');render();save()">
+      </div>
+    </div>
+
+    <!-- HERO -->
+    <div class="sec">
+      <div class="sec-ttl">🚀 Sección Hero</div>
+      <div class="fl"><label>Título principal (H1)</label>
+        <input type="text" id="heroTitle" oninput="render();save()">
+      </div>
+      <div class="fl"><label>Subtítulo</label>
+        <input type="text" id="heroSub" oninput="render();save()">
+      </div>
+      <div class="fl"><label>Texto del botón CTA</label>
+        <input type="text" id="heroCta" oninput="render();save()">
+      </div>
+      <div class="fl"><label>URL imagen de fondo (opcional)</label>
+        <input type="url" id="heroImg" placeholder="https://..." oninput="render();save()">
+      </div>
+    </div>
+
+    <!-- SERVICIOS -->
+    <div class="sec">
+      <div class="sec-ttl" id="servTtl">📦 Servicios / Productos</div>
+      <div id="servList"></div>
+      <button class="add-btn" onclick="addServ()">+ Agregar item</button>
+    </div>
+
+    <!-- PROCESO -->
+    <div class="sec">
+      <div class="sec-ttl">⚙️ Proceso / Pasos</div>
+      <div id="pasosList"></div>
+    </div>
+
+    <!-- TESTIMONIOS -->
+    <div class="sec">
+      <div class="sec-ttl">⭐ Testimonios</div>
+      <div id="testiList"></div>
+      <button class="add-btn" onclick="addTesti()">+ Agregar testimonio</button>
+    </div>
+
+    <!-- CONTACTO -->
+    <div class="sec">
+      <div class="sec-ttl">📞 Contacto</div>
+      <div class="fl"><label>Teléfono</label>
+        <input type="tel" id="ctPhone" oninput="render();save()">
+      </div>
+      <div class="fl"><label>WhatsApp (número con código de país)</label>
+        <input type="tel" id="ctWa" placeholder="593987654321" oninput="render();save()">
+      </div>
+      <div class="fl"><label>Email</label>
+        <input type="email" id="ctEmail" oninput="render();save()">
+      </div>
+      <div class="fl"><label>Dirección</label>
+        <input type="text" id="ctAddr" oninput="render();save()">
+      </div>
+      <div class="fl"><label>Horario de atención</label>
+        <input type="text" id="ctHorario" placeholder="Lun-Vie 8:00-18:00" oninput="render();save()">
+      </div>
+      <div class="grid2">
+        <div class="fl"><label>Instagram</label><input type="url" id="ctIg" placeholder="https://..." oninput="render();save()"></div>
+        <div class="fl"><label>Facebook</label><input type="url" id="ctFb" placeholder="https://..." oninput="render();save()"></div>
+      </div>
+    </div>
+
+    <!-- FORMULARIO -->
+    <div class="sec">
+      <div class="sec-ttl">📋 Formulario de Contacto</div>
+      <div class="fl"><label>Título del formulario</label>
+        <input type="text" id="formTitle" oninput="render();save()">
+      </div>
+      <div class="fl"><label>Texto del botón de envío</label>
+        <input type="text" id="formBtn" oninput="render();save()">
+      </div>
+      <div class="fl"><label>Mensaje de éxito tras envío</label>
+        <input type="text" id="formSuccess" oninput="render();save()">
+      </div>
+    </div>
+
+  </aside>
+
+  <!-- PREVIEW PANEL -->
+  <main class="pv">
+    <div class="pv-hdr">
+      <button class="pv-toggle" id="cfgToggle" onclick="toggleCfg()">◀ Config</button>
+      <div class="dot" style="background:#ef4444"></div>
+      <div class="dot" style="background:#f59e0b"></div>
+      <div class="dot" style="background:#22c55e"></div>
+      <span>Vista Previa</span>
+      <div class="pv-dev-btns">
+        <button class="pv-dev-btn active" id="dev-desktop" onclick="setDevice('desktop')">🖥 Desktop</button>
+        <button class="pv-dev-btn" id="dev-tablet" onclick="setDevice('tablet')">⬛ Tablet</button>
+        <button class="pv-dev-btn" id="dev-mobile" onclick="setDevice('mobile')">📱 Móvil</button>
+      </div>
+    </div>
+    <div class="pv-wrap" id="pvWrap">
+      <iframe id="pf"></iframe>
+    </div>
+  </main>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════
+// TIPO DE PLANTILLA
+// ═══════════════════════════════════════════════
+const TYPE = new URLSearchParams(location.search).get('t') || 'servicio';
+const TYPE_META = {
+  viajes:      {label:'Agencia de Viajes', icon:'✈️', servTtl:'🗺️ Destinos / Paquetes'},
+  medico:      {label:'Médico / Clínica',  icon:'🏥', servTtl:'🩺 Especialidades / Servicios'},
+  abogado:     {label:'Abogado / Bufete',  icon:'⚖️', servTtl:'📜 Áreas Legales'},
+  inmobiliaria:{label:'Inmobiliaria',      icon:'🏠', servTtl:'🏗️ Tipos de Propiedad'},
+  automotriz:  {label:'Automotriz / Taller',icon:'🚗',servTtl:'🔧 Servicios / Catálogo'},
+  producto:    {label:'Productos / Tienda', icon:'🛍️', servTtl:'📦 Productos / Packs'},
+  servicio:    {label:'Servicios / Agencia',icon:'💼', servTtl:'⚡ Servicios'},
+};
+const meta = TYPE_META[TYPE] || TYPE_META.servicio;
+document.getElementById('typeLabel').textContent = meta.icon + ' ' + meta.label;
+document.getElementById('servTtl').textContent = meta.servTtl;
+
+// ═══════════════════════════════════════════════
+// DEFAULTS POR TIPO
+// ═══════════════════════════════════════════════
+const DEFAULTS = {
+  viajes: {
+    bizName:'TravelEcuador', bizTagline:'Explora el mundo con nosotros',
+    bizDesc:'Agencia de viajes especializada en destinos nacionales e internacionales. Más de 10 años conectando viajeros con experiencias únicas.',
+    bizBadge:'✈️ Tours todo incluido · Grupos y viajes privados',
+    colorPrimary:'#0ea5e9', colorBg:'#f0f9ff', colorHero:'#0369a1',
+    heroTitle:'Descubre destinos que cambiarán tu vida', heroSub:'Tours a Galápagos, Andes, Amazonas y más. Paquetes desde $199 con todo incluido.',
+    heroCta:'Ver Destinos', heroImg:'',
+    servs:[
+      {icon:'🏝️', title:'Galápagos', desc:'Tours exclusivos a las Islas Galápagos. Flora y fauna únicos del mundo.'},
+      {icon:'🏔️', title:'Sierra Ecuatoriana', desc:'Volcanes, mercados indígenas y paisajes andinos inolvidables.'},
+      {icon:'🌿', title:'Amazonas', desc:'Expediciones a la selva amazónica con guías especializados.'},
+      {icon:'🏖️', title:'Costa & Playas', desc:'Balnearios, surf y gastronomía costera en un solo paquete.'},
+    ],
+    pasos:[
+      {title:'Elige tu destino', desc:'Navega nuestro catálogo y encuentra el viaje perfecto para ti.'},
+      {title:'Cotiza sin compromiso', desc:'Te enviamos una propuesta personalizada en menos de 24h.'},
+      {title:'Reserva y confirma', desc:'Paga con total seguridad y recibe todos los detalles del viaje.'},
+      {title:'¡Disfruta!', desc:'Nosotros nos encargamos de todo para que solo te preocupes de vivir.'},
+    ],
+    testis:[
+      {name:'María González', cargo:'Quito', text:'Increíble experiencia en Galápagos. El equipo organizó todo perfectamente, no tuve que preocuparme de nada.'},
+      {name:'Carlos Rodríguez', cargo:'Guayaquil', text:'Ya es la tercera vez que viajo con ellos. Siempre superan mis expectativas en precio y servicio.'},
+      {name:'Ana Morales', cargo:'Cuenca', text:'El tour al Amazonas fue maravilloso. Los guías saben mucho y el alojamiento fue excelente.'},
+    ],
+    ctPhone:'+593 2 234-5678', ctWa:'593987654321', ctEmail:'info@travelecuador.com',
+    ctAddr:'Av. Amazonas N23-45, Quito', ctHorario:'Lun-Vie 9:00-18:00 · Sáb 10:00-14:00',
+    ctIg:'', ctFb:'',
+    formTitle:'Cotiza tu viaje ahora', formBtn:'Solicitar Cotización Gratis', formSuccess:'¡Gracias! Te contactaremos en menos de 24 horas con tu cotización personalizada.',
+  },
+  medico: {
+    bizName:'MediCenter', bizTagline:'Tu salud, nuestra prioridad',
+    bizDesc:'Centro médico especializado con más de 15 especialidades. Atención personalizada, tecnología de punta y médicos certificados.',
+    bizBadge:'🏥 Atención especializada · Turnos en línea · Urgencias 24/7',
+    colorPrimary:'#10b981', colorBg:'#f0fdf4', colorHero:'#047857',
+    heroTitle:'Cuida tu salud con los mejores especialistas', heroSub:'Más de 15 especialidades médicas. Turnos disponibles hoy. Sin largas esperas.',
+    heroCta:'Agendar Cita', heroImg:'',
+    servs:[
+      {icon:'🫀', title:'Cardiología', desc:'Diagnóstico y tratamiento de enfermedades del corazón con tecnología avanzada.'},
+      {icon:'🧠', title:'Neurología', desc:'Atención especializada en enfermedades del sistema nervioso.'},
+      {icon:'🦴', title:'Traumatología', desc:'Cirugía y rehabilitación de lesiones musculoesqueléticas.'},
+      {icon:'👁️', title:'Oftalmología', desc:'Revisión visual completa y cirugía refractiva con láser.'},
+    ],
+    pasos:[
+      {title:'Agenda tu cita', desc:'Llámanos o agenda online en pocos minutos.'},
+      {title:'Consulta especializada', desc:'Nuestros médicos te atienden con tiempo y dedicación.'},
+      {title:'Diagnóstico preciso', desc:'Exámenes de laboratorio e imagen en el mismo lugar.'},
+      {title:'Seguimiento continuo', desc:'Te acompañamos en todo tu proceso de recuperación.'},
+    ],
+    testis:[
+      {name:'Sofía Vargas', cargo:'Paciente', text:'Excelente atención. El Dr. me explicó todo con claridad y el diagnóstico fue muy acertado. Totalmente recomendado.'},
+      {name:'Roberto Almeida', cargo:'Paciente', text:'Las instalaciones son modernas y el personal muy amable. Conseguí turno al día siguiente sin problema.'},
+      {name:'Lucía Peña', cargo:'Paciente', text:'Llevo 3 años siendo paciente aquí. La atención siempre es de primera y los precios son accesibles.'},
+    ],
+    ctPhone:'+593 2 345-6789', ctWa:'593981234567', ctEmail:'citas@medicenter.ec',
+    ctAddr:'Av. 6 de Diciembre N45-12, Quito', ctHorario:'Lun-Vie 7:00-20:00 · Sáb 8:00-14:00',
+    ctIg:'', ctFb:'',
+    formTitle:'Agenda tu cita médica', formBtn:'Agendar Cita Ahora', formSuccess:'¡Cita recibida! Te llamaremos en breve para confirmar el horario.',
+  },
+  abogado: {
+    bizName:'Lex & Asociados', bizTagline:'Defendemos tus derechos con experiencia',
+    bizDesc:'Estudio jurídico con más de 20 años de trayectoria. Especialistas en derecho civil, corporativo, penal y laboral.',
+    bizBadge:'⚖️ Consulta inicial gratuita · 20 años de experiencia',
+    colorPrimary:'#7c3aed', colorBg:'#faf5ff', colorHero:'#4c1d95',
+    heroTitle:'Tu tranquilidad jurídica está en nuestras manos', heroSub:'Más de 500 casos resueltos exitosamente. Consulta gratuita sin compromiso.',
+    heroCta:'Consulta Gratis', heroImg:'',
+    servs:[
+      {icon:'🏢', title:'Derecho Civil', desc:'Contratos, sucesiones, divorcios y todas las materias del derecho civil.'},
+      {icon:'👔', title:'Derecho Corporativo', desc:'Constitución de empresas, fusiones, contratos comerciales y M&A.'},
+      {icon:'🛡️', title:'Defensa Penal', desc:'Representación en juicios penales con estrategia y experiencia comprobada.'},
+      {icon:'👷', title:'Derecho Laboral', desc:'Despidos, demandas laborales y asesoría a empresas en cumplimiento laboral.'},
+    ],
+    pasos:[
+      {title:'Consulta inicial gratuita', desc:'Cuéntanos tu caso. Sin costo y sin compromiso.'},
+      {title:'Análisis del caso', desc:'Estudiamos la situación jurídica y te damos un diagnóstico claro.'},
+      {title:'Estrategia legal', desc:'Diseñamos la mejor estrategia para defender tus intereses.'},
+      {title:'Resolución exitosa', desc:'Te representamos hasta obtener el mejor resultado posible.'},
+    ],
+    testis:[
+      {name:'Empresa TechEcu', cargo:'Cliente corporativo', text:'Excelente asesoría en la constitución de nuestra empresa. Proceso ágil y sin complicaciones.'},
+      {name:'Pedro Sánchez', cargo:'Cliente', text:'Me ayudaron a ganar un juicio laboral que parecía perdido. Totalmente profesionales.'},
+      {name:'Constructora Andes', cargo:'Cliente', text:'Llevamos 5 años con ellos para todos nuestros contratos. Confianza total.'},
+    ],
+    ctPhone:'+593 2 456-7890', ctWa:'593995678901', ctEmail:'consultas@lexasociados.ec',
+    ctAddr:'Av. República del Salvador N34-183, Quito', ctHorario:'Lun-Vie 9:00-18:00',
+    ctIg:'', ctFb:'',
+    formTitle:'Solicita tu consulta gratuita', formBtn:'Enviar Consulta', formSuccess:'¡Consulta recibida! Un abogado te contactará en menos de 24 horas.',
+  },
+  inmobiliaria: {
+    bizName:'Mayas Constructores', bizTagline:'Construimos el hogar de tus sueños',
+    bizDesc:'Constructora con más de 15 años en el mercado ecuatoriano. Casas y departamentos de calidad con financiamiento directo.',
+    bizBadge:'🏠 Proyectos nuevos · Financiamiento · Entrega inmediata',
+    colorPrimary:'#d97706', colorBg:'#fffbeb', colorHero:'#92400e',
+    heroTitle:'Encuentra la propiedad perfecta para tu familia', heroSub:'Casas y departamentos desde $65.000. Financiamiento hasta 20 años. Sin entrada.',
+    heroCta:'Ver Propiedades', heroImg:'',
+    servs:[
+      {icon:'🏘️', title:'Casas', desc:'Proyectos habitacionales desde 90m² con todos los acabados incluidos.'},
+      {icon:'🏢', title:'Departamentos', desc:'Departamentos modernos de 1, 2 y 3 dormitorios en sectores estratégicos.'},
+      {icon:'🏬', title:'Locales Comerciales', desc:'Locales y oficinas en los mejores sectores comerciales de la ciudad.'},
+      {icon:'🌳', title:'Terrenos', desc:'Lotes urbanizados con todos los servicios básicos disponibles.'},
+    ],
+    pasos:[
+      {title:'Elige tu proyecto', desc:'Visita nuestros proyectos disponibles y encuentra el ideal para ti.'},
+      {title:'Reserva con facilidad', desc:'Reserva tu inmueble con un mínimo de entrada asegurada.'},
+      {title:'Aprobación de crédito', desc:'Te ayudamos con todo el proceso de financiamiento bancario.'},
+      {title:'Entrega de llaves', desc:'Recibe tu nuevo hogar completamente terminado y equipado.'},
+    ],
+    testis:[
+      {name:'Familia Torres', cargo:'Propietarios', text:'Compramos nuestra primera casa con Mayas. El proceso fue transparente y la calidad superó expectativas.'},
+      {name:'Inversiones EC', cargo:'Cliente', text:'Compramos 3 departamentos como inversión. Excelente plusvalía y la constructora cumplió plazos.'},
+      {name:'Juan y Rosa Mora', cargo:'Propietarios', text:'Llevamos 2 años en nuestra casa Mayas. Sin problemas de construcción y el barrio es tranquilo.'},
+    ],
+    ctPhone:'+593 2 567-8901', ctWa:'593987890123', ctEmail:'ventas@mayas.ec',
+    ctAddr:'Av. Eloy Alfaro N56-78, Quito', ctHorario:'Lun-Sáb 9:00-18:00',
+    ctIg:'', ctFb:'',
+    formTitle:'Agenda una visita a nuestros proyectos', formBtn:'Agendar Visita', formSuccess:'¡Listo! Un asesor te contactará para coordinar la visita.',
+  },
+  automotriz: {
+    bizName:'ADAUTO Repuestos', bizTagline:'Calidad garantizada para tu vehículo',
+    bizDesc:'Distribuidores de repuestos para vehículos livianos y pesados. Más de 10.000 referencias disponibles con garantía y entrega rápida.',
+    bizBadge:'🔧 Repuestos originales · Garantía · Envío nacional',
+    colorPrimary:'#ef4444', colorBg:'#fff5f5', colorHero:'#7f1d1d',
+    heroTitle:'Repuestos de calidad para todos los vehículos', heroSub:'Más de 10.000 referencias. Marcas líderes. Entrega en 24 horas a todo el Ecuador.',
+    heroCta:'Ver Catálogo', heroImg:'',
+    servs:[
+      {icon:'⚙️', title:'Motor y Transmisión', desc:'Piezas originales para motor, caja de cambios y sistemas de transmisión.'},
+      {icon:'🛞', title:'Frenos y Suspensión', desc:'Pastillas, discos, amortiguadores y todo el sistema de frenos.'},
+      {icon:'💡', title:'Sistema Eléctrico', desc:'Baterías, alternadores, sensores y componentes electrónicos.'},
+      {icon:'🔩', title:'Carrocería y Accesorios', desc:'Espejos, luces, parachoque y accesorios de exterior e interior.'},
+    ],
+    pasos:[
+      {title:'Identifica tu repuesto', desc:'Busca por marca, modelo, año o número de parte.'},
+      {title:'Verifica compatibilidad', desc:'Nuestros asesores confirman que el repuesto es el correcto.'},
+      {title:'Haz tu pedido', desc:'Paga en línea o contra entrega con total confianza.'},
+      {title:'Recibe en 24h', desc:'Entrega a domicilio en toda la ciudad y envíos nacionales.'},
+    ],
+    testis:[
+      {name:'Taller Mecánico Norte', cargo:'Cliente frecuente', text:'Llevamos 5 años comprando aquí. Siempre tienen el repuesto disponible y los precios son justos.'},
+      {name:'Diego Castillo', cargo:'Particular', text:'Excelente atención. Me ayudaron a identificar el repuesto correcto y llegó en perfecto estado.'},
+      {name:'Transportes Andes', cargo:'Flota corporativa', text:'Manejamos una flota de 20 camiones y ADAUTO es nuestro proveedor exclusivo. Nunca nos han fallado.'},
+    ],
+    ctPhone:'+593 2 678-9012', ctWa:'593989012345', ctEmail:'ventas@adauto.ec',
+    ctAddr:'Av. Simón Bolívar Km 3.5, Quito', ctHorario:'Lun-Vie 8:00-18:00 · Sáb 8:00-13:00',
+    ctIg:'', ctFb:'',
+    formTitle:'Cotiza tu repuesto ahora', formBtn:'Solicitar Cotización', formSuccess:'¡Cotización enviada! Te respondemos en menos de 2 horas.',
+  },
+  producto: {
+    bizName:'TuProducto', bizTagline:'El producto que transforma tu vida',
+    bizDesc:'Producto natural de alta calidad con resultados comprobados. Miles de clientes satisfechos en todo Ecuador.',
+    bizBadge:'🚚 Pago al recibir · Envío gratis · Garantía 30 días',
+    colorPrimary:'#1D9E75', colorBg:'#f0fdf4', colorHero:'#064e3b',
+    heroTitle:'Transforma tu vida con nuestro producto', heroSub:'Resultados visibles en 30 días o te devolvemos tu dinero. Paga al recibir.',
+    heroCta:'Pedir Ahora', heroImg:'',
+    servs:[
+      {icon:'📦', title:'Pack x1', desc:'Ideal para probar. 1 unidad con todos los beneficios incluidos.'},
+      {icon:'📦', title:'Pack x2', desc:'El más popular. Ahorra $15 y multiplica tus resultados.'},
+      {icon:'📦', title:'Pack x3', desc:'Máximo ahorro. Perfecto para toda la familia o regalar.'},
+      {icon:'🎁', title:'Pack Especial', desc:'Incluye accesorios y guía de uso. Oferta por tiempo limitado.'},
+    ],
+    pasos:[
+      {title:'Elige tu pack', desc:'Selecciona la cantidad que mejor se adapta a tus necesidades.'},
+      {title:'Llena tus datos', desc:'Solo necesitas nombre, teléfono y dirección de entrega.'},
+      {title:'Recibe en casa', desc:'Entregamos en 2-5 días hábiles en todo el Ecuador.'},
+      {title:'Paga al recibir', desc:'Pagas solo cuando tienes el producto en tus manos.'},
+    ],
+    testis:[
+      {name:'María P.', cargo:'Quito', text:'Lo pedí con desconfianza pero lo pagué al recibirlo. Llevo 2 meses usándolo y los resultados son increíbles.'},
+      {name:'Jorge L.', cargo:'Guayaquil', text:'Me llegó rápido y en perfectas condiciones. Ya pedí el doble pack para mi esposa también.'},
+      {name:'Carmen V.', cargo:'Cuenca', text:'Excelente producto. Al principio dudé pero la garantía me convenció. No me arrepiento.'},
+    ],
+    ctPhone:'+593 99 123-4567', ctWa:'593991234567', ctEmail:'pedidos@tuproducto.ec',
+    ctAddr:'Ecuador — Envíos a todo el país', ctHorario:'Lun-Sáb 8:00-20:00',
+    ctIg:'', ctFb:'',
+    formTitle:'Haz tu pedido ahora', formBtn:'Confirmar Pedido', formSuccess:'¡Pedido recibido! Te llamamos en las próximas horas para confirmar.',
+  },
+  servicio: {
+    bizName:'Dual Legacy AIMA', bizTagline:'Automatiza tu negocio con Inteligencia Artificial',
+    bizDesc:'Agencia especializada en IA y automatización para empresas. Convertimos procesos manuales en sistemas inteligentes que trabajan 24/7.',
+    bizBadge:'🤖 IA & Automatización · Resultados en 30 días',
+    colorPrimary:'#8b5cf6', colorBg:'#faf5ff', colorHero:'#1e1b4b',
+    heroTitle:'Tu negocio necesita inteligencia artificial', heroSub:'Chatbots, automatización de procesos y analítica avanzada. Resultados medibles desde el primer mes.',
+    heroCta:'Agendar Consulta', heroImg:'',
+    servs:[
+      {icon:'🤖', title:'Chatbots con IA', desc:'Asistentes virtuales que atienden a tus clientes 24/7 en WhatsApp, web y redes sociales.'},
+      {icon:'⚡', title:'Automatización de Procesos', desc:'Eliminamos tareas repetitivas con workflows inteligentes que ahorran horas de trabajo.'},
+      {icon:'📊', title:'Analítica e Inteligencia', desc:'Dashboards y reportes automáticos para tomar decisiones basadas en datos reales.'},
+      {icon:'🔗', title:'Integraciones', desc:'Conectamos todas tus herramientas: CRM, ERP, WhatsApp, redes sociales y más.'},
+    ],
+    pasos:[
+      {title:'Diagnóstico gratuito', desc:'Analizamos tus procesos actuales e identificamos oportunidades de automatización.'},
+      {title:'Propuesta personalizada', desc:'Diseñamos una solución a medida con ROI estimado y cronograma claro.'},
+      {title:'Implementación ágil', desc:'Desarrollamos e implementamos en sprints de 2 semanas con entregables concretos.'},
+      {title:'Soporte continuo', desc:'Te acompañamos con soporte prioritario y mejoras continuas del sistema.'},
+    ],
+    testis:[
+      {name:'Empresa Logística XYZ', cargo:'CEO', text:'Automatizamos el 80% de nuestras comunicaciones con clientes. Ahorramos 40 horas semanales de trabajo manual.'},
+      {name:'Clínica MediSalud', cargo:'Directora', text:'El chatbot agenda el 60% de las citas automáticamente. Nuestro equipo ahora se enfoca en atención al paciente.'},
+      {name:'E-commerce Fashion', cargo:'Fundador', text:'Las automatizaciones de post-venta aumentaron nuestra tasa de recompra en un 35%. Increíble ROI.'},
+    ],
+    ctPhone:'+593 2 123-4567', ctWa:'593981234567', ctEmail:'hola@duallegacy.ai',
+    ctAddr:'Quito, Ecuador · Atención virtual y presencial', ctHorario:'Lun-Vie 9:00-18:00',
+    ctIg:'', ctFb:'',
+    formTitle:'Agenda tu consulta gratuita', formBtn:'Agendar Consulta Gratis', formSuccess:'¡Consulta agendada! Te contactaremos en menos de 24 horas para coordinar.',
+  },
+};
+
+// ═══════════════════════════════════════════════
+// ESTADO
+// ═══════════════════════════════════════════════
+let state = {};
+const SK = 'wc-' + TYPE;
+let _saveTimer = null;
+
+function save(){
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(()=>{
+    collectState();
+    localStorage.setItem(SK, JSON.stringify(state));
+    const ind = document.getElementById('saveInd');
+    ind.style.opacity = '1';
+    setTimeout(()=> ind.style.opacity='0', 1500);
+  }, 400);
+}
+
+function collectState(){
+  const g = id => document.getElementById(id)?.value || '';
+  state = {
+    bizName:g('bizName'), bizTagline:g('bizTagline'), bizDesc:g('bizDesc'), bizBadge:g('bizBadge'),
+    colorPrimary:g('colorPrimary'), colorBg:g('colorBg'), colorHero:g('colorHero'),
+    heroTitle:g('heroTitle'), heroSub:g('heroSub'), heroCta:g('heroCta'), heroImg:g('heroImg'),
+    servs: collectItems('serv'),
+    pasos: collectPasos(),
+    testis: collectItems('testi'),
+    ctPhone:g('ctPhone'), ctWa:g('ctWa'), ctEmail:g('ctEmail'),
+    ctAddr:g('ctAddr'), ctHorario:g('ctHorario'), ctIg:g('ctIg'), ctFb:g('ctFb'),
+    formTitle:g('formTitle'), formBtn:g('formBtn'), formSuccess:g('formSuccess'),
+  };
+}
+
+function collectItems(prefix){
+  const items = [];
+  document.querySelectorAll(`.${prefix}-item`).forEach(el=>{
+    items.push({
+      icon:  el.querySelector('.f-icon')?.value  || '',
+      title: el.querySelector('.f-title')?.value || '',
+      desc:  el.querySelector('.f-desc')?.value  || '',
+    });
+  });
+  return items;
+}
+
+function collectPasos(){
+  const items = [];
+  document.querySelectorAll('.paso-item').forEach((el,i)=>{
+    items.push({
+      title: el.querySelector('.f-title')?.value || '',
+      desc:  el.querySelector('.f-desc')?.value  || '',
+    });
+  });
+  return items;
+}
+
+function applyState(s){
+  const set = (id,v) => { const el=document.getElementById(id); if(el&&v!==undefined) el.value=v; };
+  set('bizName',s.bizName); set('bizTagline',s.bizTagline);
+  set('bizDesc',s.bizDesc); set('bizBadge',s.bizBadge);
+  set('colorPrimary',s.colorPrimary); set('hexPrimary',s.colorPrimary);
+  set('colorBg',s.colorBg);           set('hexBg',s.colorBg);
+  set('colorHero',s.colorHero);       set('hexHero',s.colorHero);
+  set('heroTitle',s.heroTitle); set('heroSub',s.heroSub);
+  set('heroCta',s.heroCta);    set('heroImg',s.heroImg);
+  set('ctPhone',s.ctPhone); set('ctWa',s.ctWa); set('ctEmail',s.ctEmail);
+  set('ctAddr',s.ctAddr);   set('ctHorario',s.ctHorario);
+  set('ctIg',s.ctIg);       set('ctFb',s.ctFb);
+  set('formTitle',s.formTitle); set('formBtn',s.formBtn); set('formSuccess',s.formSuccess);
+  renderServs(s.servs||[]); renderPasos(s.pasos||[]); renderTestis(s.testis||[]);
+  syncTitle();
+}
+
+function resetState(){
+  if(!confirm('¿Reiniciar con los valores por defecto de esta plantilla?')) return;
+  localStorage.removeItem(SK);
+  init();
+}
+
+// ═══════════════════════════════════════════════
+// RENDER ITEMS DINÁMICOS
+// ═══════════════════════════════════════════════
+function esc(s){ return String(s||'').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+function renderServs(items){
+  document.getElementById('servList').innerHTML = items.map((s,i)=>`
+    <div class="item-card serv-item">
+      <div class="item-card-hdr">
+        <span class="item-num">Item ${i+1}</span>
+        <button class="item-del" onclick="delServ(${i})">✕</button>
+      </div>
+      <div class="fl"><div class="fl-label">Ícono (emoji)</div>
+        <input type="text" class="f-icon" value="${esc(s.icon)}" placeholder="🏝️" oninput="render();save()">
+      </div>
+      <div class="fl"><div class="fl-label">Título</div>
+        <input type="text" class="f-title" value="${esc(s.title)}" oninput="render();save()">
+      </div>
+      <div class="fl"><div class="fl-label">Descripción</div>
+        <textarea class="f-desc" oninput="render();save()">${esc(s.desc)}</textarea>
+      </div>
+    </div>`).join('');
+}
+
+function renderPasos(items){
+  document.getElementById('pasosList').innerHTML = items.map((p,i)=>`
+    <div class="item-card paso-item">
+      <div class="item-card-hdr">
+        <span class="item-num">Paso ${i+1}</span>
+      </div>
+      <div class="fl"><div class="fl-label">Título del paso</div>
+        <input type="text" class="f-title" value="${esc(p.title)}" oninput="render();save()">
+      </div>
+      <div class="fl"><div class="fl-label">Descripción</div>
+        <textarea class="f-desc" oninput="render();save()">${esc(p.desc)}</textarea>
+      </div>
+    </div>`).join('');
+}
+
+function renderTestis(items){
+  document.getElementById('testiList').innerHTML = items.map((t,i)=>`
+    <div class="item-card testi-item">
+      <div class="item-card-hdr">
+        <span class="item-num">Testimonio ${i+1}</span>
+        <button class="item-del" onclick="delTesti(${i})">✕</button>
+      </div>
+      <div class="grid2">
+        <div class="fl"><div class="fl-label">Nombre</div>
+          <input type="text" class="f-title" value="${esc(t.name||t.title||'')}" oninput="render();save()">
+        </div>
+        <div class="fl"><div class="fl-label">Cargo / Ciudad</div>
+          <input type="text" class="f-icon" value="${esc(t.cargo||t.icon||'')}" oninput="render();save()">
+        </div>
+      </div>
+      <div class="fl"><div class="fl-label">Testimonio</div>
+        <textarea class="f-desc" oninput="render();save()">${esc(t.text||t.desc||'')}</textarea>
+      </div>
+    </div>`).join('');
+}
+
+function addServ(){
+  collectState();
+  state.servs.push({icon:'⭐', title:'Nuevo servicio', desc:'Descripción del servicio.'});
+  renderServs(state.servs); render(); save();
+}
+function delServ(i){
+  collectState(); state.servs.splice(i,1); renderServs(state.servs); render(); save();
+}
+function addTesti(){
+  collectState();
+  state.testis.push({title:'Nuevo Cliente', icon:'Ciudad', desc:'Excelente servicio, totalmente recomendado.'});
+  renderTestis(state.testis); render(); save();
+}
+function delTesti(i){
+  collectState(); state.testis.splice(i,1); renderTestis(state.testis); render(); save();
+}
+
+// ═══════════════════════════════════════════════
+// COLOR HELPERS
+// ═══════════════════════════════════════════════
+function syncHex(cId, hId){ document.getElementById(hId).value = document.getElementById(cId).value; }
+function syncColor(hId, cId){
+  const v = document.getElementById(hId).value;
+  if(/^#[0-9A-Fa-f]{6}$/.test(v)) document.getElementById(cId).value = v;
+}
+function hexAlpha(hex, a){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `rgba(${r},${g},${b},${a})`;
+}
+function darken(hex, p){
+  let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  r=Math.max(0,Math.round(r*(1-p)));g=Math.max(0,Math.round(g*(1-p)));b=Math.max(0,Math.round(b*(1-p)));
+  return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
+}
+
+function syncTitle(){
+  const n = document.getElementById('bizName').value;
+  document.getElementById('pageTitle').textContent = n || 'Constructor';
+}
+
+// ═══════════════════════════════════════════════
+// GENERATE HTML
+// ═══════════════════════════════════════════════
+function genHTML(){
+  collectState();
+  const s = state;
+  const p = s.colorPrimary || '#1D9E75';
+  const bg = s.colorBg || '#f8fafc';
+  const hero = s.colorHero || darken(p, .3);
+  const pd = darken(p, .15);
+  const servItems = (s.servs||[]).map((sv,i)=>`
+    <div class="card" data-reveal style="--delay:${i*.1}s">
+      <div class="card-icon">${sv.icon||'⭐'}</div>
+      <h3>${sv.title||''}</h3>
+      <p>${sv.desc||''}</p>
+    </div>`).join('');
+  const pasoItems = (s.pasos||[]).map((ps,i)=>`
+    <div class="step" data-reveal style="--delay:${i*.12}s">
+      <div class="step-num">${i+1}</div>
+      <h4>${ps.title||''}</h4>
+      <p>${ps.desc||''}</p>
+    </div>`).join('');
+  const testiItems = (s.testis||[]).map(t=>`
+    <div class="testi-card" data-reveal>
+      <div class="stars">★★★★★</div>
+      <p class="testi-text">"${t.text||t.desc||''}"</p>
+      <div class="testi-author">
+        <div class="testi-avatar">${(t.name||t.title||'?')[0]}</div>
+        <div><strong>${t.name||t.title||''}</strong><span>${t.cargo||t.icon||''}</span></div>
+      </div>
+    </div>`).join('');
+  const waLink = s.ctWa ? `https://wa.me/${s.ctWa.replace(/\D/g,'')}` : '#';
+
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${s.bizName||'Mi Negocio'} — ${s.bizTagline||''}</title>
+<meta name="description" content="${s.bizDesc||''}">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{--p:${p};--pd:${pd};--hero:${hero};--bg:${bg};--r:14px;--tr:.35s cubic-bezier(.4,0,.2,1)}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:#1f2937}
+a{color:var(--p);text-decoration:none}
+img{max-width:100%;display:block}
+.container{max-width:1140px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+.section{padding:clamp(56px,8vw,96px) 0}
+.section-alt{background:#fff}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(255,255,255,.95);backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,0,0,.08);transition:var(--tr)}
+nav.scrolled{box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:66px}
+.nav-logo{font-size:1.1rem;font-weight:900;color:#0f172a}
+.nav-logo span{color:var(--p)}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{font-size:.875rem;font-weight:500;color:#475569;transition:color var(--tr)}
+.nav-links a:hover{color:var(--p)}
+.nav-cta{background:var(--p);color:#fff!important;padding:9px 20px;border-radius:50px;font-weight:700!important;font-size:.85rem!important;transition:background var(--tr)!important}
+.nav-cta:hover{background:var(--pd)!important}
+.nav-burger{display:none;background:none;border:none;cursor:pointer;padding:4px}
+.nav-mobile{display:none;position:fixed;top:66px;left:0;right:0;background:#fff;border-bottom:1px solid #e5e7eb;padding:16px 20px;flex-direction:column;gap:12px;z-index:998}
+.nav-mobile.open{display:flex}
+.nav-mobile a{font-size:.95rem;font-weight:500;color:#374151;padding:8px 0;border-bottom:1px solid #f3f4f6}
+
+/* HERO */
+#hero{min-height:100vh;background:linear-gradient(135deg,var(--hero),var(--p));display:flex;align-items:center;padding-top:66px;position:relative;overflow:hidden}
+#hero::before{content:'';position:absolute;inset:0;background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")}
+${s.heroImg ? `#hero{background:linear-gradient(135deg,${hero}dd,${p}cc),url('${s.heroImg}') center/cover no-repeat}` : ''}
+.hero-content{max-width:680px;padding:60px 0}
+.hero-badge{display:inline-block;background:rgba(255,255,255,.2);border:1px solid rgba(255,255,255,.3);color:#fff;padding:6px 16px;border-radius:50px;font-size:.78rem;font-weight:700;margin-bottom:20px;backdrop-filter:blur(8px)}
+.hero-content h1{font-size:clamp(2rem,5vw,3.2rem);font-weight:900;color:#fff;line-height:1.12;margin-bottom:18px}
+.hero-content p{font-size:clamp(.95rem,2vw,1.1rem);color:rgba(255,255,255,.85);line-height:1.7;margin-bottom:32px;max-width:520px}
+.hero-btns{display:flex;gap:14px;flex-wrap:wrap}
+.btn-primary{background:#fff;color:var(--p);padding:14px 28px;border-radius:50px;font-weight:800;font-size:.95rem;transition:var(--tr);display:inline-flex;align-items:center;gap:8px;white-space:nowrap}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2);color:var(--pd)}
+.btn-secondary{background:rgba(255,255,255,.15);color:#fff;padding:14px 28px;border-radius:50px;font-weight:700;font-size:.95rem;border:2px solid rgba(255,255,255,.4);transition:var(--tr);white-space:nowrap}
+.btn-secondary:hover{background:rgba(255,255,255,.25)}
+
+/* SERVICES */
+.section-header{text-align:center;margin-bottom:clamp(32px,5vw,56px)}
+.section-tag{display:inline-block;background:${hexAlpha(p,.1)};color:var(--p);padding:5px 16px;border-radius:50px;font-size:.75rem;font-weight:700;margin-bottom:12px}
+.section-header h2{font-size:clamp(1.6rem,3.5vw,2.3rem);font-weight:900;color:#0f172a;margin-bottom:12px}
+.section-header p{font-size:.97rem;color:#6b7280;max-width:540px;margin:0 auto;line-height:1.7}
+.cards-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:24px}
+.card{background:#fff;border-radius:var(--r);padding:28px 24px;border:1px solid #f1f5f9;transition:var(--tr);box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.card:hover{transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,0,0,.1);border-color:${hexAlpha(p,.2)}}
+.card-icon{font-size:2.2rem;margin-bottom:16px}
+.card h3{font-size:1.05rem;font-weight:800;color:#0f172a;margin-bottom:8px}
+.card p{font-size:.88rem;color:#6b7280;line-height:1.65}
+
+/* PROCESS */
+.steps-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:0;position:relative}
+.steps-grid::before{content:'';position:absolute;top:36px;left:10%;right:10%;height:2px;background:linear-gradient(90deg,var(--p),${hexAlpha(p,.2)});z-index:0}
+.step{text-align:center;padding:20px 16px;position:relative;z-index:1}
+.step-num{width:72px;height:72px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-size:1.5rem;font-weight:900;display:flex;align-items:center;justify-content:center;margin:0 auto 16px;box-shadow:0 6px 20px ${hexAlpha(p,.3)}}
+.step h4{font-size:1rem;font-weight:800;color:#0f172a;margin-bottom:8px}
+.step p{font-size:.85rem;color:#6b7280;line-height:1.6}
+
+/* TESTIMONIALS */
+.testi-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.testi-card{background:#fff;border-radius:var(--r);padding:28px;border:1px solid #f1f5f9;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+.stars{color:#f59e0b;font-size:1rem;margin-bottom:12px}
+.testi-text{font-size:.92rem;color:#374151;line-height:1.7;margin-bottom:18px;font-style:italic}
+.testi-author{display:flex;align-items:center;gap:12px}
+.testi-avatar{width:40px;height:40px;border-radius:50%;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;font-weight:800;font-size:1rem;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.testi-author strong{display:block;font-size:.88rem;font-weight:700;color:#0f172a}
+.testi-author span{font-size:.78rem;color:#9ca3af}
+
+/* CTA BANNER */
+.cta-banner{background:linear-gradient(135deg,var(--hero),var(--p));border-radius:24px;padding:clamp(32px,6vw,56px);text-align:center;color:#fff}
+.cta-banner h2{font-size:clamp(1.5rem,3vw,2.1rem);font-weight:900;margin-bottom:12px}
+.cta-banner p{font-size:.97rem;opacity:.9;margin-bottom:28px;line-height:1.6}
+.cta-banner .btn-white{background:#fff;color:var(--p);padding:14px 32px;border-radius:50px;font-weight:800;font-size:.97rem;transition:var(--tr);display:inline-block}
+.cta-banner .btn-white:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,0,0,.2)}
+
+/* CONTACT FORM */
+.contact-wrap{display:grid;grid-template-columns:1fr 1.2fr;gap:48px;align-items:start}
+.contact-info h3{font-size:1.4rem;font-weight:900;color:#0f172a;margin-bottom:20px}
+.contact-item{display:flex;align-items:flex-start;gap:14px;margin-bottom:18px}
+.contact-item-icon{width:40px;height:40px;border-radius:10px;background:${hexAlpha(p,.1)};color:var(--p);display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
+.contact-item-text strong{display:block;font-size:.85rem;font-weight:700;color:#0f172a;margin-bottom:2px}
+.contact-item-text span{font-size:.85rem;color:#6b7280}
+.form-card{background:#fff;border-radius:20px;padding:36px;box-shadow:0 4px 24px rgba(0,0,0,.08)}
+.form-title{font-size:1.2rem;font-weight:800;color:#0f172a;margin-bottom:6px}
+.form-sub{font-size:.83rem;color:#9ca3af;margin-bottom:24px}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:.8rem;font-weight:600;color:#374151;margin-bottom:5px}
+.fg input,.fg select,.fg textarea{width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:11px 14px;font-size:.9rem;font-family:'Inter',sans-serif;color:#111827;outline:none;transition:var(--tr);background:#fff}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--p);box-shadow:0 0 0 3px ${hexAlpha(p,.1)}}
+.fg input::placeholder,.fg textarea::placeholder{color:#9ca3af}
+.fg textarea{resize:vertical;min-height:80px}
+.fg.full{grid-column:1/-1}
+.btn-submit{width:100%;background:linear-gradient(135deg,var(--p),var(--pd));color:#fff;border:none;border-radius:50px;padding:15px;font-size:.97rem;font-weight:800;font-family:'Inter',sans-serif;cursor:pointer;transition:var(--tr);margin-top:4px}
+.btn-submit:hover{transform:translateY(-2px);box-shadow:0 8px 24px ${hexAlpha(p,.35)}}
+.form-ok{display:none;text-align:center;padding:24px 0}
+.form-ok .ok-icon{font-size:2.5rem;margin-bottom:12px}
+.form-ok h4{font-size:1.1rem;font-weight:800;color:#0f172a;margin-bottom:8px}
+.form-ok p{font-size:.88rem;color:#6b7280;line-height:1.6}
+
+/* FOOTER */
+footer{background:#0f172a;color:#94a3b8;padding:32px 0}
+.footer-inner{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px}
+.footer-logo{font-size:1rem;font-weight:800;color:#f1f5f9}
+.footer-logo span{color:var(--p)}
+.footer-links{display:flex;gap:20px;flex-wrap:wrap}
+.footer-links a{font-size:.82rem;color:#64748b;transition:color var(--tr)}
+.footer-links a:hover{color:var(--p)}
+.footer-copy{font-size:.75rem;color:#334155;width:100%;text-align:center;margin-top:16px;padding-top:16px;border-top:1px solid #1e293b}
+.wa-float{position:fixed;bottom:24px;right:24px;width:52px;height:52px;background:#25d366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(37,211,102,.4);z-index:900;transition:var(--tr)}
+.wa-float:hover{transform:scale(1.1)}
+.wa-float svg{width:28px;height:28px;fill:#fff}
+
+/* ANIMATIONS */
+[data-reveal]{opacity:0;transform:translateY(28px);transition:opacity .65s ease,transform .65s ease;transition-delay:var(--delay,0s)}
+[data-reveal].visible{opacity:1;transform:none}
+
+/* RESPONSIVE */
+@media(max-width:768px){
+  .contact-wrap{grid-template-columns:1fr}
+  .steps-grid::before{display:none}
+  .form-row{grid-template-columns:1fr}
+  .nav-links{display:none}
+  .nav-burger{display:block}
+  .footer-inner{flex-direction:column;text-align:center}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav id="mainNav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="#" class="nav-logo">${s.bizName?.split(' ')[0]||'Logo'}<span>${s.bizName?.split(' ').slice(1).join(' ')||''}</span></a>
+      <div class="nav-links">
+        <a href="#servicios">Servicios</a>
+        <a href="#proceso">Proceso</a>
+        <a href="#testimonios">Testimonios</a>
+        <a href="#contacto" class="nav-cta">${s.heroCta||'Contactar'}</a>
+      </div>
+      <button class="nav-burger" onclick="toggleMenu()" aria-label="Menú">
+        <svg width="24" height="24" fill="none" stroke="#374151" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+<div class="nav-mobile" id="navMobile">
+  <a href="#servicios" onclick="toggleMenu()">Servicios</a>
+  <a href="#proceso" onclick="toggleMenu()">Proceso</a>
+  <a href="#testimonios" onclick="toggleMenu()">Testimonios</a>
+  <a href="#contacto" onclick="toggleMenu()">${s.heroCta||'Contactar'}</a>
+</div>
+
+<!-- HERO -->
+<section id="hero">
+  <div class="container">
+    <div class="hero-content" data-reveal>
+      ${s.bizBadge ? `<div class="hero-badge">${s.bizBadge}</div>` : ''}
+      <h1>${s.heroTitle||s.bizTagline||''}</h1>
+      <p>${s.heroSub||s.bizDesc||''}</p>
+      <div class="hero-btns">
+        <a href="#contacto" class="btn-primary">${s.heroCta||'Contactar'} →</a>
+        ${s.ctWa ? `<a href="${waLink}" target="_blank" class="btn-secondary">💬 WhatsApp</a>` : ''}
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SERVICIOS -->
+<section class="section section-alt" id="servicios">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <span class="section-tag">${meta.servTtl}</span>
+      <h2>Todo lo que necesitas en un solo lugar</h2>
+      <p>${s.bizDesc||''}</p>
+    </div>
+    <div class="cards-grid">${servItems}</div>
+  </div>
+</section>
+
+<!-- PROCESO -->
+<section class="section" id="proceso">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <span class="section-tag">⚙️ ¿Cómo funciona?</span>
+      <h2>Proceso simple y transparente</h2>
+      <p>Te acompañamos en cada paso del camino.</p>
+    </div>
+    <div class="steps-grid">${pasoItems}</div>
+  </div>
+</section>
+
+<!-- TESTIMONIOS -->
+<section class="section section-alt" id="testimonios">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <span class="section-tag">⭐ Lo que dicen nuestros clientes</span>
+      <h2>Más de 500 clientes satisfechos</h2>
+      <p>La confianza de nuestros clientes es nuestro mayor logro.</p>
+    </div>
+    <div class="testi-grid">${testiItems}</div>
+  </div>
+</section>
+
+<!-- CTA BANNER -->
+<section class="section">
+  <div class="container">
+    <div class="cta-banner" data-reveal>
+      <h2>¿Listo para empezar?</h2>
+      <p>${s.bizTagline||'Contáctanos hoy y recibe atención personalizada.'}</p>
+      <a href="#contacto" class="btn-white">${s.heroCta||'Contactar'} →</a>
+    </div>
+  </div>
+</section>
+
+<!-- CONTACTO -->
+<section class="section section-alt" id="contacto">
+  <div class="container">
+    <div class="section-header" data-reveal>
+      <span class="section-tag">📞 Contáctanos</span>
+      <h2>Estamos aquí para ayudarte</h2>
+    </div>
+    <div class="contact-wrap">
+      <div class="contact-info" data-reveal>
+        <h3>${s.bizName||''}</h3>
+        ${s.ctPhone ? `<div class="contact-item"><div class="contact-item-icon">📞</div><div class="contact-item-text"><strong>Teléfono</strong><span>${s.ctPhone}</span></div></div>` : ''}
+        ${s.ctEmail ? `<div class="contact-item"><div class="contact-item-icon">✉️</div><div class="contact-item-text"><strong>Email</strong><span>${s.ctEmail}</span></div></div>` : ''}
+        ${s.ctAddr  ? `<div class="contact-item"><div class="contact-item-icon">📍</div><div class="contact-item-text"><strong>Dirección</strong><span>${s.ctAddr}</span></div></div>` : ''}
+        ${s.ctHorario ? `<div class="contact-item"><div class="contact-item-icon">🕐</div><div class="contact-item-text"><strong>Horario</strong><span>${s.ctHorario}</span></div></div>` : ''}
+      </div>
+      <div data-reveal style="--delay:.15s">
+        <div class="form-card">
+          <div class="form-title">${s.formTitle||'Contáctanos'}</div>
+          <div class="form-sub">Te respondemos en menos de 24 horas.</div>
+          <form id="cf" onsubmit="submitForm(event)">
+            <div class="form-row">
+              <div class="fg"><label>Nombre completo</label><input type="text" id="fn" required placeholder="Tu nombre"></div>
+              <div class="fg"><label>Teléfono</label><input type="tel" id="ft" required placeholder="0987654321"></div>
+              <div class="fg"><label>Email</label><input type="email" id="fe" required placeholder="tu@email.com"></div>
+              <div class="fg"><label>Asunto</label><input type="text" id="fa" placeholder="¿En qué podemos ayudarte?"></div>
+              <div class="fg full"><label>Mensaje</label><textarea id="fm" placeholder="Cuéntanos más..."></textarea></div>
+            </div>
+            <button type="submit" class="btn-submit">${s.formBtn||'Enviar Mensaje'} →</button>
+          </form>
+          <div class="form-ok" id="fok">
+            <div class="ok-icon">✅</div>
+            <h4>¡Mensaje enviado!</h4>
+            <p>${s.formSuccess||'Te contactaremos pronto.'}</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="container">
+    <div class="footer-inner">
+      <div class="footer-logo">${s.bizName?.split(' ')[0]||'Logo'}<span>${s.bizName?.split(' ').slice(1).join(' ')||''}</span></div>
+      <div class="footer-links">
+        <a href="#servicios">Servicios</a>
+        <a href="#proceso">Proceso</a>
+        <a href="#testimonios">Testimonios</a>
+        <a href="#contacto">Contacto</a>
+        ${s.ctIg ? `<a href="${s.ctIg}" target="_blank">Instagram</a>` : ''}
+        ${s.ctFb ? `<a href="${s.ctFb}" target="_blank">Facebook</a>` : ''}
+      </div>
+    </div>
+    <div class="footer-copy">© ${new Date().getFullYear()} ${s.bizName||'Mi Negocio'}. Todos los derechos reservados.</div>
+  </div>
+</footer>
+
+${s.ctWa ? `<a href="${waLink}" target="_blank" class="wa-float" title="WhatsApp"><svg viewBox="0 0 24 24"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg></a>` : ''}
+
+<script>
+// Nav scroll
+window.addEventListener('scroll',function(){document.getElementById('mainNav').classList.toggle('scrolled',scrollY>50)});
+// Mobile menu
+function toggleMenu(){document.getElementById('navMobile').classList.toggle('open')}
+// Form
+function submitForm(e){
+  e.preventDefault();
+  document.getElementById('cf').style.display='none';
+  document.getElementById('fok').style.display='block';
+}
+// Animations
+var io=new IntersectionObserver(function(entries){
+  entries.forEach(function(en){if(en.isIntersecting){en.target.classList.add('visible');io.unobserve(en.target);}});
+},{threshold:0.1,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('[data-reveal]').forEach(function(el){io.observe(el);});
+setTimeout(function(){document.querySelectorAll('[data-reveal]').forEach(function(el){el.classList.add('visible');});},1200);
+<\/script>
+</body>
+</html>`;
+}
+
+// ═══════════════════════════════════════════════
+// RENDER & DOWNLOAD
+// ═══════════════════════════════════════════════
+function render(){
+  document.getElementById('pf').srcdoc = genHTML();
+}
+function downloadPage(){
+  const h=genHTML(), b=new Blob([h],{type:'text/html;charset=utf-8'}), u=URL.createObjectURL(b);
+  const a=document.createElement('a');
+  a.href=u;
+  const name=(document.getElementById('bizName').value||'pagina').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
+  a.download=name+'.html';
+  a.click(); URL.revokeObjectURL(u);
+}
+
+// ═══════════════════════════════════════════════
+// DEVICE / LAYOUT
+// ═══════════════════════════════════════════════
+function setDevice(d){
+  ['desktop','tablet','mobile'].forEach(x=>document.getElementById('dev-'+x).classList.toggle('active',x===d));
+  document.getElementById('pvWrap').className='pv-wrap'+(d!=='desktop'?' dev-'+d:'');
+}
+function toggleCfg(){
+  const cfg=document.getElementById('cfg'), btn=document.getElementById('cfgToggle');
+  const col=cfg.classList.toggle('collapsed');
+  btn.textContent=col?'▶ Config':'◀ Config';
+}
+
+// ═══════════════════════════════════════════════
+// AI GENERATION
+// ═══════════════════════════════════════════════
+function getSupabaseToken(){
+  try{
+    const raw = localStorage.getItem('sb-jsrbfuwjkqwzhjdsbicg-auth-token');
+    if(!raw) return null;
+    const p = JSON.parse(raw);
+    return p?.access_token || p?.currentSession?.access_token || null;
+  }catch(e){ return null; }
+}
+
+async function generarConIA(){
+  const desc = document.getElementById('aiDesc').value.trim();
+  if(!desc){ alert('Escribe una descripción de tu negocio primero.'); return; }
+
+  const token = getSupabaseToken();
+  const errEl = document.getElementById('aiError');
+  if(!token){
+    errEl.textContent = '⚠️ Debes iniciar sesión en LandingAI Builder para usar la IA. Abre la app principal primero.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  const btn = document.getElementById('aiBtn');
+  btn.disabled = true;
+  btn.innerHTML = '<span style="display:inline-block;animation:spin 1s linear infinite">⏳</span> Generando...';
+  errEl.style.display = 'none';
+
+  try{
+    const res = await fetch('../proxy.php', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({accion:'generar_web', descripcion:desc, tipo:TYPE, _auth_token:token})
+    });
+    const json = await res.json();
+
+    if(!json.success){
+      errEl.textContent = '❌ ' + (json.error || 'Error al generar. Intenta de nuevo.');
+      errEl.style.display = 'block';
+      return;
+    }
+
+    // Merge con defaults del tipo (para mantener los colores)
+    const base = DEFAULTS[TYPE] || DEFAULTS.servicio;
+    applyState({...base, ...json.data});
+    render(); save();
+    // Bajar al área de configuración para ver el resultado
+    document.getElementById('cfg').scrollTop = 220;
+
+  }catch(e){
+    errEl.textContent = '❌ Error de conexión: ' + e.message;
+    errEl.style.display = 'block';
+  }finally{
+    btn.disabled = false;
+    btn.innerHTML = '✨ Generar contenido con IA';
+  }
+}
+
+// ═══════════════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════════════
+function init(){
+  const saved = localStorage.getItem(SK);
+  const d = saved ? JSON.parse(saved) : DEFAULTS[TYPE] || DEFAULTS.servicio;
+  // Map saved testis (may have name/cargo fields from old format)
+  if(d.testis) d.testis = d.testis.map(t=>({
+    title: t.name||t.title||'',
+    icon:  t.cargo||t.icon||'',
+    desc:  t.text||t.desc||'',
+  }));
+  applyState(d);
+  render();
+}
+init();
+</script>
+</body>
+</html>

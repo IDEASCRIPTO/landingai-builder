@@ -1245,6 +1245,7 @@ const PROXY = '/proxy.php';
 const SUPABASE_URL  = 'https://jsrbfuwjkqwzhjdsbicg.supabase.co';
 const SUPABASE_ANON = 'sb_publishable_aOtEsxOOgBqL05kQ8eMIDQ_WHF7rw54';
 const AUTH_ENABLED  = !SUPABASE_URL.includes('xxxx');
+const BUILDER_MODE  = new URLSearchParams(location.search).get('app') === 'builder';
 
 let _sb             = null;
 let _user           = null;
@@ -1265,6 +1266,7 @@ async function initAuth(){
   try{
     const { data:{ session } } = await _sb.auth.getSession();
     if(session?.user){
+      if(!BUILDER_MODE){ window.location.href = 'dashboard.html'; return; }
       _user = session.user;
       _authTok = session.access_token;
       await loadProfile();
@@ -1276,6 +1278,7 @@ async function initAuth(){
 
   _sb.auth.onAuthStateChange(async (ev, session) => {
     if(ev === 'SIGNED_IN' && session?.user){
+      if(!BUILDER_MODE){ window.location.href = 'dashboard.html'; return; }
       _user = session.user;
       _authTok = session.access_token;
       await loadProfile();
