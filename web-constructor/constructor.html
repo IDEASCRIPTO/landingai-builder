@@ -1128,6 +1128,14 @@ async function generarConIA(){
 function init(){
   const saved = localStorage.getItem(SK);
   const d = saved ? JSON.parse(saved) : DEFAULTS[TYPE] || DEFAULTS.servicio;
+
+  // Si viene del selector con descripción pre-escrita, cargarla en el panel IA
+  const pendingDesc = localStorage.getItem('wc-pending-desc');
+  if(pendingDesc){
+    localStorage.removeItem('wc-pending-desc');
+    document.getElementById('aiDesc').value = pendingDesc;
+    document.getElementById('cfg').scrollTop = 0;
+  }
   // Map saved testis (may have name/cargo fields from old format)
   if(d.testis) d.testis = d.testis.map(t=>({
     title: t.name||t.title||'',
