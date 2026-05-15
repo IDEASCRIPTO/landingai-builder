@@ -132,6 +132,10 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
       <input type="url" id="aiUrlRef" placeholder="URL de referencia (opcional) — sitio cuyo estilo te gustó" style="width:100%;margin-top:8px;background:rgba(15,23,42,.6);border:1px solid #334155;color:#f1f5f9;border-radius:8px;padding:9px 12px;font-size:.82rem;font-family:inherit;outline:none;box-sizing:border-box">
       <div class="ai-error" id="aiError"></div>
       <button class="ai-gen-btn" id="aiBtn" onclick="generarDesdePanel()">✨ Generar con IA</button>
+      <div id="regenBar" style="display:none;gap:8px;margin-top:6px">
+        <button class="ai-gen-btn" style="flex:1;background:rgba(29,158,117,.12);color:#1D9E75;border:1px solid rgba(29,158,117,.3)" onclick="generarDesdePanel()">↺ Regenerar</button>
+        <button class="ai-gen-btn" style="flex:0 0 auto;padding:0 14px;background:rgba(100,116,139,.1);color:#94a3b8;border:1px solid rgba(100,116,139,.2);font-size:.78rem" onclick="limpiarAgente()">✏️ Nueva</button>
+      </div>
       <div class="ai-hint">Solo descripción, solo URL de referencia, o ambas — la IA decide el diseño y genera todo el contenido.</div>
     </div>
 
@@ -761,7 +765,7 @@ function genHTML(){
 
   const servItems = (s.servs||[]).map((sv,i)=>
     `<div class="card" data-r style="--delay:${i*.1}s">
-      <div class="card-iw"><div class="card-icon">${sv.icon||'⭐'}</div></div>
+      <div class="card-visual"><div class="card-icon">${sv.icon||'⭐'}</div></div>
       <h3>${sv.title||''}</h3><p>${sv.desc||''}</p>
       <div class="card-arr">→</div>
     </div>`).join('');
@@ -790,12 +794,13 @@ function genHTML(){
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${s.bizName||'Mi Negocio'} — ${s.bizTagline||''}</title>
 <meta name="description" content="${s.bizDesc||''}">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
 :root{--p:${p};--pd:${pd};--hero:${hero};--bg:${bg};--r:18px;--tr:.4s cubic-bezier(.4,0,.2,1)}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
 body{font-family:'Inter',sans-serif;background:var(--bg);color:#1f2937;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Outfit',sans-serif}
 a{color:var(--p);text-decoration:none}
 img{max-width:100%;display:block;object-fit:cover}
 .container{max-width:1140px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
@@ -809,7 +814,7 @@ img{max-width:100%;display:block;object-fit:cover}
 .hero-orb-2{width:350px;height:350px;bottom:-100px;left:-80px;background:rgba(255,255,255,.04)}${heroExtraCss}
 .hero-content{max-width:680px;padding:80px 0 60px;position:relative;z-index:1}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:7px 18px;border-radius:50px;font-size:.78rem;font-weight:700;margin-bottom:24px;backdrop-filter:blur(8px)}
-.hero-content h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:900;color:#fff;line-height:1.08;margin-bottom:20px;letter-spacing:-.025em}
+.hero-content h1{font-size:clamp(2.6rem,5.5vw,4.4rem);font-weight:900;color:#fff;line-height:1.04;margin-bottom:22px;letter-spacing:-.03em}
 .hero-content p{font-size:clamp(1rem,2vw,1.15rem);color:rgba(255,255,255,.88);line-height:1.75;margin-bottom:36px;max-width:520px}
 .hero-btns{display:flex;gap:14px;flex-wrap:wrap}
 .btn-primary{background:#fff;color:var(--p);padding:15px 32px;border-radius:50px;font-weight:800;font-size:.97rem;transition:var(--tr);display:inline-flex;align-items:center;gap:8px;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2)}
@@ -836,9 +841,11 @@ img{max-width:100%;display:block;object-fit:cover}
 .card::before{content:'';position:absolute;inset:0;background:linear-gradient(145deg,${hexAlpha(p,.07)},transparent 60%);opacity:0;transition:var(--tr)}
 .card:hover{transform:translateY(-8px);box-shadow:0 20px 56px rgba(0,0,0,.13);border-color:${hexAlpha(p,.3)}}
 .card:hover::before{opacity:1}
-.card-iw{width:54px;height:54px;border-radius:14px;background:${hexAlpha(p,.1)};display:flex;align-items:center;justify-content:center;transition:var(--tr);flex-shrink:0}
-.card:hover .card-iw{background:var(--p);transform:scale(1.1) rotate(5deg)}
-.card-icon{font-size:1.55rem}
+.card-visual{height:160px;margin:-32px -26px 22px;background:linear-gradient(145deg,${hexAlpha(p,.18)},${hexAlpha(p,.06)});display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:var(--r) var(--r) 0 0;transition:var(--tr)}
+.card-visual::after{content:'📷 Tu foto / video';position:absolute;bottom:9px;right:12px;font-size:.62rem;color:var(--p);opacity:.55;font-weight:700;letter-spacing:.2px}
+.card:hover .card-visual{background:linear-gradient(145deg,${hexAlpha(p,.28)},${hexAlpha(p,.12)})}
+.card-icon{font-size:3.2rem;filter:drop-shadow(0 4px 18px ${hexAlpha(p,.3)});position:relative;z-index:1;transition:transform .4s ease}
+.card:hover .card-icon{transform:scale(1.12) translateY(-4px)}
 .card h3{font-size:1.05rem;font-weight:800;color:#0f172a;line-height:1.3}
 .card p{font-size:.88rem;color:#6b7280;line-height:1.7;flex:1}
 .card-arr{font-size:1.1rem;color:var(--p);opacity:0;transition:var(--tr);transform:translateX(-10px);margin-top:4px}
@@ -918,7 +925,7 @@ img{max-width:100%;display:block;object-fit:cover}
 
 <div class="draft-notice">📋 Borrador — El Nav y Footer se configuran en el Paso 2 →</div>
 
-<section id="hero">
+<section id="hero" data-ht="${heroType}">
   ${heroBgDiv}
   <div class="hero-orb hero-orb-1"></div>
   <div class="hero-orb hero-orb-2"></div>
@@ -1048,6 +1055,8 @@ ${s.ctWa ? `<a href="${waLink}" target="_blank" class="wa-float" title="WhatsApp
 var _io=new IntersectionObserver(function(e){e.forEach(function(n){if(n.isIntersecting){n.target.classList.add('v');_io.unobserve(n.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('[data-r],[data-rl],[data-rs]').forEach(function(e){_io.observe(e);});
 setTimeout(function(){document.querySelectorAll('[data-r],[data-rl],[data-rs]').forEach(function(e){e.classList.add('v');});},1400);
+var _he=document.getElementById('hero'),_ht=_he&&_he.getAttribute('data-ht');
+if(_he&&(_ht==='overlay'||_ht==='img'))window.addEventListener('scroll',function(){_he.style.backgroundPositionY=(window.scrollY*.38)+'px';},{passive:true});
 function submitForm(e){
   e.preventDefault();
   var dest='${s.formDest||"none"}',val='${(s.formDestVal||"").replace(/'/g,"\\'")}';
@@ -1153,6 +1162,10 @@ async function generarConAgente(desc, urlRef, tipo){
     applyState({...base, ...json.data});
     render(); save();
     document.getElementById('cfg').scrollTop = 220;
+    const rb = document.getElementById('regenBar');
+    if(rb){ rb.style.display = 'flex'; }
+    const ab = document.getElementById('aiBtn');
+    if(ab){ ab.style.display = 'none'; }
 
   }catch(e){
     if(errEl){ errEl.textContent = '❌ Error de conexión: ' + e.message; errEl.style.display='block'; }
@@ -1160,6 +1173,14 @@ async function generarConAgente(desc, urlRef, tipo){
   }finally{
     if(overlay) overlay.classList.remove('active');
   }
+}
+
+function limpiarAgente(){
+  document.getElementById('aiDesc').value = '';
+  const u = document.getElementById('aiUrlRef'); if(u) u.value = '';
+  const rb = document.getElementById('regenBar'); if(rb) rb.style.display = 'none';
+  const ab = document.getElementById('aiBtn'); if(ab) ab.style.display = '';
+  document.getElementById('aiDesc').focus();
 }
 
 function generarDesdePanel(){
