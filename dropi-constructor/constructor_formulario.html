@@ -385,8 +385,20 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
         <input type="text" id="waNum" placeholder="593987654321" oninput="render();saveState()">
       </div>
       <div class="fl">
-        <label>Mensaje de agradecimiento <span style="color:#475569">— variables: {nombre}, {producto}</span></label>
-        <input type="text" id="waMsg" value="Hola, acabo de realizar mi pedido 🎉 Nombre: {nombre} | Producto: {producto}. ¡Gracias!" oninput="render();saveState()">
+        <label>Mensaje de agradecimiento</label>
+        <div style="font-size:.67rem;color:#475569;margin-bottom:5px">Variables disponibles: <code style="color:#86efac">{nombre}</code> <code style="color:#86efac">{producto}</code> <code style="color:#86efac">{direccion}</code> <code style="color:#86efac">{telefono}</code> <code style="color:#86efac">{cantidad}</code> <code style="color:#86efac">{precio}</code></div>
+        <textarea id="waMsg" rows="10" style="width:100%;background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:7px;padding:8px 10px;font-size:.82rem;font-family:inherit;outline:none;resize:vertical;line-height:1.5" oninput="render();saveState()">Hola {nombre} 👋, te saluda el equipo de Dual Legacy 💛.
+Queremos confirmarte que hemos recibido tu pedido de {producto} 📦 con pago contra entrega.
+Antes de despacharlo 🚚, por favor ayúdanos confirmando estos datos:
+Nombre: {nombre}
+Dirección: {direccion}
+Teléfono de contacto: {telefono}
+Producto: {producto}
+Cantidad: {cantidad}
+Valor a cancelar en la entrega: ${precio} 💵
+Tu pedido está apartado y listo para ser enviado ✅.
+Con tu confirmación aseguramos que el courier te lo entregue sin inconvenientes.
+¡Gracias por confiar en Dual Legacy! ✨ Estamos seguros de que disfrutarás mucho tu producto 🙌</textarea>
       </div>
     </div>
 
@@ -980,7 +992,7 @@ function genHTML(){
   // Pack buttons clasico
   const packBtnsClasico = packs.map((p,i)=>`
             <div class="qo">
-              <input type="radio" name="pack" id="pk${p.id}" value="${p.id}" data-price="${p.price}" ${i===0?'checked':''}>
+              <input type="radio" name="pack" id="pk${p.id}" value="${p.id}" data-price="${p.price}" data-label="${p.label}" ${i===0?'checked':''}>
               <label for="pk${p.id}">
                 ${p.img?`<img src="${p.img}" alt="${p.label}" class="pk-img" onerror="this.style.display='none'">`:''}
                 <span class="qu">${p.label}</span><span class="qp">$${p.price}</span>
@@ -991,7 +1003,7 @@ function genHTML(){
   // Pack buttons oferta
   const packBtnsOferta = packs.map((p,i)=>`
             <div class="qof">
-              <input type="radio" name="pack" id="pk${p.id}" value="${p.id}" data-price="${p.price}" ${i===0?'checked':''}>
+              <input type="radio" name="pack" id="pk${p.id}" value="${p.id}" data-price="${p.price}" data-label="${p.label}" ${i===0?'checked':''}>
               <label for="pk${p.id}">
                 ${p.img?`<img src="${p.img}" alt="${p.label}" class="of-img" onerror="this.style.display='none'">`:`<div class="of-img-ph">📦</div>`}
                 <div class="of-info">
@@ -1120,10 +1132,9 @@ return `<!DOCTYPE html>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pedido — ${pname}</title>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
-body{font-family:'Inter',sans-serif;background:${bgColor};color:#111827;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:${bgColor};color:#111827;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px}
 .wrap{background:${formBg};border-radius:24px;box-shadow:0 12px 60px rgba(0,0,0,.12);max-width:540px;width:100%;padding:36px 32px}
 .fhdr{text-align:center;margin-bottom:28px}
 .bdg{display:block;width:fit-content;margin:0 auto 12px;background:${hexAlpha(btnColor,.12)};color:${btnColor};padding:5px 16px;border-radius:50px;font-size:.75rem;font-weight:700}
@@ -1135,7 +1146,7 @@ ${resumenCSS}
 .dv{border:none;border-top:1px solid #f3f4f6;margin:20px 0}
 .fg{margin-bottom:14px}
 .fg label{display:block;font-size:.8rem;font-weight:600;color:${textColor};margin-bottom:5px}
-.fg input,.fg select,.fg textarea{width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:11px 14px;font-size:.93rem;font-family:'Inter',sans-serif;color:#111827;outline:none;transition:.2s;background:#fff}
+.fg input,.fg select,.fg textarea{width:100%;border:1.5px solid #e5e7eb;border-radius:10px;padding:11px 14px;font-size:.93rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;color:#111827;outline:none;transition:.2s;background:#fff}
 .fg input:focus,.fg select:focus,.fg textarea:focus{border-color:${btnColor};box-shadow:0 0 0 3px ${hexAlpha(btnColor,.1)}}
 .fg input::placeholder,.fg textarea::placeholder{color:#9ca3af}
 .fg select:disabled{background:#f9fafb;color:#9ca3af;cursor:not-allowed}
@@ -1143,7 +1154,7 @@ ${resumenCSS}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .tot{background:linear-gradient(135deg,${hexAlpha(btnColor,.08)},${hexAlpha(btnColor,.15)});border-radius:14px;padding:16px 20px;display:flex;justify-content:space-between;align-items:center;margin:20px 0}
 .tot-l{font-size:.87rem;font-weight:600;color:#166534}.tot-p{font-size:1.6rem;font-weight:900;color:${btnColor}}
-.btn{width:100%;background:linear-gradient(135deg,${btnColor},${btnDark});color:#fff;border:none;border-radius:50px;padding:16px;font-size:1.05rem;font-weight:800;font-family:'Inter',sans-serif;cursor:pointer;box-shadow:0 6px 24px ${hexAlpha(btnColor,.35)};transition:.2s;letter-spacing:.3px}
+.btn{width:100%;background:linear-gradient(135deg,${btnColor},${btnDark});color:#fff;border:none;border-radius:50px;padding:16px;font-size:1.05rem;font-weight:800;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;cursor:pointer;box-shadow:0 6px 24px ${hexAlpha(btnColor,.35)};transition:.2s;letter-spacing:.3px}
 .btn:hover{box-shadow:0 10px 32px ${hexAlpha(btnColor,.5)};transform:translateY(-1px)}
 .btn:disabled{background:#9ca3af;box-shadow:none;cursor:not-allowed;transform:none}
 .trust{display:flex;justify-content:center;gap:16px;margin-top:14px;flex-wrap:wrap;font-size:.77rem;color:#6b7280}
@@ -1212,10 +1223,13 @@ ${resumenCSS}
 </div>
 <script>
 const API='${api}', PID=${pid2};
-const WA_NUM='${waNum}', WA_MSG='${waMsg.replace(/'/g,"\\'")}';
-function goWa(nombre,producto){
+const WA_NUM='${waNum}', WA_MSG='${waMsg.replace(/\\/g,'\\\\').replace(/'/g,"\\'").replace(/\n/g,'\\n')}';
+function goWa(nombre,producto,direccion,telefono,cantidad,precio){
   if(!WA_NUM) return;
-  var msg=WA_MSG.replace('{nombre}',nombre).replace('{producto}',producto);
+  var msg=WA_MSG
+    .replace(/\{nombre\}/g,nombre).replace(/\{producto\}/g,producto)
+    .replace(/\{direccion\}/g,direccion).replace(/\{telefono\}/g,telefono)
+    .replace(/\{cantidad\}/g,cantidad).replace(/\{precio\}/g,precio);
   window.open('https://wa.me/'+WA_NUM+'?text='+encodeURIComponent(msg),'_blank');
 }
 const CDS=${JSON.stringify(ciudadesObj)};
@@ -1270,7 +1284,7 @@ async function send(){
       document.getElementById('city').innerHTML='<option value="">— primero provincia —</option>';
       document.getElementById('city').disabled=true;
       btn.innerHTML='✅ ¡Pedido Enviado!';
-      setTimeout(function(){ goWa(fn+' '+ln,'${esc(pname)}'); }, 1500);
+      setTimeout(function(){ goWa(fn+' '+ln,'${esc(pname)}',prov+(city?' '+city:'')+(dir?', '+dir:''),tel,(pkEl&&pkEl.dataset.label)||'${esc(packs[0]?.label||'1 Unidad')}',(pkEl&&pkEl.dataset.price)||'${packs[0]?.price||'0.00'}'); }, 1500);
     }else throw new Error(JSON.stringify(d));
   }catch(e){
     document.getElementById('mEr').style.display='block';

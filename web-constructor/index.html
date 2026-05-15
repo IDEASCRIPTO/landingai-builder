@@ -178,12 +178,15 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
   <div class="stat"><div class="stat-n">IA</div><div class="stat-l">Copy automático</div></div>
 </div>
 
-<!-- CREAR CON IA -->
+<!-- AGENTE IA UNIFICADO -->
 <div class="ai-create">
   <div class="ai-create-box">
-    <div class="ai-create-ttl">✨ Crear con IA sin usar plantilla</div>
-    <div class="ai-create-sub">Describe tu negocio, colores e idea y la IA construye toda la página por ti. No necesitas elegir una plantilla.</div>
-    <textarea id="aiCreateDesc" placeholder="Ej: Soy dentista en Quito, especialista en ortodoncia y blanqueamiento dental. Tengo 10 años de experiencia, acepto seguros médicos y mi consultorio es moderno y acogedor. Colores: azul y blanco."></textarea>
+    <div class="ai-create-ttl">✨ Crear mi página con IA</div>
+    <div class="ai-create-sub">Describe tu negocio y, si quieres, pega la URL de un sitio que te gustó — la IA toma las decisiones de diseño y estructura para generar tu primera impresión.</div>
+    <textarea id="aiCreateDesc" placeholder="Ej: Soy dentista en Quito, especialista en ortodoncia y blanqueamiento. 10 años de experiencia, acepto seguros médicos, consultorio moderno. Quiero transmitir confianza y profesionalismo."></textarea>
+    <div class="fl" style="margin-top:10px">
+      <input type="url" id="urlRefInput" placeholder="URL de referencia (opcional) — sitio cuyo estilo te gustó" style="width:100%;background:rgba(15,23,42,.8);border:1px solid #334155;color:#f1f5f9;border-radius:10px;padding:10px 14px;font-size:.85rem;font-family:inherit;outline:none">
+    </div>
     <div class="ai-create-row">
       <select id="aiCreateType">
         <option value="servicio">Servicios / Agencia</option>
@@ -194,37 +197,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
         <option value="automotriz">Automotriz / Taller</option>
         <option value="producto">Productos / Tienda</option>
       </select>
-      <button class="btn-ai-create" onclick="crearConIA()">✨ Crear mi página con IA →</button>
+      <button class="btn-ai-create" onclick="crearConAgente()">✨ Generar con IA →</button>
     </div>
-  </div>
-</div>
-
-<!-- SEPARADOR ENTRE PANELES IA -->
-<div class="panel-divider">
-  <div class="panel-divider-line"></div>
-  <div class="panel-divider-txt">— o clona desde una URL —</div>
-  <div class="panel-divider-line"></div>
-</div>
-
-<!-- CLONAR DESDE URL -->
-<div class="ai-create">
-  <div class="url-clone-box">
-    <div class="url-clone-ttl">🔗 Analizar y clonar un sitio web</div>
-    <div class="url-clone-sub">Pega la URL de cualquier sitio web y la IA analiza su contenido para crear tu página con esa misma información y estilo.</div>
-    <input type="url" id="urlCloneInput" placeholder="https://www.ejemplo.com">
-    <div class="url-clone-row">
-      <select id="urlCloneType">
-        <option value="servicio">Servicios / Agencia</option>
-        <option value="medico">Médico / Clínica</option>
-        <option value="viajes">Agencia de Viajes</option>
-        <option value="abogado">Abogado / Bufete</option>
-        <option value="inmobiliaria">Inmobiliaria</option>
-        <option value="automotriz">Automotriz / Taller</option>
-        <option value="producto">Productos / Tienda</option>
-      </select>
-      <button class="btn-url-clone" onclick="analizarURL()">🔗 Analizar y clonar →</button>
-    </div>
-    <div class="url-note">ℹ️ Si el sitio bloquea el scraping, la IA genera contenido genérico del mismo tipo. Funciona mejor con sitios públicos y simples.</div>
+    <div class="url-note" style="margin-top:8px">ℹ️ La URL es opcional. Si la incluyes, la IA analiza su estructura y tono para inspirarse. El contenido generado será 100% de tu negocio.</div>
   </div>
 </div>
 
@@ -680,27 +655,37 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
 <div class="ftr">LandingAI Builder · Constructor Web · 2026</div>
 
 <script>
-function crearConIA(){
+function crearConAgente(){
   const desc = document.getElementById('aiCreateDesc').value.trim();
   const tipo = document.getElementById('aiCreateType').value;
-  if(desc) localStorage.setItem('wc-pending-desc', desc);
+  const url  = document.getElementById('urlRefInput').value.trim();
+
+  if(!desc){
+    document.getElementById('aiCreateDesc').focus();
+    return;
+  }
+
+  // Validar URL si se proporcionó
+  if(url){
+    try{ new URL(url); }catch(e){
+      alert('La URL de referencia no es válida. Incluye https:// o déjala vacía.');
+      return;
+    }
+  }
+
+  localStorage.setItem('wc-pending-agent-desc', desc);
+  localStorage.setItem('wc-pending-agent-tipo', tipo);
+  if(url) localStorage.setItem('wc-pending-agent-url', url);
+  else localStorage.removeItem('wc-pending-agent-url');
+
   window.location.href = 'constructor.html?t=' + tipo;
 }
 
-function analizarURL(){
-  const url  = document.getElementById('urlCloneInput').value.trim();
-  const tipo = document.getElementById('urlCloneType').value;
-  if(!url){
-    document.getElementById('urlCloneInput').focus();
-    return;
-  }
-  // basic URL validation
-  try{ new URL(url); }catch(e){
-    alert('Por favor ingresa una URL válida (incluyendo https://)');
-    return;
-  }
-  localStorage.setItem('wc-pending-url', url);
-  localStorage.setItem('wc-pending-url-tipo', tipo);
+// Compatibilidad con flujo antiguo (links directos a plantillas con URL)
+function crearConIA(){
+  const desc = document.getElementById('aiCreateDesc')?.value.trim() || '';
+  const tipo = document.getElementById('aiCreateType')?.value || 'servicio';
+  if(desc) localStorage.setItem('wc-pending-desc', desc);
   window.location.href = 'constructor.html?t=' + tipo;
 }
 

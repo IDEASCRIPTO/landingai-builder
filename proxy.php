@@ -62,6 +62,34 @@ function callImageDirect(string $imgProvider, string $apiKey, string $prompt): a
     }
 }
 
+/* ── AI DIRECTO CON SYSTEM PROMPT: para el agente web que separa system/user ── */
+function callAiDirectWithSystem(string $provider, string $apiKey, string $systemPrompt, string $userMessage): array {
+    if ($provider === 'openai') {
+        $url  = 'https://api.openai.com/v1/chat/completions';
+        $body = json_encode(['model'=>'gpt-4o-mini','max_tokens'=>4000,'messages'=>[
+            ['role'=>'system','content'=>$systemPrompt],
+            ['role'=>'user','content'=>$userMessage],
+        ]]);
+        $hdrs = ['Content-Type: application/json','Authorization: Bearer '.$apiKey];
+    } elseif ($provider === 'gemini') {
+        $url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='.$apiKey;
+        $body = json_encode(['system_instruction'=>['parts'=>[['text'=>$systemPrompt]]],'contents'=>[['parts'=>[['text'=>$userMessage]]]]]);
+        $hdrs = ['Content-Type: application/json'];
+    } else {
+        $url  = 'https://api.anthropic.com/v1/messages';
+        $body = json_encode(['model'=>'claude-sonnet-4-6','max_tokens'=>4000,'system'=>$systemPrompt,'messages'=>[['role'=>'user','content'=>$userMessage]]]);
+        $hdrs = ['Content-Type: application/json','x-api-key: '.$apiKey,'anthropic-version: 2023-06-01'];
+    }
+    $ch = curl_init($url);
+    curl_setopt_array($ch, [
+        CURLOPT_POST=>true, CURLOPT_POSTFIELDS=>$body, CURLOPT_HTTPHEADER=>$hdrs,
+        CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>120, CURLOPT_SSL_VERIFYPEER=>false,
+    ]);
+    $resp = curl_exec($ch); $err = curl_error($ch); curl_close($ch);
+    if ($err) return ['__curl_error'=>$err];
+    return json_decode($resp, true) ?: ['__curl_error'=>'Respuesta no es JSON'];
+}
+
 /* ── AI DIRECTO: llama a la API del proveedor con PHP curl (evita bug n8n HTTP body) ── */
 function callAiDirect(string $provider, string $apiKey, string $prompt): array {
     if ($provider === 'openai') {
@@ -497,6 +525,7 @@ $routes = [
     'generar_liquid'        => $base . 'generar-v2',
     'generar_prompt_imagen' => $base . 'generar-prompt-imagen',
     'analizar_url'          => $base . 'analizar-url',
+    'generar_web_v2'        => $base . 'generar-web-agente',
 ];
 
 $accion = $data['accion'];
@@ -557,6 +586,55 @@ if ($accion_actual === 'generar_imagen') {
         exit;
     }
     echo json_encode(['success'=>true,'url'=>$imgResult['url']]);
+    exit;
+}
+
+/* ── GENERAR_WEB_V2: Agente n8n construye prompt (+ Jina si hay URL), PHP llama AI ──
+   n8n devuelve {systemPrompt, userMessage}. PHP llama AI con system separado.
+   Mismo patrón COPY_ACTIONS pero respuesta es JSON de página completa.
+────────────────────────────────────────────────────────────────────────────────── */
+if ($accion_actual === 'generar_web_v2') {
+    // El AI Agent de n8n (Claude Opus) llama a la IA directamente.
+    // proxy.php solo valida auth, llama n8n y parsea el output del agente.
+
+    $ch1 = curl_init($url);
+    curl_setopt_array($ch1, [
+        CURLOPT_POST=>true, CURLOPT_POSTFIELDS=>json_encode($data),
+        CURLOPT_HTTPHEADER=>['Content-Type: application/json'],
+        CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>120,
+        CURLOPT_CONNECTTIMEOUT=>10, CURLOPT_SSL_VERIFYPEER=>false,
+    ]);
+    $n8nRaw = curl_exec($ch1); $n8nErr = curl_error($ch1); curl_close($ch1);
+
+    if ($n8nErr || empty($n8nRaw)) {
+        echo json_encode(['success'=>false,'error'=>$n8nErr ?: 'Sin respuesta del agente']);
+        exit;
+    }
+
+    $n8nData = json_decode($n8nRaw, true);
+    if (is_array($n8nData) && isset($n8nData[0])) $n8nData = $n8nData[0];
+
+    // El AI Agent devuelve {output: "...json string..."}
+    $agentOutput = $n8nData['output'] ?? '';
+
+    if (empty($agentOutput)) {
+        echo json_encode(['success'=>false,'error'=>'El agente no retornó respuesta','raw'=>substr($n8nRaw,0,400)]);
+        exit;
+    }
+
+    // Extraer JSON del output (el agente puede incluir markdown o texto extra)
+    $pageData = json_decode($agentOutput, true);
+    if (json_last_error() !== JSON_ERROR_NONE) {
+        $s = strpos($agentOutput, '{'); $e = strrpos($agentOutput, '}');
+        if ($s !== false && $e > $s) $pageData = json_decode(substr($agentOutput, $s, $e - $s + 1), true);
+    }
+
+    if (!is_array($pageData) || empty($pageData)) {
+        echo json_encode(['success'=>false,'error'=>'El agente no retornó JSON válido','raw'=>substr($agentOutput,0,400)]);
+        exit;
+    }
+
+    echo json_encode(['success'=>true,'data'=>$pageData]);
     exit;
 }
 

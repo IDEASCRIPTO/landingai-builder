@@ -186,6 +186,14 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
       <div class="fl"><label>URL imagen de fondo (opcional)</label>
         <input type="url" id="heroImg" placeholder="https://..." oninput="render();save()">
       </div>
+      <div class="fl"><label>Tipo de fondo del hero</label>
+        <select id="heroType" onchange="render();save()">
+          <option value="color">Color sólido</option>
+          <option value="img">Solo imagen</option>
+          <option value="overlay">Imagen + overlay de marca</option>
+          <option value="3d">Imagen + efecto 3D ✨</option>
+        </select>
+      </div>
     </div>
 
     <!-- SERVICIOS -->
@@ -529,7 +537,7 @@ function collectState(){
   state = {
     bizName:g('bizName'), bizTagline:g('bizTagline'), bizDesc:g('bizDesc'), bizBadge:g('bizBadge'),
     colorPrimary:g('colorPrimary'), colorBg:g('colorBg'), colorHero:g('colorHero'),
-    heroTitle:g('heroTitle'), heroSub:g('heroSub'), heroCta:g('heroCta'), heroImg:g('heroImg'),
+    heroTitle:g('heroTitle'), heroSub:g('heroSub'), heroCta:g('heroCta'), heroImg:g('heroImg'), heroType:g('heroType')||'overlay',
     servs: collectItems('serv'),
     pasos: collectPasos(),
     testis: collectItems('testi'),
@@ -571,7 +579,7 @@ function applyState(s){
   set('colorBg',s.colorBg);           set('hexBg',s.colorBg);
   set('colorHero',s.colorHero);       set('hexHero',s.colorHero);
   set('heroTitle',s.heroTitle); set('heroSub',s.heroSub);
-  set('heroCta',s.heroCta);    set('heroImg',s.heroImg);
+  set('heroCta',s.heroCta);    set('heroImg',s.heroImg);  set('heroType',s.heroType||'overlay');
   set('ctPhone',s.ctPhone); set('ctWa',s.ctWa); set('ctEmail',s.ctEmail);
   set('ctAddr',s.ctAddr);   set('ctHorario',s.ctHorario);
   set('ctaLink',s.ctaLink); set('formDest',s.formDest); set('formDestVal',s.formDestVal);
@@ -706,6 +714,23 @@ function genHTML(){
     servicio:'1497366216548-37526070297c',
   };
   const heroImgUrl = s.heroImg || ('https://images.unsplash.com/photo-' + (_hids[TYPE]||_hids.servicio) + '?auto=format&fit=crop&w=1920&q=80');
+  const heroType = s.heroType || 'overlay';
+  let heroBgCss, heroBgDiv = '', heroExtraCss = '';
+  if(heroType === 'color'){
+    heroBgCss = `linear-gradient(145deg,${hero},${darken(hero,.15)})`;
+  } else if(heroType === 'img'){
+    heroBgCss = `linear-gradient(to right,rgba(0,0,0,.52),rgba(0,0,0,.18)),url('${heroImgUrl}') center/cover no-repeat`;
+  } else if(heroType === '3d'){
+    heroBgCss = 'none';
+    heroBgDiv = '<div id="hero-bg"></div>';
+    heroExtraCss = `
+#hero-bg{position:absolute;inset:-8%;background:url('${heroImgUrl}') center/cover no-repeat;animation:heroBg 16s ease-in-out infinite;z-index:0}
+#hero::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(0,0,0,.58),rgba(0,0,0,.22));z-index:1;pointer-events:none}
+@keyframes heroBg{0%,100%{transform:scale(1.05) translate(0,0)}50%{transform:scale(1.12) translate(-1%,-1.5%)}}
+.hero-orb{z-index:2}.hero-orb-1{background:radial-gradient(circle,${hero}55,transparent 70%)}.hero-orb-2{background:radial-gradient(circle,${p}40,transparent 70%)}.hero-content{z-index:3}`;
+  } else {
+    heroBgCss = `linear-gradient(145deg,${hero}66,${p}40),url('${heroImgUrl}') center/cover no-repeat`;
+  }
 
   const _stats = {
     viajes:[{n:'500+',l:'Destinos'},{n:'2,400+',l:'Viajeros felices'},{n:'4.9★',l:'Calificación'},{n:'10+',l:'Años de exp.'}],
@@ -776,11 +801,11 @@ img{max-width:100%;display:block;object-fit:cover}
 .section{padding:clamp(64px,9vw,108px) 0}
 .section-alt{background:#fff}
 .draft-notice{background:linear-gradient(90deg,${darken(p,.3)},${p},${darken(p,.3)});color:#fff;padding:10px 20px;text-align:center;font-size:.74rem;font-weight:700;letter-spacing:.4px;position:sticky;top:0;z-index:100}
-#hero{min-height:100vh;background:linear-gradient(145deg,${hero}ec,${p}d0),url('${heroImgUrl}') center/cover no-repeat;display:flex;align-items:center;position:relative;overflow:hidden}
+#hero{min-height:100vh;background:${heroBgCss};display:flex;align-items:center;position:relative;overflow:hidden}
 #hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 15% 55%,rgba(255,255,255,.07),transparent 65%);pointer-events:none}
 .hero-orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px)}
 .hero-orb-1{width:500px;height:500px;top:-150px;right:-150px;background:rgba(255,255,255,.06)}
-.hero-orb-2{width:350px;height:350px;bottom:-100px;left:-80px;background:rgba(255,255,255,.04)}
+.hero-orb-2{width:350px;height:350px;bottom:-100px;left:-80px;background:rgba(255,255,255,.04)}${heroExtraCss}
 .hero-content{max-width:680px;padding:80px 0 60px;position:relative;z-index:1}
 .hero-badge{display:inline-flex;align-items:center;gap:8px;background:rgba(255,255,255,.15);border:1px solid rgba(255,255,255,.3);color:#fff;padding:7px 18px;border-radius:50px;font-size:.78rem;font-weight:700;margin-bottom:24px;backdrop-filter:blur(8px)}
 .hero-content h1{font-size:clamp(2.2rem,5vw,3.6rem);font-weight:900;color:#fff;line-height:1.08;margin-bottom:20px;letter-spacing:-.025em}
@@ -893,6 +918,7 @@ img{max-width:100%;display:block;object-fit:cover}
 <div class="draft-notice">📋 Borrador — El Nav y Footer se configuran en el Paso 2 →</div>
 
 <section id="hero">
+  ${heroBgDiv}
   <div class="hero-orb hero-orb-1"></div>
   <div class="hero-orb hero-orb-2"></div>
   <div class="container">
@@ -1085,6 +1111,56 @@ function getSupabaseToken(){
   }catch(e){ return null; }
 }
 
+// ═══════════════════════════════════════════════
+// AGENTE WEB UNIFICADO (generar_web_v2)
+// ═══════════════════════════════════════════════
+async function generarConAgente(desc, urlRef, tipo){
+  const token = getSupabaseToken();
+  const errEl = document.getElementById('aiError');
+  const overlay = document.getElementById('urlOverlay');
+  const urlLbl  = document.getElementById('urlOverlayUrl');
+
+  if(!token){
+    if(errEl){ errEl.textContent = '⚠️ Debes iniciar sesión para usar la IA.'; errEl.style.display='block'; }
+    document.getElementById('cfg').scrollTop = 0;
+    return;
+  }
+
+  if(overlay && urlLbl){
+    urlLbl.textContent = urlRef ? urlRef : 'Generando con IA...';
+    overlay.classList.add('active');
+  }
+  if(errEl) errEl.style.display = 'none';
+
+  try{
+    const payload = { accion:'generar_web_v2', descripcion:desc, tipo:tipo||TYPE, _auth_token:token };
+    if(urlRef) payload.url = urlRef;
+
+    const res = await fetch('../proxy.php', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify(payload)
+    });
+    const json = await res.json();
+
+    if(!json.success){
+      if(errEl){ errEl.textContent = '❌ ' + (json.error || 'Error al generar.'); errEl.style.display='block'; }
+      document.getElementById('cfg').scrollTop = 0;
+      return;
+    }
+
+    const base = DEFAULTS[TYPE] || DEFAULTS.servicio;
+    applyState({...base, ...json.data});
+    render(); save();
+    document.getElementById('cfg').scrollTop = 220;
+
+  }catch(e){
+    if(errEl){ errEl.textContent = '❌ Error de conexión: ' + e.message; errEl.style.display='block'; }
+    document.getElementById('cfg').scrollTop = 0;
+  }finally{
+    if(overlay) overlay.classList.remove('active');
+  }
+}
+
 async function generarConIA(){
   const desc = document.getElementById('aiDesc').value.trim();
   if(!desc){ alert('Escribe una descripción de tu negocio primero.'); return; }
@@ -1210,13 +1286,24 @@ function init(){
   applyState(d);
   render();
 
-  // Si viene del selector con URL para analizar, disparar análisis automáticamente
+  // Agente unificado (nuevo): descripción + URL opcionales
+  const agentDesc = localStorage.getItem('wc-pending-agent-desc');
+  const agentUrl  = localStorage.getItem('wc-pending-agent-url') || '';
+  const agentTipo = localStorage.getItem('wc-pending-agent-tipo') || TYPE;
+  if(agentDesc){
+    localStorage.removeItem('wc-pending-agent-desc');
+    localStorage.removeItem('wc-pending-agent-url');
+    localStorage.removeItem('wc-pending-agent-tipo');
+    setTimeout(() => generarConAgente(agentDesc, agentUrl, agentTipo), 400);
+    return;
+  }
+
+  // Flujo antiguo: URL sola (compatibilidad)
   const pendingUrl  = localStorage.getItem('wc-pending-url');
   const pendingTipo = localStorage.getItem('wc-pending-url-tipo') || TYPE;
   if(pendingUrl){
     localStorage.removeItem('wc-pending-url');
     localStorage.removeItem('wc-pending-url-tipo');
-    // Pequeño delay para que la página cargue primero
     setTimeout(() => analizarWebUrl(pendingUrl, pendingTipo), 400);
   }
 }
