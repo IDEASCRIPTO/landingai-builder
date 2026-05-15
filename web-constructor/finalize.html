@@ -417,8 +417,8 @@ function genHTML(){
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${s.bizName||'Mi Negocio'} — ${s.bizTagline||''}</title>
 <meta name="description" content="${s.bizDesc||''}">
-<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@600;700;800;900&family=Inter:wght@400;500;600;700&display=swap');
 :root{--p:${p};--pd:${pd};--hero:${hero};--bg:${bg};--r:18px;--tr:.4s cubic-bezier(.4,0,.2,1)}
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 html{scroll-behavior:smooth}
@@ -477,9 +477,9 @@ nav.scrolled{box-shadow:0 4px 20px rgba(0,0,0,.1)}
 .card::before{content:'';position:absolute;inset:0;background:linear-gradient(145deg,${hexAlpha(p,.07)},transparent 60%);opacity:0;transition:var(--tr)}
 .card:hover{transform:translateY(-8px);box-shadow:0 20px 56px rgba(0,0,0,.13);border-color:${hexAlpha(p,.3)}}
 .card:hover::before{opacity:1}
-.card-visual{height:160px;flex-shrink:0;background:linear-gradient(145deg,${hexAlpha(p,.18)},${hexAlpha(p,.06)});display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:var(--r) var(--r) 0 0;transition:var(--tr)}
+.card-visual{height:160px;flex-shrink:0;background:linear-gradient(145deg,${hexAlpha(p,.45)},${hexAlpha(p,.22)});display:flex;align-items:center;justify-content:center;position:relative;overflow:hidden;border-radius:var(--r) var(--r) 0 0;transition:var(--tr)}
 .card-visual::after{content:'📷 Tu foto / video';position:absolute;bottom:9px;right:12px;font-size:.62rem;color:var(--p);opacity:.55;font-weight:700;letter-spacing:.2px}
-.card:hover .card-visual{background:linear-gradient(145deg,${hexAlpha(p,.28)},${hexAlpha(p,.12)})}
+.card:hover .card-visual{background:linear-gradient(145deg,${hexAlpha(p,.60)},${hexAlpha(p,.35)})}
 .card-icon{font-size:3.2rem;filter:drop-shadow(0 4px 18px ${hexAlpha(p,.3)});position:relative;z-index:1;transition:transform .4s ease}
 .card:hover .card-icon{transform:scale(1.12) translateY(-4px)}
 .card h3{font-size:1.05rem;font-weight:800;color:#0f172a;line-height:1.3}
