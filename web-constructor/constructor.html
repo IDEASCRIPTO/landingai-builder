@@ -129,9 +129,10 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
     <div class="ai-panel">
       <div class="ai-panel-ttl">✨ Generar con IA</div>
       <textarea id="aiDesc" placeholder="Describe tu negocio en 2-3 líneas&#10;Ej: Soy dentista en Quito, especialista en ortodoncia y blanqueamiento. Atiendo adultos y niños, precios accesibles, pago en cuotas sin intereses."></textarea>
+      <input type="url" id="aiUrlRef" placeholder="URL de referencia (opcional) — sitio cuyo estilo te gustó" style="width:100%;margin-top:8px;background:rgba(15,23,42,.6);border:1px solid #334155;color:#f1f5f9;border-radius:8px;padding:9px 12px;font-size:.82rem;font-family:inherit;outline:none;box-sizing:border-box">
       <div class="ai-error" id="aiError"></div>
-      <button class="ai-gen-btn" id="aiBtn" onclick="generarConIA()">✨ Generar contenido con IA</button>
-      <div class="ai-hint">La IA crea nombre, slogan, servicios, proceso, testimonios y todos los textos de la página según tu descripción.</div>
+      <button class="ai-gen-btn" id="aiBtn" onclick="generarDesdePanel()">✨ Generar con IA</button>
+      <div class="ai-hint">Solo descripción, solo URL de referencia, o ambas — la IA decide el diseño y genera todo el contenido.</div>
     </div>
 
     <!-- NEGOCIO -->
@@ -1159,6 +1160,14 @@ async function generarConAgente(desc, urlRef, tipo){
   }finally{
     if(overlay) overlay.classList.remove('active');
   }
+}
+
+function generarDesdePanel(){
+  const desc = document.getElementById('aiDesc').value.trim();
+  const url  = (document.getElementById('aiUrlRef')?.value || '').trim();
+  if(!desc && !url){ document.getElementById('aiDesc').focus(); return; }
+  if(url){ try{ new URL(url); }catch(e){ alert('La URL de referencia no es válida.'); return; } }
+  generarConAgente(desc, url, TYPE);
 }
 
 async function generarConIA(){
