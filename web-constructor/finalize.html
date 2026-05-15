@@ -310,6 +310,18 @@ function genHTML(){
     heroBgCss = `linear-gradient(145deg,${hero}66,${p}40),url('${heroImgUrl}') center/cover no-repeat`;
   }
 
+  const animStyle = s.animStyle || 'slide';
+  let animCSS;
+  if(animStyle === 'reveal'){
+    animCSS = `[data-r]{opacity:0;clip-path:polygon(0 100%,100% 100%,100% 100%,0 100%);transition:opacity .5s ease,clip-path .8s cubic-bezier(.77,0,.18,1);transition-delay:var(--delay,0s)}[data-r].v{opacity:1;clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}[data-rl]{opacity:0;clip-path:polygon(0 0,0 0,0 100%,0 100%);transition:opacity .5s ease,clip-path .85s cubic-bezier(.77,0,.18,1);transition-delay:var(--delay,0s)}[data-rl].v{opacity:1;clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}[data-rr]{opacity:0;clip-path:polygon(100% 0,100% 0,100% 100%,100% 100%);transition:opacity .5s ease,clip-path .85s cubic-bezier(.77,0,.18,1);transition-delay:var(--delay,0s)}[data-rr].v{opacity:1;clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}[data-rs]{opacity:0;clip-path:polygon(5% 5%,95% 5%,95% 95%,5% 95%);transition:opacity .6s ease,clip-path .8s cubic-bezier(.77,0,.18,1);transition-delay:var(--delay,0s)}[data-rs].v{opacity:1;clip-path:polygon(0 0,100% 0,100% 100%,0 100%)}`;
+  } else if(animStyle === 'float'){
+    animCSS = `[data-r]{opacity:0;transform:translateY(60px);filter:blur(6px);transition:opacity .9s ease,transform .9s ease,filter .9s ease;transition-delay:var(--delay,0s)}[data-r].v{opacity:1;transform:none;filter:none}[data-rl]{opacity:0;transform:translateX(-60px) translateY(20px);filter:blur(5px);transition:opacity .9s ease,transform .9s ease,filter .9s ease;transition-delay:var(--delay,0s)}[data-rl].v{opacity:1;transform:none;filter:none}[data-rr]{opacity:0;transform:translateX(60px) translateY(20px);filter:blur(5px);transition:opacity .9s ease,transform .9s ease,filter .9s ease;transition-delay:var(--delay,0s)}[data-rr].v{opacity:1;transform:none;filter:none}[data-rs]{opacity:0;transform:scale(.85);filter:blur(8px);transition:opacity .8s ease,transform .8s ease,filter .8s ease;transition-delay:var(--delay,0s)}[data-rs].v{opacity:1;transform:none;filter:none}`;
+  } else if(animStyle === 'flip'){
+    animCSS = `[data-r]{opacity:0;transform:translateY(50px) scale(.93);transition:opacity .6s ease,transform .7s cubic-bezier(.34,1.56,.64,1);transition-delay:var(--delay,0s)}[data-r].v{opacity:1;transform:none}[data-rl]{opacity:0;transform:rotateY(-30deg) translateX(-30px);transform-origin:left center;transition:opacity .6s ease,transform .7s cubic-bezier(.34,1.4,.64,1);transition-delay:var(--delay,0s)}[data-rl].v{opacity:1;transform:none}[data-rr]{opacity:0;transform:rotateY(30deg) translateX(30px);transform-origin:right center;transition:opacity .6s ease,transform .7s cubic-bezier(.34,1.4,.64,1);transition-delay:var(--delay,0s)}[data-rr].v{opacity:1;transform:none}[data-rs]{opacity:0;transform:scale(.8) rotateX(8deg);transform-origin:bottom center;transition:opacity .6s ease,transform .7s cubic-bezier(.34,1.56,.64,1);transition-delay:var(--delay,0s)}[data-rs].v{opacity:1;transform:none}`;
+  } else {
+    animCSS = `[data-r]{opacity:0;transform:translateY(40px) scale(.97);transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1);transition-delay:var(--delay,0s)}[data-r].v{opacity:1;transform:none}[data-rl]{opacity:0;transform:translateX(-70px) skewX(3deg);transition:opacity .65s ease-out,transform .65s ease-out;transition-delay:var(--delay,0s)}[data-rl].v{opacity:1;transform:none}[data-rr]{opacity:0;transform:translateX(70px) skewX(-3deg);transition:opacity .65s ease-out,transform .65s ease-out;transition-delay:var(--delay,0s)}[data-rr].v{opacity:1;transform:none}[data-rs]{opacity:0;transform:scale(.88);transition:opacity .6s ease,transform .6s ease;transition-delay:var(--delay,0s)}[data-rs].v{opacity:1;transform:none}`;
+  }
+
   // Stats per type
   const _stats = {
     viajes:[{n:'500+',l:'Destinos'},{n:'2,400+',l:'Viajeros felices'},{n:'4.9★',l:'Calificación'},{n:'10+',l:'Años de exp.'}],
@@ -321,7 +333,7 @@ function genHTML(){
     servicio:[{n:'200+',l:'Proyectos'},{n:'50+',l:'Clientes'},{n:'100%',l:'Satisfacción'},{n:'5+',l:'Años'}],
   };
   const statItems = (_stats[TYPE]||_stats.servicio).map((st,i)=>
-    `<div class="stat-item" data-reveal style="--delay:${i*.07}s"><span class="stat-n">${st.n}</span><span class="stat-l">${st.l}</span></div>`
+    `<div class="stat-item" data-rs style="--delay:${i*.07}s"><span class="stat-n">${st.n}</span><span class="stat-l">${st.l}</span></div>`
   ).join('');
 
   // Marquee per type
@@ -354,19 +366,19 @@ function genHTML(){
   const waLink = s.ctWa ? `https://wa.me/${s.ctWa.replace(/\D/g,'')}` : '#';
 
   const servItems = (s.servs||[]).map((sv,i)=>
-    `<div class="card" data-reveal style="--delay:${i*.1}s">
+    `<div class="card" ${i%2===0?'data-rl':'data-rr'} style="--delay:${i*.08}s">
       <div class="card-visual"><div class="card-icon">${sv.icon||'⭐'}</div></div>
       <div class="card-body"><h3>${sv.title||''}</h3><p>${sv.desc||''}</p><div class="card-arr">→</div></div>
     </div>`).join('');
 
   const pasoItems = (s.pasos||[]).map((ps,i)=>
-    `<div class="step" data-reveal style="--delay:${i*.12}s">
+    `<div class="step" ${i%2===0?'data-rl':'data-rr'} style="--delay:${i*.1}s">
       <div class="step-num">${i+1}</div>
       <h4>${ps.title||''}</h4><p>${ps.desc||''}</p>
     </div>`).join('');
 
   const testiItems = (s.testis||[]).map(t=>
-    `<div class="testi-card" data-reveal>
+    `<div class="testi-card" data-rs>
       <div class="testi-quote">"</div>
       <div class="stars">★★★★★</div>
       <p class="testi-text">${t.text||t.desc||''}</p>
@@ -380,8 +392,8 @@ function genHTML(){
   const _gallItems = [f.gallImg1, f.gallImg2, f.gallImg3];
   const gallItems = _gallItems.map((url,i)=>
     url
-    ? `<div class="gall-item" data-reveal style="--delay:${i*.08}s"><img src="${url}" alt="Imagen ${i+1}" loading="lazy"></div>`
-    : `<div class="img-ph" data-reveal style="--delay:${i*.08}s"><div class="img-ph-ico">📷</div><div class="img-ph-txt">Imagen ${i+1}</div></div>`
+    ? `<div class="gall-item" data-rs style="--delay:${i*.08}s"><img src="${url}" alt="Imagen ${i+1}" loading="lazy"></div>`
+    : `<div class="img-ph" data-rs style="--delay:${i*.08}s"><div class="img-ph-ico">📷</div><div class="img-ph-txt">Imagen ${i+1}</div></div>`
   ).join('');
   const hasGallery = _gallItems.some(Boolean);
 
@@ -392,11 +404,11 @@ function genHTML(){
     if(ytId) ytEmbed = `
 <section class="section" id="video">
   <div class="container">
-    <div class="section-header" data-reveal>
+    <div class="section-header" data-r>
       <span class="section-tag">🎬 Video</span>
       <h2>Conoce más sobre nosotros</h2>
     </div>
-    <div class="video-wrap" data-reveal style="--delay:.1s">
+    <div class="video-wrap" data-r style="--delay:.1s">
       <iframe src="https://www.youtube.com/embed/${ytId}?rel=0" title="Video" frameborder="0" allow="accelerometer;autoplay;clipboard-write;encrypted-media;gyroscope;picture-in-picture" allowfullscreen></iframe>
     </div>
   </div>
@@ -562,8 +574,15 @@ footer{background:#0f172a;color:#94a3b8;padding:56px 0 24px}
 .wa-float{position:fixed;bottom:24px;right:24px;width:56px;height:56px;background:#25d366;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 24px rgba(37,211,102,.5);z-index:900;transition:var(--tr)}
 .wa-float:hover{transform:scale(1.12)}
 .wa-float svg{width:30px;height:30px;fill:#fff}
-[data-reveal]{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease;transition-delay:var(--delay,0s)}
-[data-reveal].visible{opacity:1;transform:none}
+${animCSS}
+@keyframes heroIn{from{opacity:0;transform:translateY(28px)}to{opacity:1;transform:none}}
+@keyframes waveMove{to{transform:translateX(-50%)}}
+.wave-divider{width:100%;overflow:hidden;line-height:0}
+.wave-divider svg{display:block;width:200%;height:80px}
+.wv1{animation:waveMove 9s linear infinite}
+.wv2{animation:waveMove 14s linear infinite reverse}
+.wv3{animation:waveMove 7s linear infinite}
+@media(prefers-reduced-motion:reduce){[data-r],[data-rl],[data-rr],[data-rs]{animation:none!important;opacity:1!important;transform:none!important;clip-path:none!important;filter:none!important}}
 @media(max-width:768px){
   .contact-wrap,.footer-top{grid-template-columns:1fr}
   .steps-grid::before{display:none}
@@ -599,11 +618,11 @@ footer{background:#0f172a;color:#94a3b8;padding:56px 0 24px}
   <div class="hero-orb hero-orb-1"></div>
   <div class="hero-orb hero-orb-2"></div>
   <div class="container">
-    <div class="hero-content" data-reveal>
-      ${s.bizBadge ? `<div class="hero-badge">✦ ${s.bizBadge}</div>` : ''}
-      <h1>${s.heroTitle||s.bizTagline||''}</h1>
-      <p>${s.heroSub||s.bizDesc||''}</p>
-      <div class="hero-btns">
+    <div class="hero-content">
+      ${s.bizBadge ? `<div class="hero-badge" style="animation:heroIn .5s cubic-bezier(.22,1,.36,1) .1s backwards">✦ ${s.bizBadge}</div>` : ''}
+      <h1 style="animation:heroIn .7s cubic-bezier(.22,1,.36,1) .28s backwards">${s.heroTitle||s.bizTagline||''}</h1>
+      <p style="animation:heroIn .7s cubic-bezier(.22,1,.36,1) .46s backwards">${s.heroSub||s.bizDesc||''}</p>
+      <div class="hero-btns" style="animation:heroIn .6s cubic-bezier(.22,1,.36,1) .62s backwards">
         <a href="${s.ctaLink||'#contacto'}" class="btn-primary">${s.heroCta||'Contactar'} →</a>
         ${s.ctWa ? `<a href="${waLink}" target="_blank" class="btn-secondary">💬 WhatsApp</a>` : ''}
       </div>
@@ -623,7 +642,7 @@ footer{background:#0f172a;color:#94a3b8;padding:56px 0 24px}
 
 <section class="section section-alt" id="servicios">
   <div class="container">
-    <div class="section-header" data-reveal>
+    <div class="section-header" data-r>
       <span class="section-tag">⭐ Servicios</span>
       <h2>Todo lo que necesitas en un solo lugar</h2>
       <p>${s.bizDesc||''}</p>
@@ -634,7 +653,7 @@ footer{background:#0f172a;color:#94a3b8;padding:56px 0 24px}
 
 <section class="section" id="galeria">
   <div class="container">
-    <div class="section-header" data-reveal>
+    <div class="section-header" data-r>
       <span class="section-tag">📸 Galería</span>
       <h2>Nuestro trabajo habla por nosotros</h2>
     </div>
@@ -646,7 +665,7 @@ ${ytEmbed}
 
 <section class="section section-alt" id="proceso">
   <div class="container">
-    <div class="section-header" data-reveal>
+    <div class="section-header" data-r>
       <span class="section-tag">⚙️ ¿Cómo funciona?</span>
       <h2>Proceso simple y transparente</h2>
       <p>Te acompañamos en cada paso del camino.</p>
@@ -657,7 +676,7 @@ ${ytEmbed}
 
 <section class="section" id="testimonios">
   <div class="container">
-    <div class="section-header" data-reveal>
+    <div class="section-header" data-r>
       <span class="section-tag">⭐ Testimonios</span>
       <h2>La confianza de quienes ya nos eligieron</h2>
       <p>Resultados reales de personas reales.</p>
@@ -668,7 +687,7 @@ ${ytEmbed}
 
 <section class="section section-alt">
   <div class="container">
-    <div class="cta-banner" data-reveal>
+    <div class="cta-banner" data-r>
       <h2>¿Listo para empezar?</h2>
       <p>${s.bizTagline||'Contáctanos hoy y recibe atención personalizada.'}</p>
       <a href="${s.ctaLink||'#contacto'}" class="btn-white">${s.heroCta||'Contactar'} →</a>
@@ -678,19 +697,19 @@ ${ytEmbed}
 
 <section class="section" id="contacto">
   <div class="container">
-    <div class="section-header" data-reveal>
+    <div class="section-header" data-r>
       <span class="section-tag">📞 Contáctanos</span>
       <h2>Estamos aquí para ayudarte</h2>
     </div>
     <div class="contact-wrap">
-      <div class="contact-info" data-reveal>
+      <div class="contact-info" data-rl>
         <h3>${s.bizName||''}</h3>
         ${s.ctPhone ? `<div class="contact-item"><div class="contact-item-icon">📞</div><div class="contact-item-text"><strong>Teléfono</strong><span>${s.ctPhone}</span></div></div>` : ''}
         ${s.ctEmail ? `<div class="contact-item"><div class="contact-item-icon">✉️</div><div class="contact-item-text"><strong>Email</strong><span>${s.ctEmail}</span></div></div>` : ''}
         ${s.ctAddr  ? `<div class="contact-item"><div class="contact-item-icon">📍</div><div class="contact-item-text"><strong>Dirección</strong><span>${s.ctAddr}</span></div></div>` : ''}
         ${s.ctHorario ? `<div class="contact-item"><div class="contact-item-icon">🕐</div><div class="contact-item-text"><strong>Horario</strong><span>${s.ctHorario}</span></div></div>` : ''}
       </div>
-      <div data-reveal style="--delay:.15s">
+      <div data-rr style="--delay:.15s">
         <div class="form-card">
           <div class="form-title">${s.formTitle||'Contáctanos'}</div>
           <div class="form-sub">Te respondemos en menos de 24 horas.</div>
@@ -715,6 +734,13 @@ ${ytEmbed}
   </div>
 </section>
 
+<div class="wave-divider">
+  <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+    <path class="wv wv1" d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,30 1440,40 L1440,80 L0,80 Z" fill="rgba(15,23,42,.35)"/>
+    <path class="wv wv2" d="M0,55 C240,18 480,72 720,55 C960,36 1200,72 1440,55 L1440,80 L0,80 Z" fill="rgba(15,23,42,.65)"/>
+    <path class="wv wv3" d="M0,65 C360,90 720,40 1080,65 C1260,78 1380,55 1440,65 L1440,80 L0,80 Z" fill="#0f172a"/>
+  </svg>
+</div>
 <footer>
   <div class="container">
     <div class="footer-top">
@@ -751,9 +777,9 @@ function submitForm(e){
   else if(dest==='webhook'&&val){fetch(val,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({nombre:document.getElementById('fn').value,telefono:document.getElementById('ft').value,email:document.getElementById('fe').value,mensaje:document.getElementById('fm').value})}).catch(function(){});}
   document.getElementById('cf').style.display='none';document.getElementById('fok').style.display='block';
 }
-var io=new IntersectionObserver(function(e){e.forEach(function(n){if(n.isIntersecting){n.target.classList.add('visible');io.unobserve(n.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('[data-reveal]').forEach(function(e){io.observe(e);});
-setTimeout(function(){document.querySelectorAll('[data-reveal]').forEach(function(e){e.classList.add('visible');});},1400);
+var io=new IntersectionObserver(function(e){e.forEach(function(n){if(n.isIntersecting){n.target.classList.add('v');io.unobserve(n.target);}});},{threshold:.1,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('[data-r],[data-rl],[data-rr],[data-rs]').forEach(function(e){io.observe(e);});
+setTimeout(function(){document.querySelectorAll('[data-r],[data-rl],[data-rr],[data-rs]').forEach(function(e){e.classList.add('v');});},1400);
 var _he=document.getElementById('hero'),_ht=_he&&_he.getAttribute('data-ht');
 if(_he&&(_ht==='overlay'||_ht==='img'))window.addEventListener('scroll',function(){_he.style.backgroundPositionY=(window.scrollY*.38)+'px';},{passive:true});
 <\/script>
