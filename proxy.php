@@ -754,7 +754,7 @@ if ($html && $accion_actual === 'generar_html') {
     $bens_img_pos = in_array($data['bens_img_pos'] ?? 'left', ['left','right']) ? $data['bens_img_pos'] : 'left';
     $cta_effect   = preg_replace('/[^a-z]/', '', strtolower($data['cta_effect'] ?? 'none'));
     $sticky_color = $data['sticky_color'] ?? 'auto';
-    $cta_href     = htmlspecialchars(trim($data['cta_url'] ?? '#'), ENT_QUOTES);
+    $cta_href     = htmlspecialchars(trim($data['cta_url'] ?? '') ?: '#cta', ENT_QUOTES);
     $copy_ed      = $data['copy_editado'] ?? [];
     $cta_text     = htmlspecialchars(
         $copy_ed['hero']['cta'] ?? $copy_ed['cta_final']['btn'] ?? 'Comprar ahora',
@@ -787,6 +787,7 @@ if ($html && $accion_actual === 'generar_html') {
 #df-sticky-bar a{display:block;text-align:center;font-size:1.08rem;font-weight:800;text-decoration:none;letter-spacing:.3px;transition:opacity .15s}
 #df-sticky-bar a:hover{opacity:.85}
 @media(min-width:769px){#df-sticky-bar{display:none!important}}
+@media(max-width:768px){#ctaFloat{display:none!important}}
 </style>
 <div id=\"df-sticky-bar\" style=\"background-color:{$bg_color};background:{$bg_color}\"><a href=\"{$cta_href}\" style=\"color:{$text_color};display:block;padding:0;text-shadow:0 1px 3px rgba(0,0,0,.18)\">{$cta_text}</a></div>
 <script>
