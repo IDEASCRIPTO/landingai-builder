@@ -695,8 +695,9 @@ if (in_array($accion_actual, $COPY_ACTIONS)) {
     }
 
     $copy = $parsed['copy'] ?? [];
-    if (empty($copy)) {
-        echo json_encode(['success'=>false,'error'=>'La IA no retornó un JSON válido. Intentá de nuevo.','_raw'=>substr($parsed['raw_text']??'',0,300)]);
+    if (empty($copy) || isset($copy['raw'])) {
+        $raw_preview = substr($parsed['raw_text'] ?? '', 0, 300);
+        echo json_encode(['success'=>false,'error'=>'La IA no retornó un JSON válido. Intentá de nuevo.','_debug'=>$raw_preview]);
         exit;
     }
     if (is_array($copy) && (isset($copy['meta']) || isset($copy['tiktok']))) {
@@ -820,7 +821,7 @@ if ($html && $accion_actual === 'generar_html') {
     if(!a||!a.closest('#df-sticky-bar'))return;
     var href=a.getAttribute('href')||'';
     if(href.startsWith('#')){var el=document.getElementById(href.slice(1));if(el)el.scrollIntoView({behavior:'smooth'});}
-    else if(href&&href!=='#'){window.location.href=href;}
+    else if(href&&href!=='#'){window.open(href,'_blank','noopener,noreferrer');}
   },true);
 })();
 </script>";
