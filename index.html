@@ -1056,6 +1056,11 @@ function ytBannerSvg(){ return '<svg class="yt-icon" viewBox="0 0 24 24" fill="#
         <button class="estilo-btn" id="bensE2" onclick="selectBensEstilo(2)">✅ Lista</button>
         <button class="estilo-btn" id="bensE3" onclick="selectBensEstilo(3)">🔢 Numerado</button>
       </div>
+      <div style="font-size:.72rem;color:var(--tm);margin:.6rem 0 .3rem">Imagen — lado (PC)</div>
+      <div class="estilo-row">
+        <button class="estilo-btn active" id="bensIP_left" onclick="selectBensImgPos('left')">← Izquierda</button>
+        <button class="estilo-btn" id="bensIP_right" onclick="selectBensImgPos('right')">Derecha →</button>
+      </div>
 
       <label class="lbl" style="margin-top:1.2rem">Video — estilo</label>
       <div class="estilo-row">
@@ -1641,6 +1646,7 @@ const st = {
   reviews_estilo: 1,
   reviews_cantidad: 3,
   bens_estilo: 1,
+  bens_img_pos: 'left',
   video_estilo: 1,
   bg_color: '#ffffff',
   ratios: { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' },
@@ -1704,6 +1710,11 @@ function selectReviewsEstilo(n){
 function selectBensEstilo(n){
   st.bens_estilo = n;
   [1,2,3].forEach(i => document.getElementById('bensE'+i)?.classList.toggle('active', i===n));
+}
+
+function selectBensImgPos(p){
+  st.bens_img_pos = p;
+  ['left','right'].forEach(v => document.getElementById('bensIP_'+v)?.classList.toggle('active', v===p));
 }
 
 /* ── VIDEO ESTILO ────────────────────────────── */
@@ -2540,6 +2551,7 @@ async function generate(tipo_salida){
     reviews_estilo: st.reviews_estilo || 1,
     cantidad_reviews: st.reviews_cantidad || 3,
     bens_estilo: st.bens_estilo || 1,
+    bens_img_pos: st.bens_img_pos || 'left',
     video_estilo: st.video_estilo || 1,
     bg_color: st.bg_color || '#ffffff',
     ratio_hero:    st.ratios.hero,
@@ -2748,8 +2760,8 @@ function toggleStickyColor(cb){
 
 function resetAll(){
   st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html'; st.hero_estilo = 'A'; st.reviews_estilo = 1;
-  st.bens_estilo = 1; st.video_estilo = 1; st.bg_color = '#ffffff';
-  selectBensEstilo(1); selectVideoEstilo(1); selectBg('#ffffff', 'bgSw0');
+  st.bens_estilo = 1; st.video_estilo = 1; st.bg_color = '#ffffff'; st.bens_img_pos = 'left';
+  selectBensEstilo(1); selectVideoEstilo(1); selectBg('#ffffff', 'bgSw0'); selectBensImgPos('left');
   st.secs = {}; st.secs_order = [];
   st.ratios = { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' };
   st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']},antes:{url:''},despues:{url:''},bens:{url:''}};
