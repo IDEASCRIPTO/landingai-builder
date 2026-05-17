@@ -809,27 +809,6 @@ if ($html && $accion_actual === 'generar_html') {
   window.addEventListener('scroll',tick,{passive:true});
   window.addEventListener('resize',tick,{passive:true});
   setTimeout(tick,300);
-  // Reposicionar imagen de beneficios (solo PC)
-  if(window.innerWidth>768){
-    var bensPos='{$bens_img_pos}';
-    if(bensPos==='right'){
-      var bSec=document.querySelector('#beneficios,#benefits,[id*=\"beneficio\"],[class*=\"beneficio\"],[class*=\"bens-sec\"],[class*=\"section-ben\"]');
-      if(bSec){
-        var bImg=bSec.querySelector('img');
-        if(bImg){
-          var el=bImg.parentElement;
-          while(el&&el!==bSec){
-            var cs=window.getComputedStyle(el);
-            if((cs.display==='flex'||cs.display==='inline-flex')&&el.children.length>=2){
-              el.style.flexDirection='row-reverse';
-              break;
-            }
-            el=el.parentElement;
-          }
-        }
-      }
-    }
-  }
 })();
 </script>";
 
