@@ -912,6 +912,16 @@ function ytBannerSvg(){ return '<svg class="yt-icon" viewBox="0 0 24 24" fill="#
       <textarea id="s1_instr" placeholder="Instrucciones extra para la IA: estilo de escritura, datos específicos, restricciones..."></textarea>
     </div>
 
+    <div class="card">
+      <div class="sec-title">📊 Píxeles de seguimiento <span style="font-size:.72rem;font-weight:400;color:var(--tm)">(opcional)</span></div>
+      <label class="lbl">Meta (Facebook) Pixel ID</label>
+      <input type="text" id="s1_meta_pixel" placeholder="Ej: 1234567890123456"/>
+      <label class="lbl">TikTok Pixel ID</label>
+      <input type="text" id="s1_tiktok_pixel" placeholder="Ej: CABCDE1234567890"/>
+      <label class="lbl">Google Analytics 4 ID</label>
+      <input type="text" id="s1_ga_id" placeholder="Ej: G-XXXXXXXXXX"/>
+    </div>
+
     <button class="btn btn-primary btn-full btn-lg" onclick="generateCopy()" id="btnGenCopy">
       ✨ Generar Copy con IA
     </button>
@@ -2531,6 +2541,9 @@ async function generate(tipo_salida){
     precio_antes: document.getElementById('s1_precio_antes').value.trim(),
     whatsapp: document.getElementById('s1_wa').value.trim(),
     cta_url: document.getElementById('s1_cta_url').value.trim(),
+    meta_pixel_id: document.getElementById('s1_meta_pixel').value.trim(),
+    tiktok_pixel_id: document.getElementById('s1_tiktok_pixel').value.trim(),
+    ga_id: document.getElementById('s1_ga_id').value.trim(),
     cta_effect: document.getElementById('s1_cta_effect')?.value || 'none',
     sticky_color: document.getElementById('s1_sticky_auto')?.checked ? 'auto' : (document.getElementById('s1_sticky_color')?.value || '#1D9E75'),
     sticky_text_color: document.getElementById('s1_sticky_auto')?.checked ? '#ffffff' : (document.getElementById('s1_sticky_text_color')?.value || '#ffffff'),
@@ -2766,7 +2779,7 @@ function resetAll(){
   st.secs = {}; st.secs_order = [];
   st.ratios = { hero:'4/3', antes:'1/1', despues:'1/1', bens:'4/3', prob:'4/3', revs:'1/1' };
   st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']},antes:{url:''},despues:{url:''},bens:{url:''}};
-  ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_cta_url','s1_instr','videoUrl','videoUrl2','videoUrl3','videoCaption']
+  ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_cta_url','s1_instr','videoUrl','videoUrl2','videoUrl3','videoCaption','s1_meta_pixel','s1_tiktok_pixel','s1_ga_id']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
   const eff = document.getElementById('s1_cta_effect'); if(eff) eff.value = 'none';
   const sAuto = document.getElementById('s1_sticky_auto'); if(sAuto){ sAuto.checked = true; toggleStickyColor(sAuto); }

@@ -828,6 +828,53 @@ if ($html && $accion_actual === 'generar_html') {
 
     $html = str_replace('</body>', $snippet . "\n</body>", $html);
     if (strpos($html, '</body>') === false) $html .= $snippet;
+
+    // ── Inyectar píxeles de seguimiento ──────────────────────────────────────
+    $meta_pixel   = preg_replace('/[^0-9]/', '', $data['meta_pixel_id'] ?? '');
+    $tiktok_pixel = preg_replace('/[^A-Za-z0-9]/', '', $data['tiktok_pixel_id'] ?? '');
+    $ga_id        = preg_replace('/[^A-Za-z0-9\-]/', '', $data['ga_id'] ?? '');
+
+    if ($meta_pixel || $tiktok_pixel || $ga_id) {
+        $prod_name     = addslashes($data['nombre_producto'] ?? '');
+        $prod_price    = (float) preg_replace('/[^0-9.]/', '', $data['precio'] ?? '0');
+        $prod_currency = preg_replace('/[^A-Z]/', '', strtoupper($data['moneda'] ?? 'USD')) ?: 'USD';
+        $prod_id       = preg_replace('/[^a-z0-9_]/', '_', strtolower($data['nombre_producto'] ?? 'product'));
+
+        $pixel_head = "\n<!-- Tracking Pixels -->\n";
+
+        if ($meta_pixel) {
+            $pixel_head .= "<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');fbq('init','{$meta_pixel}');fbq('track','PageView');fbq('track','ViewContent',{content_ids:['{$prod_id}'],content_type:'product',content_name:'{$prod_name}',value:{$prod_price},currency:'{$prod_currency}'});</script>\n<noscript><img height='1' width='1' style='display:none' src='https://www.facebook.com/tr?id={$meta_pixel}&ev=PageView&noscript=1'/></noscript>\n";
+        }
+        if ($tiktok_pixel) {
+            $pixel_head .= "<script>!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=['page','track','identify','instances','debug','on','off','once','ready','alias','group','enableCookie','disableCookie'],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var r='https://analytics.tiktok.com/i18n/pixel/events.js';ttq._i=ttq._i||{},ttq._i[e]=[],ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};var s=document.createElement('script');s.type='text/javascript',s.async=!0,s.src=r+'?sdkid='+e+'&lib='+t;var a=document.getElementsByTagName('script')[0];a.parentNode.insertBefore(s,a)};ttq.load('{$tiktok_pixel}');ttq.page();ttq.track('ViewContent',{content_id:'{$prod_id}',content_type:'product',content_name:'{$prod_name}',value:{$prod_price},currency:'{$prod_currency}'});}(window,document,'ttq');</script>\n";
+        }
+        if ($ga_id) {
+            $pixel_head .= "<script async src='https://www.googletagmanager.com/gtag/js?id={$ga_id}'></script>\n<script>window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('js',new Date());gtag('config','{$ga_id}');gtag('event','view_item',{currency:'{$prod_currency}',value:{$prod_price},items:[{item_id:'{$prod_id}',item_name:'{$prod_name}',quantity:1,price:{$prod_price}}]});</script>\n";
+        }
+
+        // InitiateCheckout al click en cualquier botón CTA + Lead al ver el formulario
+        $pixel_events = "<script>\n(function(){\n";
+        $pixel_events .= "  var _mp='{$meta_pixel}',_tp='{$tiktok_pixel}',_ga='{$ga_id}';\n";
+        $pixel_events .= "  var _pi='{$prod_id}',_pn='{$prod_name}',_pv={$prod_price},_pc='{$prod_currency}';\n";
+        $pixel_events .= "  function _ic(){\n";
+        $pixel_events .= "    if(_mp&&typeof fbq==='function')fbq('trackSingle',_mp,'InitiateCheckout',{content_ids:[_pi],content_type:'product',value:_pv,currency:_pc,num_items:1});\n";
+        $pixel_events .= "    if(_tp&&typeof ttq!=='undefined')ttq.track('InitiateCheckout',{content_id:_pi,content_type:'product',value:_pv,currency:_pc});\n";
+        $pixel_events .= "    if(_ga&&typeof gtag==='function')gtag('event','begin_checkout',{currency:_pc,value:_pv,items:[{item_id:_pi,item_name:_pn,quantity:1,price:_pv}]});\n";
+        $pixel_events .= "  }\n";
+        $pixel_events .= "  function _lead(){\n";
+        $pixel_events .= "    if(_mp&&typeof fbq==='function')fbq('trackSingle',_mp,'Lead',{content_name:_pn,value:_pv,currency:_pc});\n";
+        $pixel_events .= "    if(_tp&&typeof ttq!=='undefined')ttq.track('SubmitForm',{content_id:_pi,content_type:'product'});\n";
+        $pixel_events .= "    if(_ga&&typeof gtag==='function')gtag('event','generate_lead',{currency:_pc,value:_pv});\n";
+        $pixel_events .= "  }\n";
+        $pixel_events .= "  document.addEventListener('click',function(e){var b=e.target.closest('a[class*=\"btn\"],button[class*=\"btn\"],a[class*=\"cta\"],#df-sticky-bar');if(b)_ic();});\n";
+        $pixel_events .= "  var _f=document.getElementById('cta')||document.querySelector('form,[class*=\"pedido\"]');\n";
+        $pixel_events .= "  if(_f){var _lf=false;new IntersectionObserver(function(en){if(!_lf&&en[0].isIntersecting){_lf=true;_lead();}},{threshold:0.3}).observe(_f);}\n";
+        $pixel_events .= "})();\n</script>";
+
+        $html = str_replace('</head>', $pixel_head . '</head>', $html);
+        $html = str_replace('</body>', $pixel_events . "\n</body>", $html);
+    }
+
     $parsed['html'] = $html;
 }
 // ────────────────────────────────────────────────────────────────────────────
