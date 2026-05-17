@@ -783,9 +783,9 @@ if ($html && $accion_actual === 'generar_html') {
 .df-fx-pulse{animation:df-pulse 2s ease-in-out infinite}
 .df-fx-bounce{animation:df-bounce 1.6s ease-in-out infinite}
 .df-fx-glow{animation:df-glow 2.2s ease-in-out infinite}
-#df-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:9990;padding:10px 14px 14px;display:none;background:rgba(0,0,0,.55)!important;box-shadow:0 -3px 22px rgba(0,0,0,.28)}
-#df-sticky-bar a{display:block!important;background-color:{$bg_color}!important;background:{$bg_color}!important;color:{$text_color}!important;text-align:center!important;font-size:1.05rem!important;font-weight:800!important;padding:15px!important;border-radius:10px!important;text-decoration:none!important;letter-spacing:.3px;transition:opacity .2s;border:none!important;outline:none}
-#df-sticky-bar a:hover{opacity:.9!important}
+#df-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:9990;padding:12px 16px 18px;display:none;background-color:{$bg_color}!important;background:{$bg_color}!important;box-shadow:0 -4px 24px rgba(0,0,0,.3)}
+#df-sticky-bar a{display:block!important;background:transparent!important;background-color:transparent!important;color:{$text_color}!important;text-align:center!important;font-size:1.08rem!important;font-weight:800!important;padding:0!important;border-radius:0!important;text-decoration:none!important;letter-spacing:.3px;border:none!important;outline:none;text-shadow:0 1px 3px rgba(0,0,0,.2)}
+#df-sticky-bar a:hover{opacity:.88!important}
 @media(min-width:769px){#df-sticky-bar{display:none!important}}
 </style>
 <div id=\"df-sticky-bar\"><a href=\"{$cta_href}\">{$cta_text}</a></div>
