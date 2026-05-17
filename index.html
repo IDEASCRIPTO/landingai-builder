@@ -888,6 +888,27 @@ function ytBannerSvg(){ return '<svg class="yt-icon" viewBox="0 0 24 24" fill="#
       </div>
       <label class="lbl" style="margin-top:.75rem">URL destino del CTA</label>
       <input type="url" id="s1_cta_url" placeholder="https://tu-tienda.com/comprar  (vacío = scroll interno)"/>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.75rem">
+        <div>
+          <label class="lbl">Efecto del botón CTA</label>
+          <select id="s1_cta_effect">
+            <option value="none">Sin efecto</option>
+            <option value="shake">🫨 Sacudida</option>
+            <option value="pulse">💓 Pulso</option>
+            <option value="bounce">⬆️ Rebote</option>
+            <option value="glow">✨ Brillo</option>
+          </select>
+        </div>
+        <div>
+          <label class="lbl">Barra sticky mobile</label>
+          <label style="display:flex;align-items:center;gap:.4rem;font-size:.76rem;color:var(--tm);cursor:pointer;margin-bottom:.4rem">
+            <input type="checkbox" id="s1_sticky_auto" checked onchange="toggleStickyColor(this)"> Color automático
+          </label>
+          <input type="color" id="s1_sticky_color" value="#1D9E75"
+            style="display:none;width:100%;height:34px;border:1px solid var(--bd2);border-radius:6px;cursor:pointer;background:transparent;padding:2px">
+        </div>
+      </div>
     </div>
 
     <div class="card">
@@ -2487,6 +2508,8 @@ async function generate(tipo_salida){
     precio_antes: document.getElementById('s1_precio_antes').value.trim(),
     whatsapp: document.getElementById('s1_wa').value.trim(),
     cta_url: document.getElementById('s1_cta_url').value.trim(),
+    cta_effect: document.getElementById('s1_cta_effect')?.value || 'none',
+    sticky_color: document.getElementById('s1_sticky_auto')?.checked ? 'auto' : (document.getElementById('s1_sticky_color')?.value || '#1D9E75'),
     instrucciones: document.getElementById('s1_instr').value.trim(),
     color_principal: st.style.color,
     fuente: st.style.fuente,
@@ -2705,6 +2728,10 @@ function updateStepBar(){
 }
 
 /* ── RESET ───────────────────────────────────── */
+function toggleStickyColor(cb){
+  document.getElementById('s1_sticky_color').style.display = cb.checked ? 'none' : 'block';
+}
+
 function resetAll(){
   st.copy = null; st.html = ''; st.step = 1; st.last_tipo = 'html'; st.hero_estilo = 'A'; st.reviews_estilo = 1;
   st.bens_estilo = 1; st.video_estilo = 1; st.bg_color = '#ffffff';
@@ -2714,6 +2741,8 @@ function resetAll(){
   st.imgs = {hero:{urls:['']},prob:{url:''},revs:{urls:['']},antes:{url:''},despues:{url:''},bens:{url:''}};
   ['s1_nombre','s1_desc','s1_bens','s1_pub','s1_precio','s1_precio_antes','s1_wa','s1_cta_url','s1_instr','videoUrl','videoUrl2','videoUrl3','videoCaption']
     .forEach(id => { const el = document.getElementById(id); if(el) el.value = ''; });
+  const eff = document.getElementById('s1_cta_effect'); if(eff) eff.value = 'none';
+  const sAuto = document.getElementById('s1_sticky_auto'); if(sAuto){ sAuto.checked = true; toggleStickyColor(sAuto); }
   document.getElementById('copyEditor').innerHTML = '';
   buildSecGrid();
   renderUrlList('hero'); renderUrlList('revs');
