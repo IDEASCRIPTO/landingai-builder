@@ -763,12 +763,13 @@ if ($html && $accion_actual === 'generar_html') {
     $valid_effects = ['shake', 'pulse', 'bounce', 'glow'];
     $effect_safe   = in_array($cta_effect, $valid_effects) ? $cta_effect : 'none';
 
+    // Color de fondo: auto usa color_principal del builder (más confiable que detección JS)
     if ($sticky_color === 'auto') {
-        $color_js = "var b=document.querySelector('[class*=\"cta\"] a,[class*=\"btn-cta\"],a[class*=\"cta\"],button[class*=\"cta\"]');bar.style.background=b?getComputedStyle(b).backgroundColor:'#1D9E75';";
+        $bg_color = preg_replace('/[^#a-fA-F0-9]/', '', $data['color_principal'] ?? '#1D9E75') ?: '#1D9E75';
     } else {
-        $safe_color = preg_replace('/[^#a-fA-F0-9]/', '', $sticky_color);
-        $color_js   = "bar.style.background='" . $safe_color . "';";
+        $bg_color = preg_replace('/[^#a-fA-F0-9]/', '', $sticky_color) ?: '#1D9E75';
     }
+    $text_color = preg_replace('/[^#a-fA-F0-9]/', '', $data['sticky_text_color'] ?? '#ffffff') ?: '#ffffff';
 
     $snippet = "
 <!-- df-cta-enhancements -->
@@ -781,8 +782,8 @@ if ($html && $accion_actual === 'generar_html') {
 .df-fx-pulse{animation:df-pulse 2s ease-in-out infinite}
 .df-fx-bounce{animation:df-bounce 1.6s ease-in-out infinite}
 .df-fx-glow{animation:df-glow 2.2s ease-in-out infinite}
-#df-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:9990;padding:10px 14px 14px;display:none;box-shadow:0 -3px 22px rgba(0,0,0,.28)}
-#df-sticky-bar a{display:block;color:#fff!important;text-align:center;font-size:1.05rem;font-weight:800;padding:15px;border-radius:10px;text-decoration:none;letter-spacing:.3px;transition:opacity .2s}
+#df-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:9990;padding:10px 14px 14px;display:none;background:{$bg_color};box-shadow:0 -3px 22px rgba(0,0,0,.28)}
+#df-sticky-bar a{display:block;color:{$text_color}!important;text-align:center;font-size:1.05rem;font-weight:800;padding:15px;border-radius:10px;text-decoration:none;letter-spacing:.3px;transition:opacity .2s}
 #df-sticky-bar a:hover{opacity:.9}
 @media(min-width:769px){#df-sticky-bar{display:none!important}}
 </style>
@@ -791,7 +792,6 @@ if ($html && $accion_actual === 'generar_html') {
 (function(){
   var effect='{$effect_safe}';
   var bar=document.getElementById('df-sticky-bar');
-  {$color_js}
   if(effect!=='none'){
     var sel='[class*=\"cta\"] a,a[class*=\"cta\"],button[class*=\"cta\"],[class*=\"btn-hero\"],a[class*=\"btn\"]';
     document.querySelectorAll(sel).forEach(function(el){el.classList.add('df-fx-'+effect);});
