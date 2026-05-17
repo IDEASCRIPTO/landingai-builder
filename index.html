@@ -888,37 +888,6 @@ function ytBannerSvg(){ return '<svg class="yt-icon" viewBox="0 0 24 24" fill="#
       </div>
       <label class="lbl" style="margin-top:.75rem">URL destino del CTA</label>
       <input type="url" id="s1_cta_url" placeholder="https://tu-tienda.com/comprar  (vacío = scroll interno)"/>
-
-      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-top:.75rem">
-        <div>
-          <label class="lbl">Efecto del botón CTA</label>
-          <select id="s1_cta_effect">
-            <option value="none">Sin efecto</option>
-            <option value="shake">🫨 Sacudida</option>
-            <option value="pulse">💓 Pulso</option>
-            <option value="bounce">⬆️ Rebote</option>
-            <option value="glow">✨ Brillo</option>
-          </select>
-        </div>
-        <div>
-          <label class="lbl">Barra sticky mobile</label>
-          <label style="display:flex;align-items:center;gap:.4rem;font-size:.76rem;color:var(--tm);cursor:pointer;margin-bottom:.5rem">
-            <input type="checkbox" id="s1_sticky_auto" checked onchange="toggleStickyColor(this)"> Color automático del botón
-          </label>
-          <div id="s1_sticky_colors" style="display:none;gap:.4rem">
-            <div style="flex:1">
-              <div style="font-size:.7rem;color:var(--tm);margin-bottom:3px">Fondo</div>
-              <input type="color" id="s1_sticky_color" value="#1D9E75"
-                style="width:100%;height:32px;border:1px solid var(--bd2);border-radius:6px;cursor:pointer;background:transparent;padding:2px">
-            </div>
-            <div style="flex:1;margin-top:.4rem">
-              <div style="font-size:.7rem;color:var(--tm);margin-bottom:3px">Texto</div>
-              <input type="color" id="s1_sticky_text_color" value="#ffffff"
-                style="width:100%;height:32px;border:1px solid var(--bd2);border-radius:6px;cursor:pointer;background:transparent;padding:2px">
-            </div>
-          </div>
-        </div>
-      </div>
     </div>
 
     <div class="card">
@@ -1046,6 +1015,38 @@ function ytBannerSvg(){ return '<svg class="yt-icon" viewBox="0 0 24 24" fill="#
         <div style="display:flex;flex-direction:column;align-items:center;gap:4px">
           <input type="color" class="bg-sw-custom" id="bgColorPicker" value="#ffffff" title="Personalizado" oninput="selectBg(this.value,null)"/>
           <span class="bg-sw-lbl">Custom</span>
+        </div>
+      </div>
+
+      <label class="lbl" style="margin-top:1.2rem">Botón CTA</label>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:.75rem">
+        <div>
+          <div style="font-size:.72rem;color:var(--tm);margin-bottom:.35rem">Efecto de animación</div>
+          <select id="s1_cta_effect">
+            <option value="none">Sin efecto</option>
+            <option value="shake">🫨 Sacudida</option>
+            <option value="pulse">💓 Pulso</option>
+            <option value="bounce">⬆️ Rebote</option>
+            <option value="glow">✨ Brillo</option>
+          </select>
+        </div>
+        <div>
+          <div style="font-size:.72rem;color:var(--tm);margin-bottom:.35rem">Barra sticky (mobile)</div>
+          <label style="display:flex;align-items:center;gap:.4rem;font-size:.76rem;color:var(--tm);cursor:pointer;margin-bottom:.45rem">
+            <input type="checkbox" id="s1_sticky_auto" checked onchange="toggleStickyColor(this)"> Auto (usa color principal)
+          </label>
+          <div id="s1_sticky_colors" style="display:none;flex-direction:column;gap:.35rem">
+            <div>
+              <div style="font-size:.68rem;color:var(--td);margin-bottom:2px">Color fondo</div>
+              <input type="color" id="s1_sticky_color" value="#1D9E75"
+                style="width:100%;height:30px;border:1px solid var(--bd2);border-radius:6px;cursor:pointer;background:transparent;padding:2px">
+            </div>
+            <div>
+              <div style="font-size:.68rem;color:var(--td);margin-bottom:2px">Color texto</div>
+              <input type="color" id="s1_sticky_text_color" value="#ffffff"
+                style="width:100%;height:30px;border:1px solid var(--bd2);border-radius:6px;cursor:pointer;background:transparent;padding:2px">
+            </div>
+          </div>
         </div>
       </div>
 
