@@ -2491,6 +2491,7 @@ async function regenSec(id){
     const res  = await fetch(PROXY, {method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
     const data = await res.json();
     if(!data.success) throw new Error(data.error || 'Error regenerando sección');
+    if(data._debug) console.warn('[regen debug]', data._debug);
     if(data.copy && data.copy[id]){
       st.copy[id] = data.copy[id];
       buildCopyEditor();

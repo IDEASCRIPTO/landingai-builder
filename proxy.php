@@ -690,11 +690,15 @@ if (in_array($accion_actual, $COPY_ACTIONS)) {
     $parsed = parseAiCopyResponse($aiResp);
 
     if (isset($parsed['error'])) {
-        echo json_encode(['success'=>false,'error'=>$parsed['error']]);
+        echo json_encode(['success'=>false,'error'=>$parsed['error'],'_debug'=>substr($parsed['raw_text']??'',0,300)]);
         exit;
     }
 
     $copy = $parsed['copy'] ?? [];
+    if (empty($copy)) {
+        echo json_encode(['success'=>false,'error'=>'La IA no retornó un JSON válido. Intentá de nuevo.','_raw'=>substr($parsed['raw_text']??'',0,300)]);
+        exit;
+    }
     if (is_array($copy) && (isset($copy['meta']) || isset($copy['tiktok']))) {
         echo json_encode(['success'=>true,'ads'=>$copy]);
     } else {
@@ -810,6 +814,14 @@ if ($html && $accion_actual === 'generar_html') {
   window.addEventListener('scroll',tick,{passive:true});
   window.addEventListener('resize',tick,{passive:true});
   setTimeout(tick,300);
+  // Override navigation block for sticky bar (n8n blocks all non-btn links)
+  document.addEventListener('click',function(e){
+    var a=e.target.closest('a');
+    if(!a||!a.closest('#df-sticky-bar'))return;
+    var href=a.getAttribute('href')||'';
+    if(href.startsWith('#')){var el=document.getElementById(href.slice(1));if(el)el.scrollIntoView({behavior:'smooth'});}
+    else if(href&&href!=='#'){window.location.href=href;}
+  },true);
 })();
 </script>";
 
