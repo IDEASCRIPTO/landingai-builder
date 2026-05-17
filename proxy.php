@@ -789,12 +789,12 @@ if ($html && $accion_actual === 'generar_html') {
 .df-fx-bounce{animation:df-bounce 1.6s ease-in-out infinite}
 .df-fx-glow{animation:df-glow 2.2s ease-in-out infinite}
 #df-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:9990;padding:12px 16px 18px;display:none;box-shadow:0 -4px 24px rgba(0,0,0,.35)}
-#df-sticky-bar a{display:block;text-align:center;font-size:1.08rem;font-weight:800;text-decoration:none;letter-spacing:.3px;transition:opacity .15s}
+#df-sticky-bar a{display:block;text-align:center;font-size:1.08rem;font-weight:800;text-decoration:none!important;letter-spacing:.3px;transition:opacity .15s}
 #df-sticky-bar a:hover{opacity:.85}
 @media(min-width:769px){#df-sticky-bar{display:none!important}}
 @media(max-width:768px){#ctaFloat{display:none!important}}
 </style>
-<div id=\"df-sticky-bar\" style=\"background-color:{$bg_color};background:{$bg_color}\"><a href=\"#cta\" style=\"color:{$text_color};display:block;padding:0;text-shadow:0 1px 3px rgba(0,0,0,.18)\">{$cta_text}</a></div>
+<div id=\"df-sticky-bar\" style=\"background-color:{$bg_color};background:{$bg_color}\"><a href=\"{$cta_href}\" style=\"color:{$text_color};display:block;padding:0;text-shadow:0 1px 3px rgba(0,0,0,.18)\">{$cta_text}</a></div>
 <script>
 (function(){
   var effect='{$effect_safe}';
@@ -815,13 +815,15 @@ if ($html && $accion_actual === 'generar_html') {
   window.addEventListener('scroll',tick,{passive:true});
   window.addEventListener('resize',tick,{passive:true});
   setTimeout(tick,300);
-  // Override navigation block for sticky bar: always scroll to form, never leave the page
+  // Override navigation block for sticky bar: same action as other CTA buttons, never leave the page
   document.addEventListener('click',function(e){
     var a=e.target.closest('a');
     if(!a||!a.closest('#df-sticky-bar'))return;
     e.preventDefault();
     e.stopPropagation();
-    var el=document.getElementById('cta');
+    var href=a.getAttribute('href')||'#cta';
+    var id=href.startsWith('#')?href.slice(1):'cta';
+    var el=document.getElementById(id);
     if(el)el.scrollIntoView({behavior:'smooth'});
   },true);
 })();
