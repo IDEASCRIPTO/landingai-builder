@@ -794,7 +794,7 @@ if ($html && $accion_actual === 'generar_html') {
 @media(min-width:769px){#df-sticky-bar{display:none!important}}
 @media(max-width:768px){#ctaFloat{display:none!important}}
 </style>
-<div id=\"df-sticky-bar\" style=\"background-color:{$bg_color};background:{$bg_color}\"><a href=\"{$cta_href}\" style=\"color:{$text_color};display:block;padding:0;text-shadow:0 1px 3px rgba(0,0,0,.18)\">{$cta_text}</a></div>
+<div id=\"df-sticky-bar\" style=\"background-color:{$bg_color};background:{$bg_color}\"><a href=\"#cta\" style=\"color:{$text_color};display:block;padding:0;text-shadow:0 1px 3px rgba(0,0,0,.18)\">{$cta_text}</a></div>
 <script>
 (function(){
   var effect='{$effect_safe}';
@@ -815,13 +815,14 @@ if ($html && $accion_actual === 'generar_html') {
   window.addEventListener('scroll',tick,{passive:true});
   window.addEventListener('resize',tick,{passive:true});
   setTimeout(tick,300);
-  // Override navigation block for sticky bar (n8n blocks all non-btn links)
+  // Override navigation block for sticky bar: always scroll to form, never leave the page
   document.addEventListener('click',function(e){
     var a=e.target.closest('a');
     if(!a||!a.closest('#df-sticky-bar'))return;
-    var href=a.getAttribute('href')||'';
-    if(href.startsWith('#')){var el=document.getElementById(href.slice(1));if(el)el.scrollIntoView({behavior:'smooth'});}
-    else if(href&&href!=='#'){window.open(href,'_blank','noopener,noreferrer');}
+    e.preventDefault();
+    e.stopPropagation();
+    var el=document.getElementById('cta');
+    if(el)el.scrollIntoView({behavior:'smooth'});
   },true);
 })();
 </script>";
