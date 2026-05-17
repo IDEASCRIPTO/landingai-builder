@@ -749,6 +749,74 @@ $html   = $parsed['html']   ?? '';
 $liquid = $parsed['liquid'] ?? '';
 $copy   = $parsed['copy']   ?? null;
 
+// ── Inyectar sticky bar CTA + efectos en HTML generado ──────────────────────
+if ($html && $accion_actual === 'generar_html') {
+    $cta_effect   = preg_replace('/[^a-z]/', '', strtolower($data['cta_effect'] ?? 'none'));
+    $sticky_color = $data['sticky_color'] ?? 'auto';
+    $cta_href     = htmlspecialchars(trim($data['cta_url'] ?? '#'), ENT_QUOTES);
+    $copy_ed      = $data['copy_editado'] ?? [];
+    $cta_text     = htmlspecialchars(
+        $copy_ed['hero']['cta'] ?? $copy_ed['cta_final']['btn'] ?? 'Comprar ahora',
+        ENT_QUOTES
+    );
+
+    $valid_effects = ['shake', 'pulse', 'bounce', 'glow'];
+    $effect_safe   = in_array($cta_effect, $valid_effects) ? $cta_effect : 'none';
+
+    if ($sticky_color === 'auto') {
+        $color_js = "var b=document.querySelector('[class*=\"cta\"] a,[class*=\"btn-cta\"],a[class*=\"cta\"],button[class*=\"cta\"]');bar.style.background=b?getComputedStyle(b).backgroundColor:'#1D9E75';";
+    } else {
+        $safe_color = preg_replace('/[^#a-fA-F0-9]/', '', $sticky_color);
+        $color_js   = "bar.style.background='" . $safe_color . "';";
+    }
+
+    $snippet = "
+<!-- df-cta-enhancements -->
+<style>
+@keyframes df-shake{0%,100%{transform:translateX(0)}10%,30%,50%,70%,90%{transform:translateX(-5px)}20%,40%,60%,80%{transform:translateX(5px)}}
+@keyframes df-pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.07)}}
+@keyframes df-bounce{0%,100%{transform:translateY(0)}40%{transform:translateY(-9px)}60%{transform:translateY(-4px)}}
+@keyframes df-glow{0%,100%{box-shadow:0 4px 14px rgba(0,0,0,.22)}50%{box-shadow:0 4px 32px rgba(255,255,255,.38),0 0 52px rgba(255,255,255,.15)}}
+.df-fx-shake{animation:df-shake 3.5s ease-in-out infinite}
+.df-fx-pulse{animation:df-pulse 2s ease-in-out infinite}
+.df-fx-bounce{animation:df-bounce 1.6s ease-in-out infinite}
+.df-fx-glow{animation:df-glow 2.2s ease-in-out infinite}
+#df-sticky-bar{position:fixed;bottom:0;left:0;right:0;z-index:9990;padding:10px 14px 14px;display:none;box-shadow:0 -3px 22px rgba(0,0,0,.28)}
+#df-sticky-bar a{display:block;color:#fff!important;text-align:center;font-size:1.05rem;font-weight:800;padding:15px;border-radius:10px;text-decoration:none;letter-spacing:.3px;transition:opacity .2s}
+#df-sticky-bar a:hover{opacity:.9}
+@media(min-width:769px){#df-sticky-bar{display:none!important}}
+</style>
+<div id=\"df-sticky-bar\"><a href=\"{$cta_href}\">{$cta_text}</a></div>
+<script>
+(function(){
+  var effect='{$effect_safe}';
+  var bar=document.getElementById('df-sticky-bar');
+  {$color_js}
+  if(effect!=='none'){
+    var sel='[class*=\"cta\"] a,a[class*=\"cta\"],button[class*=\"cta\"],[class*=\"btn-hero\"],a[class*=\"btn\"]';
+    document.querySelectorAll(sel).forEach(function(el){el.classList.add('df-fx-'+effect);});
+  }
+  var heroEl=document.querySelector('.hero,#hero,[class*=\"hero\"],section:first-of-type');
+  var lastEl=document.querySelector('[class*=\"cta-final\"],[id*=\"cta_final\"],section:last-of-type');
+  function tick(){
+    if(window.innerWidth>768){bar.style.display='none';return;}
+    var y=window.scrollY,wh=window.innerHeight;
+    var from=heroEl?(heroEl.getBoundingClientRect().bottom+y+60):500;
+    var to=lastEl?(lastEl.getBoundingClientRect().top+y-wh*0.6):9999999;
+    bar.style.display=(y>from&&y<to)?'block':'none';
+  }
+  window.addEventListener('scroll',tick,{passive:true});
+  window.addEventListener('resize',tick,{passive:true});
+  setTimeout(tick,300);
+})();
+</script>";
+
+    $html = str_replace('</body>', $snippet . "\n</body>", $html);
+    if (strpos($html, '</body>') === false) $html .= $snippet;
+    $parsed['html'] = $html;
+}
+// ────────────────────────────────────────────────────────────────────────────
+
 if ($html && strlen($html) > 716800) {
     echo json_encode(['success'=>false,'error'=>'HTML supera 700 KB']);
     exit;
