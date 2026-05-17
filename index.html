@@ -2477,7 +2477,7 @@ async function regenSec(id){
   btn.disabled = true;
 
   const payload = {
-    ...authBase(),
+    ...getAuthPayload(),
     accion: 'regenerar_seccion',
     seccion: id,
     nombre_producto: document.getElementById('s1_nombre').value.trim(),
