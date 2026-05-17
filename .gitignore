@@ -7,3 +7,5 @@ debug_*.js
 upload_*.js
 create_*.js
 deep_*.js
+# Copias locales de desarrollo (no subir al servidor)
+*_dev.html

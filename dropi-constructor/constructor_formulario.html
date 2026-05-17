@@ -82,7 +82,10 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
 
 /* ── Field item ── */
 .fi{background:#1e293b;border-left:3px solid #1D9E75;border-radius:0 8px 8px 0;padding:9px 10px;margin-bottom:7px;transition:.15s}
-.fi.fi-off{border-left-color:#334155;opacity:.55}
+.fi.fi-off{border-left-color:#334155}
+.fi.fi-off .fi-lbl,.fi.fi-off .fi-req,.fi.fi-off .fi-plc,.fi.fi-off .fi-prov-note{opacity:.45}
+.fi-del{background:none;border:none;color:#ef4444;cursor:pointer;font-size:.9rem;padding:2px 5px;border-radius:4px;line-height:1;flex-shrink:0}
+.fi-del:hover{background:#ef444422}
 .fi-top{display:flex;align-items:center;gap:7px;margin-bottom:5px}
 .fi-top .fi-lbl{flex:1;background:#0f172a;border:1px solid #334155;color:#f1f5f9;border-radius:6px;padding:5px 9px;font-size:.82rem}
 .fi-req{display:flex;align-items:center;gap:4px;font-size:.68rem;color:#64748b;white-space:nowrap;cursor:pointer}
@@ -243,9 +246,11 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
   <div class="hdr-actions">
     <span class="save-ind" id="save-ind">✓ Guardado</span>
     <button class="btn-sm help-btn" onclick="openHelp()" title="Guía de uso">❓ Ayuda</button>
+    <button class="btn-sm" onclick="newConfig()" title="Empezar una configuración nueva en blanco" style="background:#1D9E75;color:#fff">🆕 Nuevo</button>
     <button class="btn-sm" onclick="exportConfig()" title="Exportar configuración como JSON">💾 Exportar</button>
     <button class="btn-sm" onclick="importConfig()" title="Importar configuración desde JSON">📂 Importar</button>
     <input type="file" id="importFile" accept=".json" style="display:none" onchange="handleImport(this)">
+    <button class="btn-sm" onclick="restoreBackup()" title="Recuperar la configuración anterior al último Cargar" id="restoreBtn" style="display:none">↩ Recuperar</button>
     <button class="btn-sm danger" onclick="resetConfig()" title="Borrar configuración guardada y volver al inicio">↺ Resetear</button>
     <button class="btn-dl" onclick="downloadForm()">⬇ Descargar</button>
   </div>
@@ -260,14 +265,39 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
     <div class="sec">
       <div class="sec-ttl">🔗 Conexión WordPress</div>
       <div class="fl">
-        <label>URL de tu tienda (dominio)</label>
-        <input type="url" id="apiUrl" value="https://tutienda.com/wp-json/mi-tienda/v1/pedido" oninput="render();saveState()">
+        <label>URL de tu tienda WordPress</label>
+        <input type="url" id="apiUrl" placeholder="https://tutienda.com" oninput="updateShortcode();render();saveState()">
       </div>
       <div class="fl">
         <label>ID del Producto en WooCommerce</label>
-        <input type="number" id="productId" value="18" oninput="render();saveState()">
+        <input type="number" id="productId" value="18" oninput="updateShortcode();render();saveState()">
       </div>
-      <button class="load-btn" id="loadBtn" onclick="loadFromWP()">⬇ Cargar variaciones desde WordPress</button>
+      <div class="fl">
+        <label>API Key de Dropi Formulario <span style="color:#475569;font-weight:400">(Ajustes → Dropi Formulario en WP)</span></label>
+        <input type="text" id="wpApiKey" placeholder="Pega aquí tu API Key..." oninput="saveState()">
+      </div>
+      <div style="display:flex;gap:6px;margin-top:2px">
+        <button class="load-btn" id="saveWpBtn" onclick="saveToWP()" style="background:#15803d;flex:2">💾 Guardar en WordPress</button>
+        <button class="load-btn" id="loadCfgBtn" onclick="loadConfigFromWP()" style="background:#1e40af;flex:1;margin-top:0" title="Carga una configuración YA guardada en WordPress para este producto (sobreescribe lo actual)">📥 Editar guardado</button>
+      </div>
+      <div id="saveWpStatus" style="display:none" class="ls"></div>
+      <hr style="border:none;border-top:1px solid #334155;margin:10px 0">
+      <div style="background:#052e16;border:1px solid #166534;border-radius:8px;padding:10px 12px;margin-bottom:8px">
+        <div style="font-size:.65rem;font-weight:700;color:#86efac;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">📋 Shortcode — pégalo en tu página WordPress (una sola vez)</div>
+        <code onclick="navigator.clipboard.writeText('[dropi_form]').then(()=>{this.textContent='✅ Copiado!';setTimeout(()=>this.textContent='[dropi_form]',1500)})" style="display:block;background:#0f172a;color:#86efac;padding:8px 10px;border-radius:6px;font-size:.82rem;cursor:pointer;user-select:all">[dropi_form]</code>
+        <div style="font-size:.62rem;color:#475569;margin-top:5px">Una sola página de WordPress sirve para TODOS tus productos</div>
+      </div>
+      <div class="fl">
+        <label>URL de tu página de formulario en WordPress</label>
+        <input type="url" id="formPageUrl" placeholder="https://tutienda.com/pedido" oninput="updateCtaLink();saveState()">
+      </div>
+      <div style="background:#1e3a5f;border:1px solid #1d4ed8;border-radius:8px;padding:10px 12px;margin-bottom:2px">
+        <div style="font-size:.65rem;font-weight:700;color:#60a5fa;text-transform:uppercase;letter-spacing:.6px;margin-bottom:6px">🔗 Link para el botón CTA de tu landing</div>
+        <code id="ctaLinkDisplay" onclick="copyCtaLink()" style="display:block;background:#0f172a;color:#93c5fd;padding:8px 10px;border-radius:6px;font-size:.78rem;cursor:pointer;user-select:all;word-break:break-all">https://tutienda.com/pedido?id=18</code>
+        <div style="font-size:.62rem;color:#475569;margin-top:5px">Clic para copiar · Pega esta URL en el botón de tu landing page</div>
+      </div>
+      <hr style="border:none;border-top:1px solid #334155;margin:10px 0">
+      <button class="load-btn" id="loadBtn" onclick="loadFromWP()" style="background:#334155;margin-top:0">🔄 Cargar variaciones WC (mapeo)</button>
       <div id="loadStatus" style="display:none" class="ls"></div>
       <div id="mapPanel" style="display:none" class="map-panel">
         <div class="map-ttl">📋 Atributos del proveedor detectados</div>
@@ -367,6 +397,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
       <div class="sec-ttl">📋 Campos del Formulario</div>
       <div style="font-size:.67rem;color:#475569;margin-bottom:10px">Activa, desactiva, renombra o cambia el placeholder de cada campo. El asterisco (*) indica obligatorio.</div>
       <div id="fieldsList"></div>
+      <button class="add-btn" onclick="addCustomField()" style="margin-top:6px">+ Agregar campo extra</button>
     </div>
 
     <!-- Provincias y Ciudades -->
@@ -386,7 +417,7 @@ body{font-family:'Segoe UI',system-ui,sans-serif;background:#0f172a;color:#e2e8f
       </div>
       <div class="fl">
         <label>Mensaje de agradecimiento</label>
-        <div style="font-size:.67rem;color:#475569;margin-bottom:5px">Variables disponibles: <code style="color:#86efac">{nombre}</code> <code style="color:#86efac">{producto}</code> <code style="color:#86efac">{direccion}</code> <code style="color:#86efac">{telefono}</code> <code style="color:#86efac">{cantidad}</code> <code style="color:#86efac">{precio}</code></div>
+        <div style="font-size:.67rem;color:#475569;margin-bottom:5px">Variables disponibles: <code style="color:#86efac">{nombre}</code> <code style="color:#86efac">{producto}</code> <code style="color:#86efac">{direccion}</code> <code style="color:#86efac">{telefono}</code> <code style="color:#86efac">{cantidad}</code> <code style="color:#86efac">{precio}</code> &nbsp;<button type="button" onclick="resetWaMsg()" style="background:#dc2626;color:#fff;border:none;border-radius:5px;padding:2px 8px;font-size:.66rem;cursor:pointer;vertical-align:middle" title="Si el mensaje carga mal (con n en lugar de saltos de línea), usa este botón para restaurar el mensaje limpio">🔄 Restaurar mensaje</button></div>
         <textarea id="waMsg" rows="10" style="width:100%;background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:7px;padding:8px 10px;font-size:.82rem;font-family:inherit;outline:none;resize:vertical;line-height:1.5" oninput="render();saveState()">Hola {nombre} 👋, te saluda el equipo de Dual Legacy 💛.
 Queremos confirmarte que hemos recibido tu pedido de {producto} 📦 con pago contra entrega.
 Antes de despacharlo 🚚, por favor ayúdanos confirmando estos datos:
@@ -399,6 +430,24 @@ Valor a cancelar en la entrega: ${precio} 💵
 Tu pedido está apartado y listo para ser enviado ✅.
 Con tu confirmación aseguramos que el courier te lo entregue sin inconvenientes.
 ¡Gracias por confiar en Dual Legacy! ✨ Estamos seguros de que disfrutarás mucho tu producto 🙌</textarea>
+      </div>
+    </div>
+
+    <!-- Pixels -->
+    <div class="sec">
+      <div class="sec-ttl">📊 Pixels de publicidad</div>
+      <p style="font-size:.7rem;color:#475569;margin-bottom:12px;line-height:1.6">Registran cada acción del cliente para optimizar campañas. Deja vacío los que no uses.</p>
+      <div class="fl">
+        <label>Meta (Facebook) Pixel ID</label>
+        <input type="text" id="pixelMeta" placeholder="Ej: 1464906824900228" oninput="render();saveState()">
+      </div>
+      <div class="fl">
+        <label>TikTok Pixel ID</label>
+        <input type="text" id="pixelTiktok" placeholder="Ej: CXXXXXXXXXXXXXXX" oninput="render();saveState()">
+      </div>
+      <div class="fl">
+        <label>Google Ads / GA4</label>
+        <input type="text" id="pixelGoogle" placeholder="Ej: AW-123456789 o G-XXXXXXXXXX" oninput="render();saveState()">
       </div>
     </div>
 
@@ -498,35 +547,35 @@ let fields = [
   {key:'calle2',   label:'Calle Secundaria',       placeholder:'N23-45 y Veintimilla',               required:false, enabled:true},
   {key:'barrio',   label:'Barrio / Referencia',    placeholder:'Barrio El Ejido, frente al parque',  required:false, enabled:true},
   {key:'numero',   label:'Número de casa / Dpto.', placeholder:'Casa 5, Dpto 2B',                    required:false, enabled:true},
-  {key:'cedula',   label:'Cédula de identidad',    placeholder:'1712345678',                         required:false, enabled:false},
-  {key:'email',    label:'Correo electrónico',     placeholder:'Para regalos y ofertas exclusivas',  required:false, enabled:false},
-  {key:'notas',    label:'Instrucciones adicionales', placeholder:'Ej: Llamar antes de entregar...', required:false, enabled:false},
+  {key:'cedula',   label:'Cédula de identidad',    placeholder:'1712345678',                         required:false, enabled:true},
+  {key:'email',    label:'Correo electrónico',     placeholder:'Para regalos y ofertas exclusivas',  required:false, enabled:true},
+  {key:'notas',    label:'Instrucciones adicionales', placeholder:'Ej: Llamar antes de entregar...', required:false, enabled:true},
 ];
 
 let provincias = [
-  {code:'EC-A',  name:'Azuay',          cities:["CUENCA","CHAULLABAMBA","RICAURTE CUENCA","GUALACEO","SIG SIG","PAUTE","CHORDELEG","CUMBE","TARQUI","GIRON","YUNGUILLA","SANTA ISABEL","PONCE ENRIQUEZ"]},
-  {code:'EC-B',  name:'Bolívar',        cities:["GUARANDA","SALINAS DE GUARANDA","SAN JOSE DE CHIMBO","SAN MIGUEL DE BOLIVAR"]},
-  {code:'EC-F',  name:'Cañar',          cities:["AZOGUES","BIBLIAN","CANAR","EL TAMBO"]},
-  {code:'EC-C',  name:'Carchi',         cities:["TULCAN","SAN GABRIEL","EL ANGEL","JULIO ANDRADE","BOLIVAR","HUACA","MIRA"]},
-  {code:'EC-H',  name:'Chimborazo',     cities:["RIOBAMBA","GUANO","CAJABAMBA","CHUNCHI","LICAN","ALAUSI","GUAMOTE","COLTA","CHAMBO","YARUQUIES"]},
-  {code:'EC-X',  name:'Cotopaxi',       cities:["LATACUNGA","SALCEDO","SAQUISILI","LASSO","GUAYTACAMA","PASTOCALLE","MULALO","TANICUCHI","BELISARIO QUEVEDO","PUJILI","LA MANA"]},
-  {code:'EC-O',  name:'El Oro',         cities:["MACHALA","PINAS","ZARUMA","PORTOVELO","PUERTO BOLIVAR","ARENILLAS","PASAJE","SANTA ROSA","HUAQUILLAS","EL CAMBIO","EL GUABO"]},
-  {code:'EC-E',  name:'Esmeraldas',     cities:["ESMERALDAS","ATACAMES","TONSUPA","TACHINA","LA UNION","QUININDE","VICHE"]},
-  {code:'EC-G',  name:'Guayas',         cities:["GUAYAQUIL","DURAN","DAULE","SAMBORONDON","NOBOL","LOMAS DE SARGENTILLO","PEDRO CARBO","PALESTINA","SANTA LUCIA","BALZAR","SALITRE","PLAYAS","CERECITA","CHONGON","POSORJA","PROGRESO","MILAGRO","BUCAY","CUMANDA","YAGUACHI","NARANJITO","EL TRIUNFO","LA TRONCAL","NARANJAL","BALAO","PUERTO INCA"]},
-  {code:'EC-I',  name:'Imbabura',       cities:["IBARRA","CARANQUI","URCUQUI","YAGUARCOCHA","ATUNTAQUI","PIMAMPIRO","SAN ANTONIO IBARRA","OTAVALO","COTACACHI","SAN PABLO IMBABURA","QUIROGA","PEGUCHE"]},
-  {code:'EC-L',  name:'Loja',           cities:["LOJA","VILCABAMBA","CARIAMANGA","CATACOCHA","CATAMAYO","CELICA","SARAGURO","MALACATOS","GONZANAMA","MACARA"]},
-  {code:'EC-R',  name:'Los Ríos',       cities:["VALENCIA","MOCACHE","BABAHOYO","VINCES","BABA","MONTALVO","CALUMA","PUEBLO VIEJO","CATARAMA","SAN JUAN","VENTANAS","QUEVEDO","BUENA FE","EL EMPALME"]},
-  {code:'EC-M',  name:'Manabí',         cities:["PEDERNALES","EL CARMEN","CHONE","CALCETA","FLAVIO ALFARO","TOSAGUA","BAHIA DE CARAQUEZ","SAN VICENTE","JAMA","MANTA","MONTECRISTI","JARAMIJO","PORTOVIEJO","CHARAPOTO","CRUCITA","ROCAFUERTE","24 DE MAYO","OLMEDO","SANTA ANA","JIPIJAPA","PUERTO CAYO","PUERTO LOPEZ","PAJAN"]},
-  {code:'EC-S',  name:'Morona Santiago', cities:["MACAS","SUCUA","GUALAQUIZA"]},
-  {code:'EC-N',  name:'Napo',           cities:["EL CHACO","ARCHIDONA","TENA","MISAHUALLI","AROSEMENA TOLA"]},
-  {code:'EC-D',  name:'Orellana',       cities:["EL COCA","LA JOYA DE LOS SACHAS","LORETO"]},
-  {code:'EC-Y',  name:'Pastaza',        cities:["PUYO","SHELL"]},
-  {code:'EC-P',  name:'Pichincha',      cities:["TABACUNDO","CAYAMBE","PEDRO MONCAYO","QUITO","ALANGASI","ALOAG","AMAGUANA","CONOCOTO","CUMBAYA","GUAYLLABAMBA","LA ARMENIA","LLANO CHICO","MACHACHI","MIRAVALLE","MITAD DEL MUNDO","PIFO","PINTAG","POMASQUI","PUEMBO","EL QUINCHE","CALDERON","SAN RAFAEL","SANGOLQUI","TABABELA","TAMBILLO","TUMBACO","UYUMBICHO","VALLE DE LOS CHILLOS","YARUQUI","PEDRO V. MALDONADO","SAN MIGUEL DE LOS BANCOS","NANEGALITO","CALACALI"]},
-  {code:'EC-SE', name:'Santa Elena',    cities:["LA LIBERTAD","SANTA ELENA","BALLENITA","SALINAS","MUEY","MANGLARALTO","MONTANITA","OLON","AYANGUE"]},
-  {code:'EC-SD', name:'Santo Domingo de los Tsáchilas', cities:["SANTO DOMINGO","LUZ DE AMERICA","LA CONCORDIA","LAS VILLEGAS","MONTERREY","VALLE HERMOSO"]},
-  {code:'EC-U',  name:'Sucumbíos',      cities:["NUEVA LOJA - LAGO AGRIO","SHUSHUFINDI"]},
-  {code:'EC-T',  name:'Tungurahua',     cities:["AMBATO","MOCHA","CEVALLOS","QUERO","BANOS DE AGUA SANTA","PELILEO","PATATE","TISALEO","HUAMBALO","PILLARO"]},
-  {code:'EC-Z',  name:'Zamora Chinchipe', cities:["ZAMORA","YANTZAZA","CENTINELA DEL CONDOR"]},
+  {code:'EC-A',  name:'Azuay',          cities:["BAÑOS CUENCA","CHAULLABAMBA","CHECA (JIDCAY)","CHIQUINTAD","CHORDELEG","CUENCA","CUMBE","FIRMA","GIRON","GUACHAPALA","GUALACEO","LA UNION (AZUAY)","LLACAO","NABON","NULTI","ONA","PACCHA","PAUTE","PONCE ENRIQUEZ","PUCARA","RICAURTE","RICAURTE CUENCA","SANTA ISABEL","SAYAUSI","SEVILLA DE ORO","SIDCAY","SIG SIG","SININCAY","SOSUDEL","TARQUI","TARQUI CUENCA","TOMEBAMBA","TURI","VICTORIA DEL PORTETE (IRQUIS)","YUNGUILLA","ZHAGLLI (SHAGLLI)","ZONA FRANCA"]},
+  {code:'EC-B',  name:'Bolívar',        cities:["1ERO DE MAYO","4 ESQUINAS","ASUNCION","BALZAPAMBA","CALUMA","CHILLANES","CHIMBO","ECHEANDIA","GUARANDA","LA MAGDALENA","LAS NAVES","PISAGUA ALTO","PISAGUA BAJO","RECINTO 24 DE MAYO","RECINTO EL PALMAR","RECINTO LA MARITZA","SALINAS DE GUARANDA","SAN JOSE DE CHIMBO","SAN LORENZO","SAN MIGUEL DE BOLIVAR","SAN PABLO DE ATENAS","SAN PEDRO DE GUANUJO","SAN SIMON","SANTA FE","VINCHOA"]},
+  {code:'EC-F',  name:'Cañar',          cities:["AZOGUES","BIBLIAN","CANAR","CAÑAR","COCHANCAY","COJITAMBO","DELEG","DUCUR","EL TAMBO","GUAPAN","INGAPIRCA","JAVIER LOYOLA","LA PUNTILLA","LA TRONCAL","LUIS CORDERO","MANUEL J. CALLE","SAN MIGUEL","SUSCAL","TAMBO","VOLUNTAD DE DIOS"]},
+  {code:'EC-C',  name:'Carchi',         cities:["BOLIVAR","CHITAN DE NAVARRETES","CRISTOBAL COLON","CUESACA","EL ANGEL","GARCIA MORENO","HUACA","JULIO ANDRADE","LA PAZ","MIRA","PIOTER","SANDIAL","SAN GABRIEL","SAN ISIDRO (CARCHI)","SANTA MARTHA DE CUBA","TULCAN"]},
+  {code:'EC-H',  name:'Chimborazo',     cities:["ALAUSI","CAJABAMBA","CHAMBO","CHUNCHI","COLTA","CUMANDA CHIMBORAZO","FLORES","GUAMOTE","GUANO","ILAPO","LICAN","LICTO","PALLATANGA","PENIPE","PUNIN","RIOBAMBA","SAN ANDRES","SAN JUAN","SAN LUIS (CHIMBORAZO)","YARUQUIES"]},
+  {code:'EC-X',  name:'Cotopaxi',       cities:["ALAQUES","ANCHILIVI","BELISARIO QUEVEDO","CHIPUALO","EL CORAZON","GUAYTACAMA","LA MANA","LA VICTORIA","LASSO","LATACUNGA","MORASPUNGO","MULALAO","MULALILLO","MULALO","MULLIQUINDIL","ONCE DE NOVIEMBRE","PANGUA","PANZALEO","PASTOCALLE","PATAIN","POALO","PUJILI","RUMIPAMBA","SALCEDO","SAN BUENAVENTURA BELLAVISTA","SAN MARCOS","SAQUISILI","SIGCHOS","TANICUCHCHI","TANICUCHI","TOACASO","YANAYACU","ZUMBAHUA"]},
+  {code:'EC-O',  name:'El Oro',         cities:["3 CERRITOS (PASAJE)","ARENILLAS","BAJO ALTO","BALSAS","BARBONES","BELLAMARIA","BELLAVISTA","BUENA VISTA","CANA QUEMADA","EL CAMBIO","EL GUABO","EL PACHE","EL RETIRO","HUAQUILLAS","LA AVANZADA","LA IBERIA","LA PEAÑA","LA VICTORIA","LOMA DE FRANCO","LOURDES","MACHALA","MARCABELI","PACCHA","PASAJE","PINAS","PIÑAS","PORTOVELO","PUERTO BOLIVAR","PUERTO HUALTACO","PUERTO JELI","RIO BONITO","SANTA ROSA","SAN VICENTE DEL JOBO","SHUMIRAL","TORATA","VEITORIA","ZARUMA"]},
+  {code:'EC-E',  name:'Esmeraldas',     cities:["ATACAMES","BORBON","ESMERALDAS","LA CONCORDIA","LA INDEPENDENCIA","LA UNION","LA VILLEGAS","LA Y DE CALDERON","LAGARTO","LAS PENAS","MUISNE","QUININDE","RIO VERDE","ROSA ZARATE (QUININDE)","SAME","SAN LORENZO","SAN MATEO","SUA","TABIAZO","TACHINA","TONCHIGUE","TONSUPA","VICHE","VUELTA LARGA"]},
+  {code:'EC-G',  name:'Guayas',         cities:["3 POSTES","5 DE JUNIO (MILAGRO)","ALFREDO BAQUERIZO MORENO","BALAO","BALAO CHICO","BALZAR","BASE TAURA","BOCA DE CAÑA","BOLICHE","BUCAY","CERECITA","CHIVERIA","CHOBO","CHONGON","CHURUTE","COLORADAL","CUMANDA","DATA DE PLAYAS","DAULE","DURAN","EL DESEO","EL EMPALME","EL MORRO","EL NATO","EL TRIUNFO","ELOY ALFARO DURÁN","ENGABAO","GENERAL ANTONIO ELIZALDE","GENERAL VERNAZA","GENERAL VILLAMIL (PLAYAS)","GUAYAQUIL","INGENIO SAN CARLOS","ISIDRO AYORA","ISLA BEJUCAL","ISLA DE BEJUCAL","JESUS MARIA","JUJAN","JUNQUILLAL","KM 26 VIA DURAN TAMBO","KM 26 VIRGEN DE FÁTIMA","KM. 26","LA MARAVILLA","LA PUNTILLA","LA T DE SALITRE","LA TOMA","LA TRONCAL","LA VICTORIA","LAS ANIMAS","LAS MERCEDES (NARANJAL)","LAUREL","LIMONAL","LOMAS DE SARGENTILLO","LORENZO DE GARAICOA","MARCELINO MARIDUEÑA","MARISCAL SUCRE","MATILDE ESTHER","MILAGRO","NARANJAL","NARANJITO","NOBOL","NUEVA UNION (NARANJAL)","PALESTINA","PASCUALES","PEDRO CARBO","PETRILLO","PLAYAS","POSORJA","PROGRESO","PUENTE LUCIA","PUERTO DEL ENGABAO","PUERTO INCA","ROBERTO ASTUDILLO","SABANILLA","SABANILLA (PEDRO CARBO)","SALITRE","SAMBORONDON","SAMBORONDON (PUEBLO)","SAN ANTONIO (PLAYAS)","SAN CARLOS (BALAO)","SAN ISIDRO (GUAYAS)","SAN JACINTO DE YAGUACHI","SAN LORENZO (GUAYAS)","SANTA LUCIA","SANTA RITA (BALAO)","SIMON BOLIVAR","TARIFA","TAURA","TENGUEL","TRES POSTES","URBINA JADO - SALITRE","VELASCO IBARRA (EL EMPALME)","VILLA NUEVA","VIRGEN DE FÁTIMA KM 26","YAGUACHI"]},
+  {code:'EC-I',  name:'Imbabura',       cities:["ADUANA","ALPACHACA","ANDRADE MARIN","ANTONIO ANTE","ATUNTAQUI","CARANQUI","CHALTURA","CHORLAVI","COTACACHI","EL OLIVO","EL RETORNO","EUGENIO ESPEJO (CALPAQUI)","GONZALEZ SUAREZ","IBARRA","IMBAYA (SAN LUIS DE COBUENDO)","IMANTAG","LA ESPERANZA","NATABUELA","OTAVALO","PEGUCHE","PIMAMPIRO","PINSAQUI","PRIORATO","PUERTO LAGO","QUIROGA","SAN ANTONIO DE IBARRA","SAN ANTONIO IBARRA","SAN BLAS","SAN JOSE","SAN JUAN DE ILUMAN","SAN LUIS (IMBABURA)","SAN PABLO DEL LAGO","SAN PABLO IMBABURA","SAN RAFAEL","SAN ROQUE","SANTA BERTHA","SANTO DOMINGO IMBABURA","TIERRA BLANCA","TUMBABIRO","URCUQUI","YACHAY","YAGUARCOCHA"]},
+  {code:'EC-L',  name:'Loja',           cities:["ALAMOR","AMALUZA","CALVAS","CARIAMANGA","CATACOCHA","CATAMAYO","CELICA","CHAGUARPAMBA","CRUZPAMBA","EL INGENIO","EL LUCERO","GONZANAMA","LA CEIBA","LOJA","MACARA","MALACATOS","OLMEDO (LOJA)","PALTAS","PINDAL","POZUL","RIO PLAYAS","ROBLONES","SABANILLA","SAN LUCAS","SAN PEDRO DE LA BENDITA","SAN PEDRO DE VILCABAMBA","SANTIAGO","SARAGURO","SOZORANGA","SUCRE","VILCABAMBA","ZAPOTILLO","ZUMBA"]},
+  {code:'EC-R',  name:'Los Ríos',       cities:["BABA","BABAHOYO","BUENA FE","CALUMA","CARACOL","CATARAMA","ECHEANDIA","ENTRADA DE SAN JUAN","FEBRES CORDERO","FUMISA","GUARE","GUARE DE BABA","HIDROLITORAL","ISLA BEJUCAL","ISLA DE BEJUCAL","LA 14 VIA EL PARAISO","LA ESMERALDA","LA ESPERANZA","LA JULIA","LA UNION (BABAHOYO)","LA UNION (QUEVEDO)","LA UNION (VALENCIA)","LAS NAVES","LOS ANGELES","MATA DE CACAO","MOCACHE","MONTALVO","NUEVA UNION (LOS RIOS)","PALENQUE","PALMISA","PATRICIA PILAR","PUEBLO NUEVO (LOS RIOS)","PUEBLO VIEJO","QUEVEDO","QUINSALOMA","RICAURTE LOS RIOS","SAN CAMILO","SAN CARLOS (LOS RIOS)","SAN JACINTO DE BUENA FE","SAN JOSE DEL TAMBO","SAN JUAN","SAN JUAN BABAHOYO","SAN LUIS DE PAMBIL","URDANETA","VALENCIA","VENTANAS","VINCES","ZAPOTAL (LOS RIOS)","ZULEMA"]},
+  {code:'EC-M',  name:'Manabí',         cities:["10 DE AGOSTO","24 DE MAYO","ABDON CALDERON","ALAHUELA","ALHAJUELA","ARENALES","ATAHUALPA MANABI","AYACUCHO","BACHILLERO","BAHIA DE CARAQUEZ","BELLAVISTA","CALCETA","CALDERON DE PORTOVIEJO","CALDERON (MANABI)","CANITAS","CANOA","CANUTO","CASCOL","CHARAPOTO","CHEVE","CHONE","CIUDAD ALFARO","COAQUE","COLON","CRUCITA","DON JUAN","EL CARMEN","EL MATAL","EL NARANJO","EL RODEO","ESTANCILLA","FLAVIO ALFARO","JAMA","JARAMIJO","JIPIJAPA","JUNIN","LA CHORRERA","LA DELICIA KM. 29","LA ESTANCILLA","LA SEQUITA","LEONIDAS PLAZA","LODANA","LOS BAJOS","MACHALILLA","MACHE","MANTA","MEJIA","MONTECRISTI","NUEVO BRICENO","NUEVO ISRAEL","OLMEDO","PAJAN","PAVON","PEDERNALES","PICHINCHA MANABI","PICOAZA (DENTRO DEL PERIMETRO URBANO)","PLAYA PRIETA","PORTOVIEJO","PUEBLO NUEVO (MANABI)","PUERTO CAYO","PUERTO LOPEZ","QUIROGA CHONE","RESBALON","RIO CHICO","ROCAFUERTE","SAN ANTONIO DE CHONE","SAN CLEMENTE","SAN IGNACIO","SAN ISIDRO (BAHIA)","SAN JACINTO","SAN PEDRO DE SUMA","SAN PLACIDO","SAN VICENTE","SANCAN","SANTA ANA","SESME","SOSOTE","SUCRE","SUCRE BAHIA","TARQUI","TARQUI MANABI","TOSAGUA","ZAPALLO","ZULEMA MANABI"]},
+  {code:'EC-S',  name:'Morona Santiago', cities:["GENERAL PROAÑO","GUALAQUIZA","HUAMBOYA","LIMON INDANZA","LOGRONO","MACAS","MENDEZ","PABLO SEXTO","PALORA","RÍO BLANCO","SAN ISIDRO","SEVILLA DON BOSCO","SUCUA","TIWINTZA"]},
+  {code:'EC-N',  name:'Napo',           cities:["ARCHIDONA","AROSEMENA TOLA","BAEZA","BORJA","CARLOS JULIO AROSEMENA","EL CHACO","GONZALO PIZARRO","MISAHUALLI","NUEVA ESPERANZA","PANO","PTO. NAPO","PUERTO MISAHUALLI","PUERTO NAPO","TAZAYACU","TENA"]},
+  {code:'EC-D',  name:'Orellana',       cities:["EL COCA","ENOKANQUI","FRANCISCO DE ORELLANA","JOYA DE LOS SACHAS","LA JOYA DE LOS SACHAS","LAGO SAN PEDRO","LORETO","SAN CARLOS","SAN SEBASTIAN DEL COCA","UNIÓN MILAGREÑA"]},
+  {code:'EC-Y',  name:'Pastaza',        cities:["ARAJUNO","DIEZ DE AGOSTO","FATIMA","MERA","PUYO","SANTA CLARA","SHELL","SHELL (EL PUYO)"]},
+  {code:'EC-P',  name:'Pichincha',      cities:["ALANGASI","ALOAG","ALOASI","AMAGUANA","AMAGUAÑA","ASCAZUBI","AZCASUBI VIA AL QUINCHE","AYORA","BANCOS","CALACALI","CALDERON","CAYAMBE","CHECA","CONOCOTO","COTOGCHOA","CUMBAYA","CUSUBAMBA","CUZUBAMBA","EL CHAUPI","EL QUINCHE","GUANGOPOLO","GUACHALA","GUAYLLABAMBA","JUAN MONTALVO","LA ARMENIA","LA MERCED","LLANO CHICO","LLANO GRANDE","MACHACHI","MEJÍA","MIRAVALLE","MITAD DEL MUNDO","MONJAS","NANEGALITO","NONO","OLMEDO","ORQUIDEAS","OTÓN","PEDRO MONCAYO","PEDRO V. MALDONADO","PIFO","PINTAG","POMASQUI","PUEMBO","PUERTO QUITO","PUSUQUI","QUINCHE","QUITO","RUMIÑAHUI","RUMIPAMBA","SAN ANTONIO DE PICHINCHA","SAN JOSE DE MORAN","SAN JUAN DE CALDERON","SAN MIGUEL DE LOS BANCOS","SAN RAFAEL","SANGOLQUI","TABABELA","TABACUNDO","TAMBILLO","TANDAPI","TOCACHI","TUMBACO","TUPIGACHI","UYUMBICHO","VALLE DE LOS CHILLOS","YARUQUI","ZAMBISA","ZAMBIZA"]},
+  {code:'EC-SE', name:'Santa Elena',    cities:["ANCON","ANCONCITO","ATAHUALPA","AYANGUE","BALLENITA","BARCELONA","CADEATE","CAPAES","CHANDUY","CURIA","EL TAMBO SANTA ELENA","LA ENTRADA","LA LIBERTAD","LIBERTADOR BOLIVAR","MAR BRAVO","MANGLARALTO","MONTAÑITA","MONTEVERDE","MUEY","OLON","OLONCITO","PALMAR","PROSPERIDAD","PUNTA BARANDUA","PUNTA BLANCA","PUNTA CARNERO","PUNTA CENTINELA","SALINAS","SAN JOSE","SAN PABLO (SANTA ELENA)","SAN PABLO SANTA ELENA","SAN PEDRO","SANTA ELENA","SANTA ROSA SANTA ELENA","SINCHAL","VALDIVIA"]},
+  {code:'EC-SD', name:'Santo Domingo de los Tsáchilas', cities:["ABRAHAM CALAZACÓN","ALLURIQUIN","BOMBOLÍ","CHIGUILPE","KM 14 QUEVEDO","KM 24 QUEVEDO","KM 38.5 QUEVEDO","KM 38.5 VIA QUEVEDO","KM 41 QUEVEDO","KM 41 VIA QUEVEDO","LA CONCORDIA","LAS DELICIAS","LAS VILLEGAS","LUZ DE AMERICA","MONTERREY","NUEVO ISRAEL","PUERTO LIMON","RÍO TOACHI","SAN JACINTO DEL BUA","SANTO DOMINGO","VALLE HERMOSO"]},
+  {code:'EC-U',  name:'Sucumbíos',      cities:["7 DE JULIO","CASCALES","GENERAL FARFÁN","JAMBELI","JIVINO VERDE","LAGO AGRIO","LOS RIOS (SUCUMBIOS)","LUMBAQUI","NUEVA LOJA","PACAYACU","REVENTADOR","SANTA CECILIA","SHUSHUFINDI","TARAPOA"]},
+  {code:'EC-T',  name:'Tungurahua',     cities:["AMBATILLO","AMBATO","ATAHUALPA (CHISALATA)","BAÑOS DE AGUA SANTA","BETÍNEZ (PACHANLICA)","CEVALLOS","CUCHIBAMBA","HUACHI GRANDE","HUAMBALO","IZAMBA","MOCHA","MUNDUGLEO","PATATE","PELILEO","PICAIGUA","PILLARO","PINLLO","QUERO","QUINCHICOTO","QUISAPINCHA","SALASACA","SAN PEDRO DE PELILEO","SANTA ROSA (AMBATO)","TISALEO","TOTORAS","ULBA","UNAMUNCHO"]},
+  {code:'EC-Z',  name:'Zamora Chinchipe', cities:["28 DE MAYO","CENTINELA DEL CONDOR","CHAMICO","CUMBARATZA","EL PANGUI","GUADALUPE","GUAYZIMI","NAMIREZ","PALANDA","PAQUIZHA","PIUNTZA","TIMBARA","YANTZAZA","ZAMORA","ZUMBA","ZUMBI"]},
 ];
 
 // ═══════════════════════════════════════════════
@@ -570,7 +619,7 @@ function saveState(){
   clearTimeout(_saveTimer);
   _saveTimer = setTimeout(()=>{
     const state = {
-      v:3, colors, sizes, packs, fields, provincias, formStyle, cid, sid, pid,
+      v:4, colors, sizes, packs, fields, provincias, formStyle, cid, sid, pid,
       ui:{
         productName: document.getElementById('productName')?.value||'',
         subtitle:    document.getElementById('subtitle')?.value||'',
@@ -584,6 +633,11 @@ function saveState(){
         textColor:   document.getElementById('textColor')?.value||'#374151',
         waNum:       document.getElementById('waNum')?.value||'',
         waMsg:       document.getElementById('waMsg')?.value||'',
+        pixelMeta:   document.getElementById('pixelMeta')?.value||'',
+        pixelTiktok: document.getElementById('pixelTiktok')?.value||'',
+        pixelGoogle: document.getElementById('pixelGoogle')?.value||'',
+        wpApiKey:    document.getElementById('wpApiKey')?.value||'',
+        formPageUrl: document.getElementById('formPageUrl')?.value||'',
       }
     };
     try{ localStorage.setItem('dropi-constructor', JSON.stringify(state)); } catch(e){}
@@ -600,8 +654,16 @@ function loadState(){
     if(s.colors?.length) colors = s.colors;
     if(s.sizes) sizes = s.sizes;
     if(s.packs?.length) packs = s.packs;
-    if(s.fields?.length) fields = s.fields;
-    if(s.provincias?.length) provincias = s.provincias;
+    if(s.fields?.length){
+      fields = s.fields;
+      if((s.v||0) < 4){
+        // Migrate: enable fields that were off by default in v3
+        ['cedula','email','notas'].forEach(k=>{
+          const f=fields.find(x=>x.key===k); if(f) f.enabled=true;
+        });
+      }
+    }
+    if(s.v >= 4 && s.provincias?.length) provincias = s.provincias;
     if(s.formStyle) formStyle = s.formStyle;
     if(s.cid) cid = s.cid; if(s.sid) sid = s.sid; if(s.pid) pid = s.pid;
     if(s.ui) setTimeout(()=>applyUI(s.ui), 0);
@@ -620,6 +682,12 @@ function applyUI(ui){
   if(ui.textColor){  set('textColor',ui.textColor);   set('textColorHex',ui.textColor);  }
   if(ui.waNum) set('waNum',ui.waNum);
   if(ui.waMsg) set('waMsg',ui.waMsg);
+  if(ui.pixelMeta)   set('pixelMeta',ui.pixelMeta);
+  if(ui.pixelTiktok) set('pixelTiktok',ui.pixelTiktok);
+  if(ui.pixelGoogle) set('pixelGoogle',ui.pixelGoogle);
+  if(ui.wpApiKey)    set('wpApiKey',ui.wpApiKey);
+  if(ui.formPageUrl) set('formPageUrl',ui.formPageUrl);
+  updateCtaLink();
   if(ui.formStyle){ formStyle=ui.formStyle; setStyle(ui.formStyle); } else render();
 }
 
@@ -639,8 +707,134 @@ function getFullState(){
       textColor:   document.getElementById('textColor')?.value||'#374151',
       waNum:       document.getElementById('waNum')?.value||'',
       waMsg:       document.getElementById('waMsg')?.value||'',
+      pixelMeta:   document.getElementById('pixelMeta')?.value||'',
+      pixelTiktok: document.getElementById('pixelTiktok')?.value||'',
+      pixelGoogle: document.getElementById('pixelGoogle')?.value||'',
+      wpApiKey:    document.getElementById('wpApiKey')?.value||'',
+      formPageUrl: document.getElementById('formPageUrl')?.value||'',
     }
   };
+}
+
+// ═══════════════════════════════════════════════
+// SHORTCODE DISPLAY
+// ═══════════════════════════════════════════════
+function updateShortcode(){
+  updateCtaLink();
+}
+function updateCtaLink(){
+  const pid      = document.getElementById('productId')?.value?.trim()||'';
+  const pageUrl  = (document.getElementById('formPageUrl')?.value?.trim()||'https://tutienda.com/pedido').replace(/\/$/,'');
+  const link     = pid ? `${pageUrl}?id=${pid}` : pageUrl + '?id=X';
+  const el = document.getElementById('ctaLinkDisplay');
+  if(el) el.textContent = link;
+}
+function copyCtaLink(){
+  const el = document.getElementById('ctaLinkDisplay');
+  if(!el) return;
+  navigator.clipboard.writeText(el.textContent).then(()=>{
+    const orig = el.textContent;
+    el.textContent = '✅ ¡Copiado!';
+    setTimeout(()=>{ el.textContent = orig; }, 1500);
+  }).catch(()=>{ alert('Link CTA: ' + el.textContent); });
+}
+
+// ═══════════════════════════════════════════════
+// GUARDAR EN WORDPRESS
+// ═══════════════════════════════════════════════
+async function saveToWP(){
+  const rawUrl = document.getElementById('apiUrl')?.value?.trim()||'';
+  const prodId = document.getElementById('productId')?.value?.trim()||'';
+  const apiKey = document.getElementById('wpApiKey')?.value?.trim()||'';
+  if(!rawUrl||!prodId){ alert('Ingresa la URL de WordPress y el ID del producto primero.'); return; }
+  if(!apiKey){ alert('Ingresa tu API Key de Dropi Formulario (Ajustes → Dropi Formulario en WordPress).'); return; }
+  const baseUrl = rawUrl.replace(/\/wp-json.*$/,'').replace(/\/$/,'');
+  const ajaxUrl = `${baseUrl}/wp-admin/admin-ajax.php`;
+  const btn = document.getElementById('saveWpBtn');
+  const st  = document.getElementById('saveWpStatus');
+  btn.disabled = true;
+  st.className='ls loading'; st.textContent='⏳ Guardando en WordPress...'; st.style.display='block';
+  try{
+    const fd = new FormData();
+    fd.append('action',     'dropi_save_config');
+    fd.append('product_id', prodId);
+    fd.append('api_key',    apiKey);
+    fd.append('config',     JSON.stringify(getFullState()));
+    const res  = await fetch(ajaxUrl, { method:'POST', body:fd });
+    const data = await res.json();
+    if(data.success){
+      st.className='ls ok';
+      st.textContent=`✅ Guardado: "${data.data.product_name}" (ID: ${data.data.product_id})`;
+    } else {
+      throw new Error(data.data?.message||'Error desconocido');
+    }
+  } catch(err){
+    st.className='ls err';
+    st.textContent=`❌ ${err.message}`;
+  }
+  btn.disabled = false;
+}
+
+// ═══════════════════════════════════════════════
+// CARGAR CONFIG GUARDADA DESDE WORDPRESS
+// ═══════════════════════════════════════════════
+let _loadConfirmPending = false;
+let _loadConfirmTimer  = null;
+async function loadConfigFromWP(){
+  const rawUrl = document.getElementById('apiUrl')?.value?.trim()||'';
+  const prodId = document.getElementById('productId')?.value?.trim()||'';
+  if(!rawUrl||!prodId){ showLoadStatus('err','⚠️ Ingresa la URL de WordPress y el ID del producto primero.'); return; }
+  const btn = document.getElementById('loadCfgBtn');
+  const st  = document.getElementById('saveWpStatus');
+  // Double-click confirmation — avoids browser dialog suppression
+  if(!_loadConfirmPending){
+    _loadConfirmPending = true;
+    btn.style.background = '#b45309';
+    btn.textContent = '⚠️ ¿Confirmar?';
+    st.className='ls loading'; st.textContent=`Esto reemplazará la configuración actual. Haz clic de nuevo en "¿Confirmar?" para continuar.`; st.style.display='block';
+    _loadConfirmTimer = setTimeout(()=>{
+      _loadConfirmPending=false;
+      btn.style.background='#1e40af'; btn.textContent='📥 Cargar';
+      st.style.display='none';
+    }, 4000);
+    return;
+  }
+  clearTimeout(_loadConfirmTimer);
+  _loadConfirmPending=false;
+  btn.style.background='#1e40af'; btn.textContent='📥 Cargar';
+  const baseUrl = rawUrl.replace(/\/wp-json.*$/,'').replace(/\/$/,'');
+  const ajaxUrl = `${baseUrl}/wp-admin/admin-ajax.php`;
+  btn.disabled = true;
+  st.className='ls loading'; st.textContent='⏳ Cargando configuración...'; st.style.display='block';
+  try{
+    const fd = new FormData();
+    fd.append('action',     'dropi_get_config');
+    fd.append('product_id', prodId);
+    const res  = await fetch(ajaxUrl, { method:'POST', body:fd });
+    const data = await res.json();
+    if(!data.success){
+      const code = data.data?.code||data.data?.message||'';
+      throw new Error(code==='no_config'?'No hay configuración guardada para este producto.':data.data?.message||'Error al cargar');
+    }
+    // Backup current state before overwriting
+    const current = localStorage.getItem('dropi-constructor');
+    if(current) localStorage.setItem('dropi-constructor-backup', current);
+    const s = data.data;
+    // Normalize waMsg: convert literal \n sequences to actual newlines (fixes old saves)
+    if(s.ui && s.ui.waMsg) s.ui.waMsg = s.ui.waMsg.replace(/\\r\\n/g,'\n').replace(/\\n/g,'\n').replace(/\\r/g,'\n');
+    if(s.colors?.length){ colors=s.colors; cid=Math.max(...s.colors.map(c=>c.id))+1; }
+    if(s.sizes){ sizes=s.sizes; sid=sizes.length?Math.max(...s.sizes.map(x=>x.id))+1:1; }
+    if(s.packs?.length){ packs=s.packs; pid=Math.max(...s.packs.map(p=>p.id))+1; }
+    if(s.fields?.length) fields=s.fields;
+    if(s.v >= 4 && s.provincias?.length) provincias=s.provincias;
+    if(s.formStyle){ formStyle=s.formStyle; setStyle(s.formStyle); }
+    if(s.ui) applyUI(s.ui);
+    renderAll(); saveState();
+    st.className='ls ok'; st.textContent='✅ Configuración cargada. Respaldo guardado por si necesitas recuperar el anterior.';
+  } catch(err){
+    st.className='ls err'; st.textContent=`❌ ${err.message}`;
+  }
+  btn.disabled = false;
 }
 
 function exportConfig(){
@@ -660,7 +854,7 @@ function handleImport(input){
       if(s.sizes) sizes=s.sizes;
       if(s.packs?.length) packs=s.packs;
       if(s.fields?.length) fields=s.fields;
-      if(s.provincias?.length) provincias=s.provincias;
+      if(s.v >= 4 && s.provincias?.length) provincias=s.provincias;
       if(s.formStyle) formStyle=s.formStyle;
       if(s.cid) cid=s.cid; if(s.sid) sid=s.sid; if(s.pid) pid=s.pid;
       if(s.formStyle){ document.getElementById('tabClasico').classList.toggle('active',s.formStyle==='clasico'); document.getElementById('tabOferta').classList.toggle('active',s.formStyle==='oferta'); }
@@ -671,10 +865,66 @@ function handleImport(input){
   };
   reader.readAsText(file);
 }
+function newConfig(){
+  // Save current state as backup before wiping
+  const current = localStorage.getItem('dropi-constructor');
+  if(current) localStorage.setItem('dropi-constructor-backup', current);
+  // Reset all in-memory state to defaults
+  colors=[]; sizes=[]; cid=1; sid=1;
+  packs=[{id:1,label:'1 unidad',price:'0',precioAntes:'',savings:'',img:'',ofertaBadge:'',vars:{'0-0':0}}];
+  pid=2;
+  fields=[
+    {key:'nombre',   label:'Nombre',               placeholder:'María',                              required:true,  enabled:true},
+    {key:'apellido', label:'Apellido',              placeholder:'García',                             required:true,  enabled:true},
+    {key:'telefono', label:'Teléfono / WhatsApp',   placeholder:'0987654321',                         required:true,  enabled:true},
+    {key:'prov',     label:'Provincia',             placeholder:'',                                   required:true,  enabled:true},
+    {key:'city',     label:'Ciudad',                placeholder:'',                                   required:true,  enabled:true},
+    {key:'calle1',   label:'Calle Principal',        placeholder:'Av. Amazonas',                       required:true,  enabled:true},
+    {key:'calle2',   label:'Calle Secundaria',       placeholder:'N23-45 y Veintimilla',               required:false, enabled:true},
+    {key:'barrio',   label:'Barrio / Referencia',    placeholder:'Barrio El Ejido, frente al parque',  required:false, enabled:true},
+    {key:'numero',   label:'Número de casa / Dpto.', placeholder:'Casa 5, Dpto 2B',                    required:false, enabled:true},
+    {key:'cedula',   label:'Cédula de identidad',    placeholder:'1712345678',                         required:false, enabled:true},
+    {key:'email',    label:'Correo electrónico',     placeholder:'Para regalos y ofertas exclusivas',  required:false, enabled:true},
+    {key:'notas',    label:'Instrucciones adicionales', placeholder:'Ej: Llamar antes de entregar...', required:false, enabled:true},
+  ];
+  provincias = provincias; // keep current full list
+  formStyle='clasico';
+  // Clear UI fields that belong to the product
+  ['productName','subtitle','badge','productId','waMsg','waNum','pixelMeta','pixelTiktok','pixelGoogle'].forEach(id=>{
+    const el=document.getElementById(id); if(el) el.value='';
+  });
+  const el=document.getElementById('productId'); if(el) el.value='';
+  // Show restore button
+  const rb=document.getElementById('restoreBtn'); if(rb) rb.style.display='';
+  setStyle('clasico');
+  renderAll();
+  saveState();
+  showLoadStatus('ok','✅ Nueva configuración lista. El respaldo del anterior está disponible con "↩ Recuperar".');
+}
+function showLoadStatus(type, msg){
+  const st = document.getElementById('saveWpStatus');
+  if(!st) return;
+  st.className='ls '+type; st.textContent=msg; st.style.display='block';
+}
+function restoreBackup(){
+  const bk = localStorage.getItem('dropi-constructor-backup');
+  if(!bk){ showLoadStatus('err','No hay respaldo disponible.'); return; }
+  localStorage.setItem('dropi-constructor', bk);
+  localStorage.removeItem('dropi-constructor-backup');
+  document.getElementById('restoreBtn').style.display='none';
+  location.reload();
+}
 function resetConfig(){
   if(!confirm('¿Borrar toda la configuración guardada y volver al estado inicial?')) return;
   localStorage.removeItem('dropi-constructor');
+  localStorage.removeItem('dropi-constructor-backup');
   location.reload();
+}
+function resetWaMsg(){
+  var el = document.getElementById('waMsg');
+  if(!el) return;
+  el.value = 'Hola {nombre} 👋, acabo de recibir tu pedido.\nProducto: {producto}\nCantidad: {cantidad}\nDirección: {direccion}\nTeléfono: {telefono}\nValor a cancelar: ${precio} 💵\nTu pedido está confirmado ✅. ¡Gracias por tu compra!';
+  render(); saveState();
 }
 
 // ═══════════════════════════════════════════════
@@ -833,6 +1083,7 @@ function renderFields(){
         <label class="fi-req" title="Si está marcado, el campo es obligatorio">
           <input type="checkbox" ${f.required?'checked':''} onchange="setField(${i},'required',this.checked)"> *oblig.
         </label>
+        ${f.custom?`<button type="button" class="fi-del" onclick="deleteField(${i})" title="Eliminar campo">✕</button>`:''}
       </div>
       ${f.key!=='prov'&&f.key!=='city'
         ?`<input class="fi-plc" type="text" value="${esc(f.placeholder||'')}" placeholder="Texto de ayuda dentro del campo..."
@@ -849,6 +1100,17 @@ function setField(idx, key, val){
 function setFieldText(idx, key, val){
   fields[idx][key] = val;
   render(); saveState();
+}
+function addCustomField(){
+  const nums = fields.filter(f=>f.custom).map(f=>parseInt(f.key.replace('custom_',''))||0);
+  const next = nums.length ? Math.max(...nums)+1 : 1;
+  fields.push({key:'custom_'+next, label:'Campo extra', placeholder:'', required:false, enabled:true, custom:true});
+  renderFields(); render(); saveState();
+}
+function deleteField(idx){
+  if(!fields[idx]?.custom) return;
+  fields.splice(idx,1);
+  renderFields(); render(); saveState();
 }
 
 // ═══════════════════════════════════════════════
@@ -945,6 +1207,9 @@ function genHTML(){
   const isOferta = formStyle==='oferta';
   const waNum    = (document.getElementById('waNum')?.value||'').replace(/\D/g,'');
   const waMsg    = document.getElementById('waMsg')?.value||'Hola, acabo de realizar mi pedido 🎉 Nombre: {nombre} | Producto: {producto}. ¡Gracias!';
+  const pixelMeta   = (document.getElementById('pixelMeta')?.value   ||'').trim();
+  const pixelTiktok = (document.getElementById('pixelTiktok')?.value ||'').trim();
+  const pixelGoogle = (document.getElementById('pixelGoogle')?.value ||'').trim();
 
   function darken(hex,pct){ let r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16); r=Math.max(0,Math.round(r*(1-pct)));g=Math.max(0,Math.round(g*(1-pct)));b=Math.max(0,Math.round(b*(1-pct))); return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join(''); }
   const btnDark=darken(btnColor,0.20);
@@ -1033,6 +1298,9 @@ function genHTML(){
     email:    fEn('email')    ? `<div class="fg"><label>${fLbl('email')}${fReqStar('email')}</label><input id="eml" type="email" placeholder="${fPlc('email')}"></div>` : '',
     notas:    fEn('notas')    ? `<div class="fg"><label>${fLbl('notas')}${fReqStar('notas')}</label><textarea id="not" placeholder="${fPlc('notas')}"></textarea></div>` : '',
   };
+  const customFieldsHTML = fields.filter(f=>f.custom&&f.enabled).map(f=>
+    `<div class="fg"><label>${fLbl(f.key)}${f.required?' *':''}</label><input type="text" name="${f.key}" placeholder="${fPlc(f.key)}" data-label="${fLbl(f.key)}" ${f.required?'required':''}></div>`
+  ).join('');
 
   // Dynamic validation for send()
   const reqChecks = [
@@ -1126,12 +1394,68 @@ updateSummary();` : `document.querySelectorAll('input[name="pack"]').forEach(fun
     <div class="res-row total"><span>Total a pagar:</span><span id="res-total">$0.00</span></div>
   </div>` : '';
 
+  const pixelHeadCode = [
+    pixelMeta ? `<!-- Meta Pixel -->
+<script>
+!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','${pixelMeta}');fbq('track','PageView');
+<\/script>
+<noscript><img height="1" width="1" style="display:none" src="https://www.facebook.com/tr?id=${pixelMeta}&ev=PageView&noscript=1"/></noscript>` : '',
+    pixelTiktok ? `<!-- TikTok Pixel -->
+<script>
+!function(w,d,t){w.TiktokAnalyticsObject=t;var ttq=w[t]=w[t]||[];ttq.methods=["page","track","identify","instances","debug","on","off","once","ready","alias","group","enableCookie","disableCookie"],ttq.setAndDefer=function(t,e){t[e]=function(){t.push([e].concat(Array.prototype.slice.call(arguments,0)))}};for(var i=0;i<ttq.methods.length;i++)ttq.setAndDefer(ttq,ttq.methods[i]);ttq.instance=function(t){for(var e=ttq._i[t]||[],n=0;n<ttq.methods.length;n++)ttq.setAndDefer(e,ttq.methods[n]);return e},ttq.load=function(e,n){var i="https://analytics.tiktok.com/i18n/pixel/events.js";ttq._i=ttq._i||{},ttq._i[e]=[],ttq._t=ttq._t||{},ttq._t[e]=+new Date,ttq._o=ttq._o||{},ttq._o[e]=n||{};n=document.createElement("script");n.type="text/javascript",n.async=!0,n.src=i+"?sdkid="+e+"&lib="+t;e=document.getElementsByTagName("script")[0];e.parentNode.insertBefore(n,e)};ttq.load('${pixelTiktok}');ttq.page();}(window,document,'ttq');
+<\/script>` : '',
+    pixelGoogle ? `<!-- Google tag -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=${pixelGoogle}"><\/script>
+<script>
+window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}
+gtag('js',new Date());gtag('config','${pixelGoogle}');
+<\/script>` : '',
+  ].filter(Boolean).join('\n');
+
+  const firstPrice = parseFloat(packs[0]?.price||'0');
+  const pixelViewContent = (pixelMeta||pixelTiktok||pixelGoogle) ? `
+// Pixel: ViewContent — alguien ve el formulario
+(function(){
+  var _p=${JSON.stringify(firstPrice)}, _id='${esc(pid2)}', _n='${esc(pname)}';
+  ${pixelMeta?`if(typeof fbq==='function') fbq('track','ViewContent',{value:_p,currency:'USD',content_ids:[_id],content_type:'product',content_name:_n});`:``}
+  ${pixelTiktok?`if(typeof ttq!=='undefined'&&ttq.track) ttq.track('ViewContent',{value:_p,currency:'USD',content_id:_id,content_name:_n});`:``}
+  ${pixelGoogle?`if(typeof gtag==='function') gtag('event','view_item',{value:_p,currency:'USD',items:[{item_id:_id,item_name:_n,price:_p}]});`:``}
+})();` : '';
+
+  const pixelAddToCart = (pixelMeta||pixelTiktok) ? `
+// Pixel: AddToCart — selecciona un pack
+document.querySelectorAll('input[name="pack"]').forEach(function(r){
+  r.addEventListener('change',function(){
+    var _p=parseFloat(this.dataset.price||'0'), _id='${esc(pid2)}', _n='${esc(pname)}';
+    ${pixelMeta?`if(typeof fbq==='function') fbq('track','AddToCart',{value:_p,currency:'USD',content_ids:[_id],content_type:'product',content_name:_n});`:``}
+    ${pixelTiktok?`if(typeof ttq!=='undefined'&&ttq.track) ttq.track('AddToCart',{value:_p,currency:'USD',content_id:_id});`:``}
+  });
+});` : '';
+
+  const pixelInitCheckout = (pixelMeta||pixelTiktok||pixelGoogle) ? `
+  // Pixel: InitiateCheckout — click en botón
+  (function(){
+    var _p=parseFloat(document.getElementById('totP')?.textContent?.replace(/[^0-9.]/g,'')||'${firstPrice}'), _id='${esc(pid2)}';
+    ${pixelMeta?`if(typeof fbq==='function') fbq('track','InitiateCheckout',{value:_p,currency:'USD',content_ids:[_id],content_type:'product'});`:``}
+    ${pixelTiktok?`if(typeof ttq!=='undefined'&&ttq.track) ttq.track('InitiateCheckout',{value:_p,currency:'USD',content_id:_id});`:``}
+    ${pixelGoogle?`if(typeof gtag==='function') gtag('event','begin_checkout',{value:_p,currency:'USD',items:[{item_id:_id,quantity:1}]});`:``}
+  })();` : '';
+
+  const pixelPurchase = (pixelMeta||pixelTiktok||pixelGoogle) ? `
+      // Pixel: Purchase — pedido completado
+      var _px=parseFloat(pkEl&&pkEl.dataset.price||'${firstPrice}');
+      ${pixelMeta?`if(typeof fbq==='function') fbq('track','Purchase',{value:_px,currency:'USD',content_ids:['${esc(pid2)}'],content_type:'product',content_name:'${esc(pname)}'});`:``}
+      ${pixelTiktok?`if(typeof ttq!=='undefined'&&ttq.track) ttq.track('CompletePayment',{value:_px,currency:'USD',content_id:'${esc(pid2)}'});`:``}
+      ${pixelGoogle?`if(typeof gtag==='function') gtag('event','purchase',{transaction_id:String(Date.now()),value:_px,currency:'USD',items:[{item_id:'${esc(pid2)}',item_name:'${esc(pname)}',quantity:1,price:_px}]});`:``}` : '';
+
 return `<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Pedido — ${pname}</title>
+${pixelHeadCode}
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:${bgColor};color:#111827;min-height:100vh;display:flex;align-items:flex-start;justify-content:center;padding:28px 16px}
@@ -1206,6 +1530,7 @@ ${resumenCSS}
   ${fHTML.cedula}
   ${fHTML.email}
   ${fHTML.notas}
+  ${customFieldsHTML}
 
   <div class="tot">
     <span class="tot-l">Total a pagar al recibir:</span>
@@ -1234,7 +1559,8 @@ function goWa(nombre,producto,direccion,telefono,cantidad,precio){
 }
 const CDS=${JSON.stringify(ciudadesObj)};
 const VM=${JSON.stringify(vmap)};
-
+${pixelViewContent}
+${pixelAddToCart}
 function fillC(){
   var s=document.getElementById('city'),p=document.getElementById('prov').value;
   s.innerHTML='';
@@ -1270,6 +1596,7 @@ async function send(){
   ${tallaIdJS}
   var varId=parseInt(VM[colId+'-'+szId+'-'+pkId]||'0');
   var btn=document.getElementById('btn');
+  ${pixelInitCheckout}
   btn.disabled=true; btn.innerHTML='<span class="sp"></span>Procesando...';
   document.getElementById('mOk').style.display='none';
   document.getElementById('mEr').style.display='none';
@@ -1279,6 +1606,7 @@ async function send(){
     var d=await r.json();
     if(r.ok&&d.success){
       document.getElementById('mOk').style.display='block';
+      ${pixelPurchase}
       ${clearIds}.forEach(function(id){var el=document.getElementById(id);if(el)el.value='';});
       document.getElementById('prov').value='';
       document.getElementById('city').innerHTML='<option value="">— primero provincia —</option>';
@@ -1460,6 +1788,12 @@ function closePreviewModal(){
 // ═══════════════════════════════════════════════
 loadState();
 renderAll();
+
+// Mostrar botón Recuperar si existe un respaldo guardado
+if(localStorage.getItem('dropi-constructor-backup')){
+  const rb = document.getElementById('restoreBtn');
+  if(rb) rb.style.display = '';
+}
 
 // Mostrar wizard solo si es la primera vez
 if(!localStorage.getItem('dropi-wizard-done')){
