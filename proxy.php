@@ -816,10 +816,12 @@ if ($html && $accion_actual === 'generar_html') {
   window.addEventListener('scroll',tick,{passive:true});
   window.addEventListener('resize',tick,{passive:true});
   setTimeout(tick,300);
-  // Sticky bar tap → scroll to formulario (no link, no external navigation)
+  // Sticky bar tap → same action as all CTA buttons (uses configured link)
   bar.addEventListener('click',function(){
-    var el=document.getElementById('cta');
-    if(el)el.scrollIntoView({behavior:'smooth'});
+    var href='{$cta_href}';
+    if(!href||href==='#')return;
+    if(href.startsWith('#')){var el=document.getElementById(href.slice(1));if(el)el.scrollIntoView({behavior:'smooth'});}
+    else{window.open(href,'_blank','noopener,noreferrer');}
   });
 })();
 </script>";
