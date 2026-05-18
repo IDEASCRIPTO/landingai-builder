@@ -3,13 +3,11 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Paso 2 — Header, Footer & Links</title>
+<title>Paso 2 — Header, Página & Footer</title>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
 body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100vh;display:flex;flex-direction:column;overflow:hidden}
-
-/* ── Header ── */
 .hdr{background:#1e293b;padding:9px 18px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #334155;flex-shrink:0;gap:10px}
 .hdr-left{display:flex;align-items:center;gap:8px;min-width:0}
 .hdr-back{background:transparent;color:#64748b;border:1px solid #334155;border-radius:7px;padding:5px 10px;font-size:.72rem;font-weight:600;cursor:pointer;text-decoration:none;white-space:nowrap;transition:.15s}
@@ -18,41 +16,34 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
 .hdr-step{font-size:.78rem;font-weight:700;color:#94a3b8}
 .hdr-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
 .save-ind{font-size:.67rem;color:#1D9E75;opacity:0;transition:opacity .3s;white-space:nowrap}
-.btn-sm{background:transparent;color:#94a3b8;border:1px solid #334155;border-radius:7px;padding:6px 11px;font-size:.72rem;font-weight:600;cursor:pointer;transition:.15s;white-space:nowrap}
-.btn-sm:hover{border-color:#1D9E75;color:#1D9E75}
 .btn-dl{background:linear-gradient(135deg,#1D9E75,#0f7d5a);color:#fff;border:none;border-radius:8px;padding:8px 18px;font-size:.8rem;font-weight:700;cursor:pointer;transition:.15s;white-space:nowrap}
 .btn-dl:hover{background:linear-gradient(135deg,#0f7d5a,#065f46);transform:translateY(-1px)}
-
-/* ── Layout ── */
 .body{display:flex;flex:1;overflow:hidden;min-height:0}
-
-/* ── Config Panel ── */
 .cfg{background:#1e293b;border-right:1px solid #334155;overflow-y:auto;padding:14px;width:380px;flex-shrink:0;transition:width .25s ease,padding .25s ease,border .25s ease}
 .cfg.collapsed{width:0;padding:0;border:none;overflow:hidden}
 .sec{background:#0f172a;border-radius:10px;padding:13px;margin-bottom:10px}
 .sec-ttl{font-size:.65rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#64748b;margin-bottom:11px;display:flex;align-items:center;gap:5px}
 .fl{margin-bottom:9px}
-.fl label,.fl-label{display:block;font-size:.71rem;color:#94a3b8;margin-bottom:3px}
-.fl input[type=text],.fl input[type=url],.fl input[type=tel],.fl input[type=email],.fl select,.fl textarea{width:100%;background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:7px;padding:7px 10px;font-size:.82rem;font-family:inherit;outline:none}
+.fl label{display:block;font-size:.71rem;color:#94a3b8;margin-bottom:3px}
+.fl input[type=text],.fl input[type=url],.fl select,.fl textarea{width:100%;background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:7px;padding:7px 10px;font-size:.82rem;font-family:inherit;outline:none}
 .fl input:focus,.fl select:focus,.fl textarea:focus{border-color:#1D9E75}
-
-/* Nav rows */
-.nav-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px;align-items:center}
-.nav-row-num{font-size:.65rem;color:#475569;text-align:center;grid-column:1/-1;margin-bottom:2px}
-
-/* Social rows */
+.nav-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-bottom:7px}
 .soc-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
 .soc-icon{font-size:1.1rem;width:26px;text-align:center;flex-shrink:0}
 .soc-row input{flex:1;background:#1e293b;border:1px solid #334155;color:#f1f5f9;border-radius:7px;padding:6px 9px;font-size:.8rem;font-family:inherit;outline:none}
 .soc-row input:focus{border-color:#1D9E75}
 .soc-row input::placeholder{color:#334155}
-
-/* Scrollbar */
 .cfg::-webkit-scrollbar{width:5px}
 .cfg::-webkit-scrollbar-track{background:#0f172a}
 .cfg::-webkit-scrollbar-thumb{background:#334155;border-radius:4px}
-
-/* ── Preview Panel ── */
+.tab-nav{display:flex;gap:3px;margin-bottom:12px;background:#0f172a;border-radius:10px;padding:4px;flex-shrink:0}
+.tab-btn{flex:1;background:transparent;border:none;color:#64748b;border-radius:7px;padding:8px 4px;font-size:.69rem;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit;white-space:nowrap}
+.tab-btn:hover{color:#e2e8f0}
+.tab-btn.active{background:#1e293b;color:#1D9E75}
+.tab-pane{display:none}
+.tab-pane.active{display:block}
+.tab-dl-btn{width:100%;margin-top:4px;margin-bottom:8px;background:#0f172a;border:1px solid #334155;color:#64748b;border-radius:8px;padding:8px 12px;font-size:.72rem;font-weight:700;cursor:pointer;transition:.15s;font-family:inherit}
+.tab-dl-btn:hover{border-color:#1D9E75;color:#1D9E75}
 .pv{display:flex;flex-direction:column;background:#cbd5e1;flex:1;min-width:0}
 .pv-hdr{background:#94a3b8;padding:7px 12px;font-size:.72rem;color:#1e293b;font-weight:600;display:flex;align-items:center;gap:6px;flex-shrink:0}
 .dot{width:9px;height:9px;border-radius:50%}
@@ -73,78 +64,114 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
   <div class="hdr-left">
     <a class="hdr-back" id="backBtn" href="constructor.html">← Paso 1</a>
     <span class="hdr-type" id="typeLabel">Web</span>
-    <span class="hdr-step">Paso 2 — Header, Footer & Links</span>
+    <span class="hdr-step">Paso 2 — Header · Página · Footer</span>
   </div>
   <div class="hdr-right">
     <span class="save-ind" id="saveInd">✓ Guardado</span>
-    <button class="btn-dl" onclick="downloadPage()">⬇ Descargar HTML final</button>
+    <button class="btn-dl" onclick="downloadAll()">⬇ Descargar todo (3 archivos)</button>
   </div>
 </header>
 
 <div class="body">
   <aside class="cfg" id="cfg">
 
-    <!-- NAVEGACIÓN HEADER -->
-    <div class="sec">
-      <div class="sec-ttl">🔗 Links de Navegación (Header)</div>
-      <div id="navList"></div>
+    <div class="tab-nav">
+      <button class="tab-btn active" data-tab="header" onclick="switchTab('header')">🔝 Header</button>
+      <button class="tab-btn" data-tab="pagina" onclick="switchTab('pagina')">📄 Página</button>
+      <button class="tab-btn" data-tab="footer" onclick="switchTab('footer')">🦶 Footer</button>
     </div>
 
-    <!-- REDES SOCIALES -->
-    <div class="sec">
-      <div class="sec-ttl">📱 Redes Sociales</div>
-      <div class="soc-row"><span class="soc-icon">📘</span><input type="url" id="socFb" placeholder="https://facebook.com/tupagina" oninput="render();save()"></div>
-      <div class="soc-row"><span class="soc-icon">📸</span><input type="url" id="socIg" placeholder="https://instagram.com/tupagina" oninput="render();save()"></div>
-      <div class="soc-row"><span class="soc-icon">🎵</span><input type="url" id="socTt" placeholder="https://tiktok.com/@tupagina" oninput="render();save()"></div>
-      <div class="soc-row"><span class="soc-icon">▶️</span><input type="url" id="socYt" placeholder="https://youtube.com/@tucanal" oninput="render();save()"></div>
-      <div class="soc-row"><span class="soc-icon">🐦</span><input type="url" id="socTw" placeholder="https://x.com/tupagina" oninput="render();save()"></div>
-      <div class="soc-row"><span class="soc-icon">💼</span><input type="url" id="socLi" placeholder="https://linkedin.com/company/tu" oninput="render();save()"></div>
-      <div class="soc-row"><span class="soc-icon">💬</span><input type="url" id="socWa" placeholder="https://wa.me/593987654321" oninput="render();save()"></div>
+    <!-- TAB: HEADER -->
+    <div class="tab-pane active" data-tab="header">
+      <div class="sec">
+        <div class="sec-ttl">🏷️ Logo & Marca</div>
+        <div class="fl"><label>Texto del logo <span style="color:#475569">(vacío = nombre del negocio)</span></label>
+          <input type="text" id="hdrLogoText" placeholder="Mi Empresa" oninput="render();save()">
+        </div>
+        <div class="fl"><label>URL del logo (link al inicio)</label>
+          <input type="url" id="hdrLogoUrl" placeholder="https://tudominio.com" oninput="render();save()">
+        </div>
+      </div>
+      <div class="sec">
+        <div class="sec-ttl">🔗 Links de Navegación</div>
+        <div style="font-size:.67rem;color:#475569;margin-bottom:9px">El último link se convierte en el botón CTA del menú.</div>
+        <div id="navList"></div>
+      </div>
+      <button class="tab-dl-btn" onclick="downloadHeader()">⬇ Descargar header.html</button>
     </div>
 
-    <!-- POLÍTICAS -->
-    <div class="sec">
-      <div class="sec-ttl">📄 Políticas y Legales</div>
-      <div class="fl"><label>Política de Privacidad — URL</label>
-        <input type="url" id="polPrivacy" placeholder="https://tupagina.com/privacidad" oninput="render();save()">
+    <!-- TAB: PÁGINA -->
+    <div class="tab-pane" data-tab="pagina">
+      <div class="sec">
+        <div class="sec-ttl">📸 Imágenes & Media</div>
+        <div class="fl"><label>Hero — URL imagen de fondo <span style="color:#475569">(reemplaza Unsplash)</span></label>
+          <input type="url" id="heroImg" placeholder="https://..." oninput="render();save()">
+        </div>
+        <div class="fl"><label>Galería — Imagen 1</label>
+          <input type="url" id="gallImg1" placeholder="https://..." oninput="render();save()">
+        </div>
+        <div class="fl"><label>Galería — Imagen 2</label>
+          <input type="url" id="gallImg2" placeholder="https://..." oninput="render();save()">
+        </div>
+        <div class="fl"><label>Galería — Imagen 3</label>
+          <input type="url" id="gallImg3" placeholder="https://..." oninput="render();save()">
+        </div>
+        <div class="fl"><label>Video YouTube — URL <span style="color:#475569">(opcional)</span></label>
+          <input type="url" id="videoYt" placeholder="https://youtu.be/..." oninput="render();save()">
+        </div>
       </div>
-      <div class="fl"><label>Términos y Condiciones — URL</label>
-        <input type="url" id="polTerms" placeholder="https://tupagina.com/terminos" oninput="render();save()">
-      </div>
-      <div class="fl"><label>Política de Cookies — URL <span style="color:#475569">(opcional)</span></label>
-        <input type="url" id="polCookies" placeholder="https://tupagina.com/cookies" oninput="render();save()">
-      </div>
+      <button class="tab-dl-btn" onclick="downloadPage()">⬇ Descargar index.html</button>
     </div>
 
-    <!-- IMÁGENES & MEDIA -->
-    <div class="sec">
-      <div class="sec-ttl">📸 Imágenes & Media</div>
-      <div class="fl"><label>Hero — URL de imagen de fondo <span style="color:#475569">(reemplaza Unsplash)</span></label>
-        <input type="url" id="heroImg" placeholder="https://..." oninput="render();save()">
+    <!-- TAB: FOOTER -->
+    <div class="tab-pane" data-tab="footer">
+      <div class="sec">
+        <div class="sec-ttl">🎯 Banner CTA</div>
+        <div class="fl"><label>Título</label>
+          <input type="text" id="ftrCtaTitle" placeholder="¿Listo para empezar?" oninput="render();save()">
+        </div>
+        <div class="fl"><label>Texto</label>
+          <textarea id="ftrCtaText" placeholder="Contáctanos hoy y recibe atención personalizada." oninput="render();save()" style="min-height:52px"></textarea>
+        </div>
+        <div class="fl"><label>Texto del botón</label>
+          <input type="text" id="ftrCtaBtn" placeholder="Contactar" oninput="render();save()">
+        </div>
+        <div class="fl"><label>URL del botón</label>
+          <input type="url" id="ftrCtaUrl" placeholder="#contacto" oninput="render();save()">
+        </div>
       </div>
-      <div class="fl"><label>Galería — Imagen 1</label>
-        <input type="url" id="gallImg1" placeholder="https://..." oninput="render();save()">
+      <div class="sec">
+        <div class="sec-ttl">📱 Redes Sociales</div>
+        <div class="soc-row"><span class="soc-icon">📘</span><input type="url" id="socFb" placeholder="https://facebook.com/tupagina" oninput="render();save()"></div>
+        <div class="soc-row"><span class="soc-icon">📸</span><input type="url" id="socIg" placeholder="https://instagram.com/tupagina" oninput="render();save()"></div>
+        <div class="soc-row"><span class="soc-icon">🎵</span><input type="url" id="socTt" placeholder="https://tiktok.com/@tupagina" oninput="render();save()"></div>
+        <div class="soc-row"><span class="soc-icon">▶️</span><input type="url" id="socYt" placeholder="https://youtube.com/@tucanal" oninput="render();save()"></div>
+        <div class="soc-row"><span class="soc-icon">🐦</span><input type="url" id="socTw" placeholder="https://x.com/tupagina" oninput="render();save()"></div>
+        <div class="soc-row"><span class="soc-icon">💼</span><input type="url" id="socLi" placeholder="https://linkedin.com/company/tu" oninput="render();save()"></div>
+        <div class="soc-row"><span class="soc-icon">💬</span><input type="url" id="socWa" placeholder="https://wa.me/593987654321" oninput="render();save()"></div>
       </div>
-      <div class="fl"><label>Galería — Imagen 2</label>
-        <input type="url" id="gallImg2" placeholder="https://..." oninput="render();save()">
+      <div class="sec">
+        <div class="sec-ttl">📄 Políticas y Legales</div>
+        <div class="fl"><label>Política de Privacidad — URL</label>
+          <input type="url" id="polPrivacy" placeholder="https://tupagina.com/privacidad" oninput="render();save()">
+        </div>
+        <div class="fl"><label>Términos y Condiciones — URL</label>
+          <input type="url" id="polTerms" placeholder="https://tupagina.com/terminos" oninput="render();save()">
+        </div>
+        <div class="fl"><label>Política de Cookies — URL <span style="color:#475569">(opcional)</span></label>
+          <input type="url" id="polCookies" placeholder="https://tupagina.com/cookies" oninput="render();save()">
+        </div>
       </div>
-      <div class="fl"><label>Galería — Imagen 3</label>
-        <input type="url" id="gallImg3" placeholder="https://..." oninput="render();save()">
+      <div class="sec">
+        <div class="sec-ttl">🦶 Texto del Footer</div>
+        <div class="fl"><label>Texto breve sobre la empresa</label>
+          <textarea id="footerAbout" placeholder="Somos una empresa dedicada a..." oninput="render();save()" style="min-height:56px"></textarea>
+        </div>
+        <div class="fl"><label>Texto de Copyright</label>
+          <input type="text" id="footerCopy" placeholder="© 2025 Tu Empresa. Todos los derechos reservados." oninput="render();save()">
+        </div>
       </div>
-      <div class="fl"><label>Video YouTube — URL <span style="color:#475569">(opcional)</span></label>
-        <input type="url" id="videoYt" placeholder="https://youtu.be/..." oninput="render();save()">
-      </div>
-    </div>
-
-    <!-- FOOTER -->
-    <div class="sec">
-      <div class="sec-ttl">🦶 Footer</div>
-      <div class="fl"><label>Texto breve sobre la empresa</label>
-        <textarea id="footerAbout" placeholder="Somos una empresa dedicada a..." oninput="render();save()" style="min-height:56px"></textarea>
-      </div>
-      <div class="fl"><label>Texto de Copyright</label>
-        <input type="text" id="footerCopy" placeholder="© 2025 Tu Empresa. Todos los derechos reservados." oninput="render();save()">
-      </div>
+      <button class="tab-dl-btn" onclick="downloadFooter()">⬇ Descargar footer.html</button>
     </div>
 
   </aside>
@@ -185,10 +212,15 @@ const FSK = 'wc-' + TYPE + '-fin';
 let cState = {};
 let fState = {};
 let _saveTimer = null;
-
 const NAV_COUNT = 5;
 
-// ─── NAV ROWS ───────────────────────────────
+// ─── TABS ────────────────────────────────────
+function switchTab(name){
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.toggle('active', b.dataset.tab===name));
+  document.querySelectorAll('.tab-pane').forEach(p=>p.classList.toggle('active', p.dataset.tab===name));
+}
+
+// ─── NAV ROWS ────────────────────────────────
 function buildNavRows(){
   const defaults = [
     {label:'Inicio', url:'#'},
@@ -199,19 +231,19 @@ function buildNavRows(){
   ];
   document.getElementById('navList').innerHTML = Array.from({length:NAV_COUNT},(_,i)=>`
     <div style="margin-bottom:8px">
-      <div style="font-size:.63rem;color:#475569;margin-bottom:3px">Link ${i+1}</div>
+      <div style="font-size:.63rem;color:#475569;margin-bottom:3px">Link ${i+1}${i===NAV_COUNT-1?' <span style="color:#1D9E75">(CTA)</span>':''}</div>
       <div class="nav-row">
         <input type="text" class="nav-label" placeholder="Ej: Servicios" value="" oninput="render();save()">
         <input type="text" class="nav-url"   placeholder="#servicios" value="" oninput="render();save()">
       </div>
     </div>`).join('');
   const rows = document.querySelectorAll('.nav-label');
-  defaults.forEach((d,i)=>{ if(rows[i]){ rows[i].value=d.label; } });
+  defaults.forEach((d,i)=>{ if(rows[i]) rows[i].value=d.label; });
   const urls = document.querySelectorAll('.nav-url');
-  defaults.forEach((d,i)=>{ if(urls[i]){ urls[i].value=d.url; } });
+  defaults.forEach((d,i)=>{ if(urls[i]) urls[i].value=d.url; });
 }
 
-// ─── COLLECT ───────────────────────────────
+// ─── COLLECT / APPLY ─────────────────────────
 function collectFinalize(){
   const g = id => document.getElementById(id)?.value || '';
   const navLinks = [];
@@ -223,34 +255,35 @@ function collectFinalize(){
   });
   fState = {
     navLinks,
+    hdrLogoText:g('hdrLogoText'), hdrLogoUrl:g('hdrLogoUrl'),
     socFb:g('socFb'), socIg:g('socIg'), socTt:g('socTt'),
     socYt:g('socYt'), socTw:g('socTw'), socLi:g('socLi'), socWa:g('socWa'),
     polPrivacy:g('polPrivacy'), polTerms:g('polTerms'), polCookies:g('polCookies'),
     footerAbout:g('footerAbout'), footerCopy:g('footerCopy'),
     heroImg:g('heroImg'), gallImg1:g('gallImg1'), gallImg2:g('gallImg2'), gallImg3:g('gallImg3'),
     videoYt:g('videoYt'),
+    ftrCtaTitle:g('ftrCtaTitle'), ftrCtaText:g('ftrCtaText'),
+    ftrCtaBtn:g('ftrCtaBtn'), ftrCtaUrl:g('ftrCtaUrl'),
   };
 }
 
 function applyFinalize(f){
   const set = (id,v) => { const el=document.getElementById(id); if(el&&v!==undefined) el.value=v; };
-  // Nav
   const labels = document.querySelectorAll('.nav-label');
   const urls   = document.querySelectorAll('.nav-url');
   (f.navLinks||[]).forEach((n,i)=>{
     if(labels[i]) labels[i].value = n.label||'';
     if(urls[i])   urls[i].value   = n.url||'';
   });
-  // Social
+  set('hdrLogoText',f.hdrLogoText); set('hdrLogoUrl',f.hdrLogoUrl);
   set('socFb',f.socFb); set('socIg',f.socIg); set('socTt',f.socTt);
   set('socYt',f.socYt); set('socTw',f.socTw); set('socLi',f.socLi); set('socWa',f.socWa);
-  // Policies
   set('polPrivacy',f.polPrivacy); set('polTerms',f.polTerms); set('polCookies',f.polCookies);
-  // Footer
   set('footerAbout',f.footerAbout); set('footerCopy',f.footerCopy);
-  // Images & Media
   set('heroImg',f.heroImg); set('gallImg1',f.gallImg1); set('gallImg2',f.gallImg2); set('gallImg3',f.gallImg3);
   set('videoYt',f.videoYt);
+  set('ftrCtaTitle',f.ftrCtaTitle); set('ftrCtaText',f.ftrCtaText);
+  set('ftrCtaBtn',f.ftrCtaBtn); set('ftrCtaUrl',f.ftrCtaUrl);
 }
 
 function save(){
@@ -263,7 +296,7 @@ function save(){
   }, 400);
 }
 
-// ─── COLOR HELPERS ─────────────────────────
+// ─── COLOR HELPERS ───────────────────────────
 function hexAlpha(hex,a){
   const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
   return `rgba(${r},${g},${b},${a})`;
@@ -274,7 +307,195 @@ function darken(hex,p){
   return '#'+[r,g,b].map(x=>x.toString(16).padStart(2,'0')).join('');
 }
 
-// ─── GENERATE HTML ─────────────────────────
+// ─── SHARED LOGO HELPER ──────────────────────
+function logoVars(){
+  const text = (fState.hdrLogoText || cState.bizName || 'Mi Negocio').trim();
+  const words = text.split(/\s+/);
+  return { text, url: fState.hdrLogoUrl||'#', first: words[0]||'', rest: words.slice(1).join(' ') };
+}
+
+// ─── SHARED NAV CSS ──────────────────────────
+function navCSS(p, pd){
+  return `nav{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(255,255,255,.95);backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,0,0,.08);transition:box-shadow .4s cubic-bezier(.4,0,.2,1)}
+nav.scrolled{box-shadow:0 4px 20px rgba(0,0,0,.1)}
+.nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
+.nav-logo{font-size:1.1rem;font-weight:900;color:#0f172a;letter-spacing:-.02em;font-family:'Outfit',sans-serif}
+.nav-logo span{color:var(--p)}
+.nav-links{display:flex;align-items:center;gap:28px}
+.nav-links a{font-size:.875rem;font-weight:500;color:#475569;transition:color .4s;text-decoration:none}
+.nav-links a:hover{color:var(--p)}
+.nav-cta{background:var(--p);color:#fff!important;padding:9px 22px;border-radius:50px;font-weight:700!important;transition:background .4s!important;text-decoration:none}
+.nav-cta:hover{background:var(--pd)!important}
+.nav-burger{display:none;background:none;border:none;cursor:pointer;padding:4px}
+.nav-mobile{display:none;position:fixed;top:68px;left:0;right:0;background:#fff;border-bottom:1px solid #e5e7eb;padding:16px 20px;flex-direction:column;gap:10px;z-index:998}
+.nav-mobile.open{display:flex}
+.nav-mobile a{font-size:.95rem;font-weight:500;color:#374151;padding:8px 0;border-bottom:1px solid #f3f4f6;text-decoration:none}
+@media(max-width:768px){.nav-links{display:none}.nav-burger{display:block}}`;
+}
+
+// ─── GENERATE HEADER HTML ────────────────────
+function genHeader(){
+  collectFinalize();
+  const s = cState; const f = fState;
+  const p = s.colorPrimary||'#1D9E75';
+  const pd = darken(p,.15);
+  const hero = s.colorHero||darken(p,.3);
+  const bg = s.colorBg||'#f8fafc';
+  const lv = logoVars();
+  const navLinks = f.navLinks||[{label:'Servicios',url:'#servicios'},{label:'Proceso',url:'#proceso'},{label:'Testimonios',url:'#testimonios'},{label:'Galería',url:'#galeria'},{label:'Contactar',url:'#contacto'}];
+  const navItems = navLinks.slice(0,-1).map(n=>`<a href="${n.url}">${n.label}</a>`).join('');
+  const navCta = navLinks.length ? navLinks[navLinks.length-1] : {label:'Contactar',url:'#contacto'};
+  const mobileItems = navLinks.map(n=>`<a href="${n.url}" onclick="toggleMenu()">${n.label}</a>`).join('');
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Header — ${lv.text}</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+:root{--p:${p};--pd:${pd};--hero:${hero};--bg:${bg}}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg)}
+a{text-decoration:none}
+.container{max-width:1140px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+${navCSS(p,pd)}
+</style>
+</head>
+<body>
+<nav id="mainNav">
+  <div class="container">
+    <div class="nav-inner">
+      <a href="${lv.url}" class="nav-logo">${lv.first}<span>${lv.rest?' '+lv.rest:''}</span></a>
+      <div class="nav-links">
+        ${navItems}
+        <a href="${navCta.url}" class="nav-cta">${navCta.label}</a>
+      </div>
+      <button class="nav-burger" onclick="toggleMenu()" aria-label="Menú">
+        <svg width="24" height="24" fill="none" stroke="#374151" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</nav>
+<div class="nav-mobile" id="navMobile">${mobileItems}</div>
+<div style="height:68px"></div>
+<script>
+window.addEventListener('scroll',function(){document.getElementById('mainNav').classList.toggle('scrolled',scrollY>50)},{passive:true});
+function toggleMenu(){document.getElementById('navMobile').classList.toggle('open')}
+<\/script>
+</body>
+</html>`;
+}
+
+// ─── GENERATE FOOTER HTML ────────────────────
+function genFooter(){
+  collectFinalize();
+  const s = cState; const f = fState;
+  const p = s.colorPrimary||'#1D9E75';
+  const pd = darken(p,.15);
+  const hero = s.colorHero||darken(p,.3);
+  const bg = s.colorBg||'#f8fafc';
+  const lv = logoVars();
+  const navLinks = f.navLinks||[];
+  const ftrCtaTitle = f.ftrCtaTitle || '¿Listo para empezar?';
+  const ftrCtaText = f.ftrCtaText || s.bizTagline || 'Contáctanos hoy y recibe atención personalizada.';
+  const ftrCtaBtn = f.ftrCtaBtn || s.heroCta || 'Contactar';
+  const ftrCtaUrl = f.ftrCtaUrl || s.ctaLink || '#contacto';
+  const legalLinks = [
+    f.polPrivacy?`<a href="${f.polPrivacy}" target="_blank">Privacidad</a>`:'',
+    f.polTerms?`<a href="${f.polTerms}" target="_blank">Términos</a>`:'',
+    f.polCookies?`<a href="${f.polCookies}" target="_blank">Cookies</a>`:'',
+  ].filter(Boolean).join(' · ');
+  const copyText = f.footerCopy || `© ${new Date().getFullYear()} ${s.bizName||'Mi Negocio'}. Todos los derechos reservados.`;
+  const socials = [{k:'socFb',icon:'📘'},{k:'socIg',icon:'📸'},{k:'socTt',icon:'🎵'},{k:'socYt',icon:'▶️'},{k:'socTw',icon:'🐦'},{k:'socLi',icon:'💼'},{k:'socWa',icon:'💬'}]
+    .filter(x=>f[x.k]).map(x=>`<a href="${f[x.k]}" target="_blank" rel="noopener">${x.icon}</a>`).join('');
+  return `<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Footer — ${lv.text}</title>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@700;800;900&family=Inter:wght@400;500;600;700&display=swap');
+:root{--p:${p};--pd:${pd};--hero:${hero};--bg:${bg}}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+body{font-family:'Inter',sans-serif;background:var(--bg)}
+a{text-decoration:none}
+.container{max-width:1140px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
+.cta-section{background:var(--bg);padding:clamp(40px,7vw,64px) 0}
+.cta-banner{background:linear-gradient(135deg,var(--hero),var(--p));border-radius:28px;padding:clamp(40px,7vw,64px);text-align:center;color:#fff;position:relative;overflow:hidden}
+.cta-banner::before{content:'';position:absolute;top:-120px;right:-80px;width:400px;height:400px;border-radius:50%;background:rgba(255,255,255,.06);pointer-events:none}
+.cta-banner h2{font-size:clamp(1.6rem,3vw,2.3rem);font-weight:900;margin-bottom:14px;letter-spacing:-.02em;font-family:'Outfit',sans-serif;position:relative}
+.cta-banner p{font-size:.97rem;opacity:.9;margin-bottom:32px;line-height:1.65;max-width:480px;margin-left:auto;margin-right:auto;position:relative}
+.btn-white{background:#fff;color:var(--p);padding:15px 36px;border-radius:50px;font-weight:800;font-size:.97rem;display:inline-block;box-shadow:0 4px 20px rgba(0,0,0,.15);transition:.4s cubic-bezier(.4,0,.2,1);position:relative}
+.btn-white:hover{transform:translateY(-3px);box-shadow:0 10px 30px rgba(0,0,0,.2)}
+.wave-divider{width:100%;overflow:hidden;line-height:0}
+.wave-divider svg{display:block;width:200%;height:80px}
+@keyframes waveMove{to{transform:translateX(-50%)}}
+.wv1{animation:waveMove 9s linear infinite}
+.wv2{animation:waveMove 14s linear infinite reverse}
+.wv3{animation:waveMove 7s linear infinite}
+footer{background:#0f172a;color:#94a3b8;padding:56px 0 24px}
+.footer-top{display:grid;grid-template-columns:1.5fr 1fr 1fr;gap:40px;padding-bottom:32px;border-bottom:1px solid #1e293b;margin-bottom:24px}
+.footer-brand .footer-logo{font-size:1.15rem;font-weight:900;color:#f1f5f9;margin-bottom:12px;letter-spacing:-.02em;font-family:'Outfit',sans-serif}
+.footer-brand .footer-logo span{color:var(--p)}
+.footer-brand p{font-size:.82rem;color:#475569;line-height:1.65;max-width:260px}
+.footer-col h4{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:#64748b;margin-bottom:14px}
+.footer-col a{display:block;font-size:.83rem;color:#475569;margin-bottom:9px;transition:color .4s}
+.footer-col a:hover{color:var(--p)}
+.footer-soc{display:flex;gap:10px;flex-wrap:wrap}
+.footer-soc a{font-size:1.2rem;transition:transform .4s}
+.footer-soc a:hover{transform:scale(1.2)}
+.footer-bottom{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-copy{font-size:.75rem;color:#334155}
+.footer-legal{display:flex;gap:16px;flex-wrap:wrap}
+.footer-legal a{font-size:.72rem;color:#334155;transition:color .4s}
+.footer-legal a:hover{color:var(--p)}
+@media(max-width:768px){.footer-top{grid-template-columns:1fr}.footer-bottom{flex-direction:column;text-align:center}}
+</style>
+</head>
+<body>
+<div class="cta-section">
+  <div class="container">
+    <div class="cta-banner">
+      <h2>${ftrCtaTitle}</h2>
+      <p>${ftrCtaText}</p>
+      <a href="${ftrCtaUrl}" class="btn-white">${ftrCtaBtn} →</a>
+    </div>
+  </div>
+</div>
+<div class="wave-divider">
+  <svg viewBox="0 0 1440 80" preserveAspectRatio="none">
+    <path class="wv wv1" d="M0,40 C360,80 720,0 1080,40 C1260,60 1380,30 1440,40 L1440,80 L0,80 Z" fill="rgba(15,23,42,.35)"/>
+    <path class="wv wv2" d="M0,55 C240,18 480,72 720,55 C960,36 1200,72 1440,55 L1440,80 L0,80 Z" fill="rgba(15,23,42,.65)"/>
+    <path class="wv wv3" d="M0,65 C360,90 720,40 1080,65 C1260,78 1380,55 1440,65 L1440,80 L0,80 Z" fill="#0f172a"/>
+  </svg>
+</div>
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <div class="footer-logo">${lv.first}<span>${lv.rest?' '+lv.rest:''}</span></div>
+        <p>${f.footerAbout||s.bizDesc||''}</p>
+      </div>
+      <div class="footer-col">
+        <h4>Navegación</h4>
+        ${navLinks.map(n=>`<a href="${n.url}">${n.label}</a>`).join('')}
+      </div>
+      <div class="footer-col">
+        <h4>Síguenos</h4>
+        ${socials?`<div class="footer-soc">${socials}</div>`:'<span style="font-size:.8rem;color:#334155">Sin redes configuradas</span>'}
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <div class="footer-copy">${copyText}</div>
+      ${legalLinks?`<div class="footer-legal">${legalLinks}</div>`:''}
+    </div>
+  </div>
+</footer>
+</body>
+</html>`;
+}
+
+// ─── GENERATE FULL PAGE HTML ─────────────────
 function genHTML(){
   collectFinalize();
   const s = cState;
@@ -284,7 +505,12 @@ function genHTML(){
   const hero= s.colorHero||darken(p,.3);
   const pd  = darken(p,.15);
 
-  // Stable Unsplash per type
+  const lv = logoVars();
+  const ftrCtaTitle = f.ftrCtaTitle || '¿Listo para empezar?';
+  const ftrCtaText  = f.ftrCtaText  || s.bizTagline || 'Contáctanos hoy y recibe atención personalizada.';
+  const ftrCtaBtn   = f.ftrCtaBtn   || s.heroCta || 'Contactar';
+  const ftrCtaUrl   = f.ftrCtaUrl   || s.ctaLink || '#contacto';
+
   const _hids = {
     viajes:'1506905925346-21bda4d32df4',medico:'1631217868264-e5b90bb7e133',
     abogado:'1589829545856-d10d557cf95f',inmobiliaria:'1560518883-ce09059eeffa',
@@ -322,7 +548,6 @@ function genHTML(){
     animCSS = `[data-r]{opacity:0;transform:translateY(40px) scale(.97);transition:opacity .7s cubic-bezier(.4,0,.2,1),transform .7s cubic-bezier(.4,0,.2,1);transition-delay:var(--delay,0s)}[data-r].v{opacity:1;transform:none}[data-rl]{opacity:0;transform:translateX(-70px) skewX(3deg);transition:opacity .65s ease-out,transform .65s ease-out;transition-delay:var(--delay,0s)}[data-rl].v{opacity:1;transform:none}[data-rr]{opacity:0;transform:translateX(70px) skewX(-3deg);transition:opacity .65s ease-out,transform .65s ease-out;transition-delay:var(--delay,0s)}[data-rr].v{opacity:1;transform:none}[data-rs]{opacity:0;transform:scale(.88);transition:opacity .6s ease,transform .6s ease;transition-delay:var(--delay,0s)}[data-rs].v{opacity:1;transform:none}`;
   }
 
-  // Stats per type
   const _stats = {
     viajes:[{n:'500+',l:'Destinos'},{n:'2,400+',l:'Viajeros felices'},{n:'4.9★',l:'Calificación'},{n:'10+',l:'Años de exp.'}],
     medico:[{n:'1,200+',l:'Pacientes'},{n:'15+',l:'Especialidades'},{n:'98%',l:'Satisfacción'},{n:'24/7',l:'Urgencias'}],
@@ -336,7 +561,6 @@ function genHTML(){
     `<div class="stat-item" data-rs style="--delay:${i*.07}s"><span class="stat-n">${st.n}</span><span class="stat-l">${st.l}</span></div>`
   ).join('');
 
-  // Marquee per type
   const _marq = {
     viajes:['✈️ Vuelos confirmados','🏨 Hoteles 5★','🛡️ Seguro incluido','🗺️ Guías certificados','💳 Pago seguro','📞 Soporte 24/7'],
     medico:['✅ Médicos certificados','🔬 Equipos de última gen.','🏥 Clínica acreditada','💊 Farmacia interna','🚑 Urgencias 24/7','📋 Historia digital'],
@@ -348,7 +572,6 @@ function genHTML(){
   };
   const marqItems = (_marq[TYPE]||_marq.servicio).map(t=>`<span class="marq-item">${t}</span>`).join('');
 
-  // Nav
   const navLinks = f.navLinks||[
     {label:'Servicios',url:'#servicios'},{label:'Galería',url:'#galeria'},
     {label:'Proceso',url:'#proceso'},{label:'Testimonios',url:'#testimonios'},{label:'Contacto',url:'#contacto'},
@@ -357,7 +580,6 @@ function genHTML(){
   const navCtaItem = navLinks.length ? navLinks[navLinks.length-1] : {label:'Contactar',url:'#contacto'};
   const mobileNavItems = navLinks.map(n=>`<a href="${n.url}" onclick="toggleMenu()">${n.label}</a>`).join('');
 
-  // Social
   const socials = [
     {k:'socFb',icon:'📘'},{k:'socIg',icon:'📸'},{k:'socTt',icon:'🎵'},
     {k:'socYt',icon:'▶️'},{k:'socTw',icon:'🐦'},{k:'socLi',icon:'💼'},{k:'socWa',icon:'💬'},
@@ -388,16 +610,13 @@ function genHTML(){
       </div>
     </div>`).join('');
 
-  // Gallery: use real images if provided, else styled placeholder
   const _gallItems = [f.gallImg1, f.gallImg2, f.gallImg3];
   const gallItems = _gallItems.map((url,i)=>
     url
     ? `<div class="gall-item" data-rs style="--delay:${i*.08}s"><img src="${url}" alt="Imagen ${i+1}" loading="lazy"></div>`
     : `<div class="img-ph" data-rs style="--delay:${i*.08}s"><div class="img-ph-ico">📷</div><div class="img-ph-txt">Imagen ${i+1}</div></div>`
   ).join('');
-  const hasGallery = _gallItems.some(Boolean);
 
-  // YouTube embed
   let ytEmbed = '';
   if(f.videoYt){
     const ytId = f.videoYt.match(/(?:youtu\.be\/|v=|embed\/)([\w-]{11})/)?.[1];
@@ -441,20 +660,7 @@ img{max-width:100%;display:block;object-fit:cover}
 .container{max-width:1140px;margin:0 auto;padding:0 clamp(16px,4vw,48px)}
 .section{padding:clamp(64px,9vw,108px) 0}
 .section-alt{background:#fff}
-nav{position:fixed;top:0;left:0;right:0;z-index:999;background:rgba(255,255,255,.95);backdrop-filter:blur(14px);border-bottom:1px solid rgba(0,0,0,.08);transition:box-shadow var(--tr)}
-nav.scrolled{box-shadow:0 4px 20px rgba(0,0,0,.1)}
-.nav-inner{display:flex;align-items:center;justify-content:space-between;height:68px}
-.nav-logo{font-size:1.1rem;font-weight:900;color:#0f172a;letter-spacing:-.02em}
-.nav-logo span{color:var(--p)}
-.nav-links{display:flex;align-items:center;gap:28px}
-.nav-links a{font-size:.875rem;font-weight:500;color:#475569;transition:color var(--tr)}
-.nav-links a:hover{color:var(--p)}
-.nav-cta{background:var(--p);color:#fff!important;padding:9px 22px;border-radius:50px;font-weight:700!important;transition:background var(--tr)!important}
-.nav-cta:hover{background:var(--pd)!important}
-.nav-burger{display:none;background:none;border:none;cursor:pointer;padding:4px}
-.nav-mobile{display:none;position:fixed;top:68px;left:0;right:0;background:#fff;border-bottom:1px solid #e5e7eb;padding:16px 20px;flex-direction:column;gap:10px;z-index:998}
-.nav-mobile.open{display:flex}
-.nav-mobile a{font-size:.95rem;font-weight:500;color:#374151;padding:8px 0;border-bottom:1px solid #f3f4f6}
+${navCSS(p,pd)}
 #hero{min-height:100vh;background:${heroBgCss};display:flex;align-items:center;padding-top:68px;position:relative;overflow:hidden}
 #hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 15% 55%,rgba(255,255,255,.07),transparent 65%);pointer-events:none}
 .hero-orb{position:absolute;border-radius:50%;pointer-events:none;filter:blur(80px)}
@@ -589,8 +795,6 @@ ${animCSS}
   .form-row{grid-template-columns:1fr}
   .gallery-grid{grid-template-columns:1fr 1fr}
   .stats-inner{grid-template-columns:1fr 1fr}
-  .nav-links{display:none}
-  .nav-burger{display:block}
   .footer-bottom{flex-direction:column;text-align:center}
 }
 @media(max-width:480px){.gallery-grid{grid-template-columns:1fr}}
@@ -600,7 +804,7 @@ ${animCSS}
 <nav id="mainNav">
   <div class="container">
     <div class="nav-inner">
-      <a href="#" class="nav-logo">${s.bizName?.split(' ')[0]||'Logo'}<span> ${s.bizName?.split(' ').slice(1).join(' ')||''}</span></a>
+      <a href="${lv.url}" class="nav-logo">${lv.first}<span>${lv.rest?' '+lv.rest:''}</span></a>
       <div class="nav-links">
         ${navItems}
         <a href="${navCtaItem.url}" class="nav-cta">${navCtaItem.label}</a>
@@ -688,9 +892,9 @@ ${ytEmbed}
 <section class="section section-alt">
   <div class="container">
     <div class="cta-banner" data-r>
-      <h2>¿Listo para empezar?</h2>
-      <p>${s.bizTagline||'Contáctanos hoy y recibe atención personalizada.'}</p>
-      <a href="${s.ctaLink||'#contacto'}" class="btn-white">${s.heroCta||'Contactar'} →</a>
+      <h2>${ftrCtaTitle}</h2>
+      <p>${ftrCtaText}</p>
+      <a href="${ftrCtaUrl}" class="btn-white">${ftrCtaBtn} →</a>
     </div>
   </div>
 </section>
@@ -745,7 +949,7 @@ ${ytEmbed}
   <div class="container">
     <div class="footer-top">
       <div class="footer-brand">
-        <div class="footer-logo">${s.bizName?.split(' ')[0]||'Logo'}<span> ${s.bizName?.split(' ').slice(1).join(' ')||''}</span></div>
+        <div class="footer-logo">${lv.first}<span>${lv.rest?' '+lv.rest:''}</span></div>
         <p>${f.footerAbout||s.bizDesc||''}</p>
       </div>
       <div class="footer-col">
@@ -786,19 +990,34 @@ if(_he&&(_ht==='overlay'||_ht==='img'))window.addEventListener('scroll',function
 </body>
 </html>`;
 }
-// ─── RENDER & DOWNLOAD ─────────────────────
+
+// ─── RENDER & DOWNLOADS ──────────────────────
 function render(){
   document.getElementById('pf').srcdoc = genHTML();
 }
+
 function downloadPage(){
   const h=genHTML(), b=new Blob([h],{type:'text/html;charset=utf-8'}), u=URL.createObjectURL(b);
-  const a=document.createElement('a');
-  a.href=u;
-  const name=(cState.bizName||'pagina').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
-  a.download=name+'-final.html'; a.click(); URL.revokeObjectURL(u);
+  const a=document.createElement('a'); a.href=u; a.download='index.html'; a.click(); URL.revokeObjectURL(u);
 }
 
-// ─── DEVICE / LAYOUT ───────────────────────
+function downloadHeader(){
+  const h=genHeader(), b=new Blob([h],{type:'text/html;charset=utf-8'}), u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download='header.html'; a.click(); URL.revokeObjectURL(u);
+}
+
+function downloadFooter(){
+  const h=genFooter(), b=new Blob([h],{type:'text/html;charset=utf-8'}), u=URL.createObjectURL(b);
+  const a=document.createElement('a'); a.href=u; a.download='footer.html'; a.click(); URL.revokeObjectURL(u);
+}
+
+function downloadAll(){
+  downloadHeader();
+  setTimeout(()=>downloadPage(), 80);
+  setTimeout(()=>downloadFooter(), 160);
+}
+
+// ─── DEVICE / LAYOUT ─────────────────────────
 function setDevice(d){
   ['desktop','tablet','mobile'].forEach(x=>document.getElementById('dev-'+x).classList.toggle('active',x===d));
   const w=document.getElementById('pvWrap');
@@ -810,7 +1029,7 @@ function toggleCfg(){
   btn.textContent=col?'▶ Config':'◀ Config';
 }
 
-// ─── INIT ──────────────────────────────────
+// ─── INIT ────────────────────────────────────
 function init(){
   const savedC = localStorage.getItem(CSK);
   cState = savedC ? JSON.parse(savedC) : {};

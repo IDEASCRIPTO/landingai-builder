@@ -54,12 +54,29 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
 .add-btn{width:100%;background:rgba(29,158,117,.08);border:1px dashed #334155;color:#1D9E75;border-radius:8px;padding:8px;font-size:.75rem;font-weight:600;cursor:pointer;transition:.15s;margin-top:4px}
 .add-btn:hover{background:rgba(29,158,117,.15);border-color:#1D9E75}
 
-/* ── AI Panel ── */
+/* ── AI Panel / Questionnaire ── */
 .ai-panel{background:linear-gradient(135deg,rgba(29,158,117,.12),rgba(29,158,117,.04));border:1px solid rgba(29,158,117,.35);border-radius:12px;padding:14px;margin-bottom:12px}
-.ai-panel-ttl{font-size:.7rem;font-weight:800;color:#1D9E75;text-transform:uppercase;letter-spacing:.8px;margin-bottom:10px;display:flex;align-items:center;gap:6px}
-.ai-panel textarea{width:100%;background:#0f172a;border:1px solid #334155;color:#f1f5f9;border-radius:8px;padding:9px 11px;font-size:.82rem;font-family:inherit;outline:none;resize:vertical;min-height:78px;line-height:1.55}
-.ai-panel textarea:focus{border-color:#1D9E75}
-.ai-panel textarea::placeholder{color:#475569}
+.ai-panel-ttl{font-size:.7rem;font-weight:800;color:#1D9E75;text-transform:uppercase;letter-spacing:.8px;margin-bottom:4px;display:flex;align-items:center;gap:6px}
+.ai-panel-sub{font-size:.69rem;color:#64748b;margin-bottom:12px;line-height:1.5}
+.ai-q{margin-bottom:9px}
+.ai-q-lbl{display:block;font-size:.72rem;font-weight:600;color:#94a3b8;margin-bottom:4px}
+.ai-q-lbl span{font-size:.65rem;font-weight:400;color:#475569;margin-left:4px}
+.ai-q input[type=text],.ai-q input[type=url],.ai-q textarea{width:100%;background:#0f172a;border:1px solid #334155;color:#f1f5f9;border-radius:8px;padding:8px 10px;font-size:.81rem;font-family:inherit;outline:none;box-sizing:border-box;transition:.15s}
+.ai-q input[type=text]:focus,.ai-q input[type=url]:focus,.ai-q textarea:focus{border-color:#1D9E75}
+.ai-q input::placeholder,.ai-q textarea::placeholder{color:#475569}
+.ai-q textarea{resize:vertical;min-height:54px;line-height:1.5}
+.ai-q select{width:100%;background:#0f172a;border:1px solid #334155;color:#f1f5f9;border-radius:8px;padding:8px 10px;font-size:.81rem;font-family:inherit;outline:none;box-sizing:border-box;transition:.15s;cursor:pointer}
+.ai-q select:focus{border-color:#1D9E75}
+.ai-style-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:2px}
+.ai-style-opt{position:relative}
+.ai-style-opt input[type=radio]{position:absolute;opacity:0;width:0;height:0}
+.ai-style-opt label{display:flex;flex-direction:column;align-items:center;gap:3px;background:#0f172a;border:1.5px solid #334155;border-radius:9px;padding:9px 6px;cursor:pointer;transition:.15s;text-align:center}
+.ai-style-opt label:hover{border-color:#1D9E75}
+.ai-style-opt input[type=radio]:checked + label{border-color:#1D9E75;background:rgba(29,158,117,.1)}
+.ai-style-opt label .style-icon{font-size:1.1rem}
+.ai-style-opt label .style-name{font-size:.71rem;font-weight:700;color:#e2e8f0}
+.ai-style-opt label .style-desc{font-size:.62rem;color:#64748b;line-height:1.3}
+.ai-divider{border:none;border-top:1px solid rgba(29,158,117,.15);margin:10px 0}
 .ai-gen-btn{width:100%;margin-top:8px;background:linear-gradient(135deg,#1D9E75,#0f7d5a);color:#fff;border:none;border-radius:8px;padding:10px;font-size:.82rem;font-weight:700;cursor:pointer;font-family:inherit;transition:.15s;display:flex;align-items:center;justify-content:center;gap:7px}
 .ai-gen-btn:hover:not(:disabled){background:linear-gradient(135deg,#0f7d5a,#065f46);transform:translateY(-1px)}
 .ai-gen-btn:disabled{opacity:.6;cursor:not-allowed}
@@ -127,16 +144,88 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
 
     <!-- AI GENERATION PANEL -->
     <div class="ai-panel">
-      <div class="ai-panel-ttl">✨ Generar con IA</div>
-      <textarea id="aiDesc" placeholder="Describe tu negocio en 2-3 líneas&#10;Ej: Soy dentista en Quito, especialista en ortodoncia y blanqueamiento. Atiendo adultos y niños, precios accesibles, pago en cuotas sin intereses."></textarea>
-      <input type="url" id="aiUrlRef" placeholder="URL de referencia (opcional) — sitio cuyo estilo te gustó" style="width:100%;margin-top:8px;background:rgba(15,23,42,.6);border:1px solid #334155;color:#f1f5f9;border-radius:8px;padding:9px 12px;font-size:.82rem;font-family:inherit;outline:none;box-sizing:border-box">
+      <div class="ai-panel-ttl">✨ Crear mi página web</div>
+      <div class="ai-panel-sub">Responde las preguntas y la IA genera todo automáticamente.</div>
+
+      <div class="ai-q">
+        <label class="ai-q-lbl">¿Cómo se llama tu negocio?</label>
+        <input type="text" id="qNombre" placeholder="Ej: Clínica Dental Sonríe" oninput="syncQNombre()">
+      </div>
+
+      <div class="ai-q">
+        <label class="ai-q-lbl">¿A qué te dedicas? <span>— qué vendes o qué servicio ofreces</span></label>
+        <input type="text" id="qGiro" placeholder="Ej: Odontología estética y ortodoncia para adultos y niños">
+      </div>
+
+      <div class="ai-q">
+        <label class="ai-q-lbl">¿Quiénes son tus clientes? <span>— a quién le vendes</span></label>
+        <input type="text" id="qClientes" placeholder="Ej: Familias y adultos de 20-50 años en Quito">
+      </div>
+
+      <div class="ai-q">
+        <label class="ai-q-lbl">¿Por qué elegirte a ti? <span>— tu diferencial o propuesta de valor</span></label>
+        <input type="text" id="qDiferencial" placeholder="Ej: 15 años de experiencia, precios accesibles, pago en cuotas">
+      </div>
+
+      <div class="ai-q">
+        <label class="ai-q-lbl">¿Qué quieres que haga el visitante? <span>— acción principal</span></label>
+        <input type="text" id="qAccion" placeholder="Ej: Agendar una cita o llamar por WhatsApp">
+      </div>
+
+      <hr class="ai-divider">
+
+      <div class="ai-q">
+        <label class="ai-q-lbl">Estilo visual de la página</label>
+        <div class="ai-style-grid">
+          <div class="ai-style-opt">
+            <input type="radio" name="qEstilo" id="esModerno" value="Moderno y minimalista" checked>
+            <label for="esModerno"><span class="style-icon">✦</span><span class="style-name">Moderno</span><span class="style-desc">Limpio, minimalista, elegante</span></label>
+          </div>
+          <div class="ai-style-opt">
+            <input type="radio" name="qEstilo" id="esBold" value="Bold y llamativo">
+            <label for="esBold"><span class="style-icon">⚡</span><span class="style-name">Bold</span><span class="style-desc">Llamativo, impactante, vibrante</span></label>
+          </div>
+          <div class="ai-style-opt">
+            <input type="radio" name="qEstilo" id="esCorporativo" value="Corporativo y profesional">
+            <label for="esCorporativo"><span class="style-icon">🏢</span><span class="style-name">Corporativo</span><span class="style-desc">Serio, confiable, institucional</span></label>
+          </div>
+          <div class="ai-style-opt">
+            <input type="radio" name="qEstilo" id="esFresco" value="Fresco y juvenil">
+            <label for="esFresco"><span class="style-icon">🌿</span><span class="style-name">Fresco</span><span class="style-desc">Dinámico, cercano, juvenil</span></label>
+          </div>
+        </div>
+      </div>
+
+      <div class="ai-q">
+        <label class="ai-q-lbl">Tono de comunicación</label>
+        <select id="qTono">
+          <option value="Profesional y directo">Profesional y directo</option>
+          <option value="Amigable y cercano">Amigable y cercano</option>
+          <option value="Formal y técnico">Formal y técnico</option>
+          <option value="Dinámico y motivador">Dinámico y motivador</option>
+          <option value="Exclusivo y premium">Exclusivo y premium</option>
+        </select>
+      </div>
+
+      <hr class="ai-divider">
+
+      <div class="ai-q">
+        <label class="ai-q-lbl">Link de referencia <span>— sitio cuyo estilo te gustó (opcional)</span></label>
+        <input type="url" id="aiUrlRef" placeholder="https://ejemplo.com">
+      </div>
+
+      <div class="ai-q">
+        <label class="ai-q-lbl">Información adicional <span>— detalles extra, precios, horarios, etc. (opcional)</span></label>
+        <textarea id="aiDesc" placeholder="Ej: Atendemos Lun-Vie 8:00-18:00, Sáb 9:00-13:00. Aceptamos tarjetas y transferencia."></textarea>
+      </div>
+
       <div class="ai-error" id="aiError"></div>
-      <button class="ai-gen-btn" id="aiBtn" onclick="generarDesdePanel()">✨ Generar con IA</button>
+      <button class="ai-gen-btn" id="aiBtn" onclick="generarDesdePanel()">✨ Generar mi página web</button>
       <div id="regenBar" style="display:none;gap:8px;margin-top:6px">
         <button class="ai-gen-btn" style="flex:1;background:rgba(29,158,117,.12);color:#1D9E75;border:1px solid rgba(29,158,117,.3)" onclick="generarDesdePanel()">↺ Regenerar</button>
         <button class="ai-gen-btn" style="flex:0 0 auto;padding:0 14px;background:rgba(100,116,139,.1);color:#94a3b8;border:1px solid rgba(100,116,139,.2);font-size:.78rem" onclick="limpiarAgente()">✏️ Nueva</button>
       </div>
-      <div class="ai-hint">Solo descripción, solo URL de referencia, o ambas — la IA decide el diseño y genera todo el contenido.</div>
+      <div class="ai-hint">Mientras más información des, mejor resultado obtienes. La IA genera todo el contenido, diseño y estructura.</div>
     </div>
 
     <!-- NEGOCIO -->
@@ -1182,7 +1271,7 @@ function getSupabaseToken(){
 // ═══════════════════════════════════════════════
 // AGENTE WEB UNIFICADO (generar_web_v2)
 // ═══════════════════════════════════════════════
-async function generarConAgente(desc, urlRef, tipo){
+async function generarConAgente(desc, urlRef, tipo, extras){
   const token = getSupabaseToken();
   const errEl = document.getElementById('aiError');
   const overlay = document.getElementById('urlOverlay');
@@ -1203,6 +1292,7 @@ async function generarConAgente(desc, urlRef, tipo){
   try{
     const payload = { accion:'generar_web_v2', descripcion:desc, tipo:tipo||TYPE, _auth_token:token };
     if(urlRef) payload.url = urlRef;
+    if(extras) Object.assign(payload, extras);
 
     const res = await fetch('../proxy.php', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -1234,19 +1324,61 @@ async function generarConAgente(desc, urlRef, tipo){
 }
 
 function limpiarAgente(){
-  document.getElementById('aiDesc').value = '';
-  const u = document.getElementById('aiUrlRef'); if(u) u.value = '';
+  ['qNombre','qGiro','qClientes','qDiferencial','qAccion','aiDesc','aiUrlRef'].forEach(id=>{
+    const el = document.getElementById(id); if(el) el.value = '';
+  });
+  const defEstilo = document.getElementById('esModerno'); if(defEstilo) defEstilo.checked = true;
+  const tono = document.getElementById('qTono'); if(tono) tono.selectedIndex = 0;
   const rb = document.getElementById('regenBar'); if(rb) rb.style.display = 'none';
   const ab = document.getElementById('aiBtn'); if(ab) ab.style.display = '';
-  document.getElementById('aiDesc').focus();
+  const qn = document.getElementById('qNombre'); if(qn) qn.focus();
+}
+
+function syncQNombre(){
+  const v = document.getElementById('qNombre').value.trim();
+  const biz = document.getElementById('bizName');
+  if(biz && v) biz.value = v;
 }
 
 function generarDesdePanel(){
-  const desc = document.getElementById('aiDesc').value.trim();
-  const url  = (document.getElementById('aiUrlRef')?.value || '').trim();
-  if(!desc && !url){ document.getElementById('aiDesc').focus(); return; }
+  const nombre      = document.getElementById('qNombre')?.value.trim() || '';
+  const giro        = document.getElementById('qGiro')?.value.trim() || '';
+  const clientes    = document.getElementById('qClientes')?.value.trim() || '';
+  const diferencial = document.getElementById('qDiferencial')?.value.trim() || '';
+  const accion      = document.getElementById('qAccion')?.value.trim() || '';
+  const extra       = document.getElementById('aiDesc')?.value.trim() || '';
+  const url         = document.getElementById('aiUrlRef')?.value.trim() || '';
+
+  const estiloEl = document.querySelector('input[name="qEstilo"]:checked');
+  const estilo   = estiloEl ? estiloEl.value : 'Moderno y minimalista';
+  const tono     = document.getElementById('qTono')?.value || 'Profesional y directo';
+
+  // Necesitamos al menos el nombre o el giro, o una URL
+  if(!nombre && !giro && !url){
+    const el = document.getElementById('qNombre');
+    if(el) el.focus();
+    return;
+  }
   if(url){ try{ new URL(url); }catch(e){ alert('La URL de referencia no es válida.'); return; } }
-  generarConAgente(desc, url, TYPE);
+
+  // Descripción libre para compatibilidad con el prompt
+  const partes = [];
+  if(nombre)      partes.push(`Negocio: ${nombre}`);
+  if(giro)        partes.push(`Qué hace: ${giro}`);
+  if(extra)       partes.push(`Información adicional: ${extra}`);
+  const desc = partes.join('\n');
+
+  // Campos estructurados — van como campos separados al agente n8n
+  const extras = {};
+  if(nombre)      extras.nombre      = nombre;
+  if(giro)        extras.giro        = giro;
+  if(clientes)    extras.clientes    = clientes;
+  if(diferencial) extras.diferencial = diferencial;
+  if(accion)      extras.accion      = accion;
+  extras.estilo = estilo;
+  extras.tono   = tono;
+
+  generarConAgente(desc, url, TYPE, extras);
 }
 
 async function generarConIA(){
