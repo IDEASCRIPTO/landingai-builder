@@ -1292,7 +1292,16 @@ async function generarConAgente(desc, urlRef, tipo, extras){
   try{
     const payload = { accion:'generar_web_v2', descripcion:desc, tipo:tipo||TYPE, _auth_token:token };
     if(urlRef) payload.url = urlRef;
-    if(extras) Object.assign(payload, extras);
+    if(extras){
+      // Asignación explícita — nunca sobreescribir accion, tipo ni _auth_token
+      if(extras.nombre)          payload.nombre          = extras.nombre;
+      if(extras.giro)            payload.giro            = extras.giro;
+      if(extras.clientes)        payload.clientes        = extras.clientes;
+      if(extras.diferencial)     payload.diferencial     = extras.diferencial;
+      if(extras.accionVisitante) payload.accionVisitante = extras.accionVisitante;
+      if(extras.estilo)          payload.estilo          = extras.estilo;
+      if(extras.tono)            payload.tono            = extras.tono;
+    }
 
     const res = await fetch('../proxy.php', {
       method:'POST', headers:{'Content-Type':'application/json'},
@@ -1369,12 +1378,13 @@ function generarDesdePanel(){
   const desc = partes.join('\n');
 
   // Campos estructurados — van como campos separados al agente n8n
+  // NOTA: usamos accionVisitante (no accion) para no colisionar con payload.accion de proxy.php
   const extras = {};
-  if(nombre)      extras.nombre      = nombre;
-  if(giro)        extras.giro        = giro;
-  if(clientes)    extras.clientes    = clientes;
-  if(diferencial) extras.diferencial = diferencial;
-  if(accion)      extras.accion      = accion;
+  if(nombre)      extras.nombre           = nombre;
+  if(giro)        extras.giro             = giro;
+  if(clientes)    extras.clientes         = clientes;
+  if(diferencial) extras.diferencial      = diferencial;
+  if(accion)      extras.accionVisitante  = accion;
   extras.estilo = estilo;
   extras.tono   = tono;
 
