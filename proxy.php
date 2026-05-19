@@ -689,25 +689,7 @@ if (in_array($accion_actual, $COPY_ACTIONS)) {
     }
 
     // Paso 2: llamar AI directamente con PHP curl
-    $copyRules = 'Eres un experto en copywriting de alta conversión para landing pages en español.' . "\n\n" .
-        'REGLAS DE LONGITUD OBLIGATORIAS para el copy que generes:' . "\n" .
-        '• Hero título: 40–70 caracteres' . "\n" .
-        '• Hero subtítulo: 70–140 caracteres' . "\n" .
-        '• Hero CTA (botón): 10–30 caracteres' . "\n" .
-        '• Sección Problema: 300–600 caracteres totales; bullets ≤ 80 chars c/u' . "\n" .
-        '• Sección Solución: 400–800 caracteres totales' . "\n" .
-        '• Cada Beneficio: título 30–50 chars, descripción 80–150 chars' . "\n" .
-        '• Cada Testimonio: 150–300 caracteres' . "\n" .
-        '• Cada paso (Cómo funciona): 50–120 caracteres' . "\n" .
-        '• Oferta/Precio: 200–500 caracteres totales' . "\n" .
-        '• CTA final refuerzo: 50–120 caracteres' . "\n" .
-        '• Cada FAQ respuesta: 150–400 caracteres' . "\n" .
-        '• Total landing: apunta a 3,500–8,000 caracteres' . "\n\n" .
-        'EXCEPCIÓN: si el usuario solicita más de 6 beneficios, más de 5 FAQs o más de 5 testimonios, ' .
-        'escala el total proporcionalmente manteniendo la longitud por elemento. ' .
-        'Nunca excedas el doble del máximo por sección individual.' . "\n\n" .
-        'Escribe copy directo, emocional y orientado a conversión. Elimina relleno y palabras vacías.';
-    $aiResp = callAiDirect($aiProvider, $apiKey, $prompt, $copyRules);
+    $aiResp = callAiDirect($aiProvider, $apiKey, $prompt);
 
     // Paso 3: parsear respuesta (misma lógica que nodo n8n "Parsear Respuesta Claude")
     $parsed = parseAiCopyResponse($aiResp);
