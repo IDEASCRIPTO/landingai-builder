@@ -116,6 +116,11 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
 .pv-wrap iframe{width:100%;max-width:960px;min-height:600px;border:none;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18)}
 .pv-wrap.dev-tablet{padding:16px}.pv-wrap.dev-tablet iframe{max-width:768px;border-radius:10px}
 .pv-wrap.dev-mobile{padding:16px}.pv-wrap.dev-mobile iframe{max-width:390px;border-radius:20px}
+.anim-picker{display:flex;flex-wrap:wrap;gap:6px;margin-top:6px}
+.ap-btn{background:#1e293b;border:1.5px solid #334155;color:#94a3b8;border-radius:8px;padding:5px 12px;font-size:.72rem;font-weight:600;cursor:pointer;transition:.15s;font-family:inherit;line-height:1.4}
+.ap-btn:hover{border-color:var(--green);color:var(--green)}
+.ap-btn.ap-active{background:rgba(29,158,117,.15);border-color:var(--green);color:var(--green);font-weight:700}
+
 </style>
 </head>
 <body>
@@ -318,6 +323,18 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
           <option value="float">Float — flotación suave con blur</option>
           <option value="flip">Flip — giro 3D en perspectiva</option>
         </select>
+      </div>
+      <div class="fl" style="margin-top:2px"><label>Animación del hero</label>
+        <div class="anim-picker" id="animPicker">
+          <button class="ap-btn ap-active" data-val="auto"    onclick="setHeroAnim('auto')">⚡ Auto</button>
+          <button class="ap-btn"           data-val="neural"  onclick="setHeroAnim('neural')">🕸 Red neuronal</button>
+          <button class="ap-btn"           data-val="bubbles" onclick="setHeroAnim('bubbles')">🫧 Burbujas</button>
+          <button class="ap-btn"           data-val="waves"   onclick="setHeroAnim('waves')">🌊 Ondas</button>
+          <button class="ap-btn"           data-val="geo"     onclick="setHeroAnim('geo')">◻ Líneas geo</button>
+          <button class="ap-btn"           data-val="speed"   onclick="setHeroAnim('speed')">💨 Velocidad</button>
+          <button class="ap-btn"           data-val="shapes"  onclick="setHeroAnim('shapes')">✦ Formas</button>
+          <button class="ap-btn"           data-val="none"    onclick="setHeroAnim('none')">✕ Ninguna</button>
+        </div>
       </div>
     </div>
 
@@ -665,6 +682,7 @@ function collectState(){
     bizName:g('bizName'), bizTagline:g('bizTagline'), bizDesc:g('bizDesc'), bizBadge:g('bizBadge'),
     colorPrimary:g('colorPrimary'), colorBg:g('colorBg'), colorHero:g('colorHero'),
     heroTitle:g('heroTitle'), heroSub:g('heroSub'), heroCta:g('heroCta'), heroImg:g('heroImg'), heroType:g('heroType')||'overlay', animStyle:g('animStyle')||'slide', layout:g('layout')||'classic',
+    heroAnimType: document.querySelector('.ap-btn.ap-active')?.dataset.val || 'auto',
     servs: collectItems('serv'),
     pasos: collectPasos(),
     testis: collectItems('testi'),
@@ -673,6 +691,12 @@ function collectState(){
     ctaLink:g('ctaLink'), formDest:g('formDest'), formDestVal:g('formDestVal'),
     formTitle:g('formTitle'), formBtn:g('formBtn'), formSuccess:g('formSuccess'),
   };
+}
+
+
+function setHeroAnim(val){
+  document.querySelectorAll('#animPicker .ap-btn').forEach(b=>b.classList.toggle('ap-active',b.dataset.val===val));
+  render(); save();
 }
 
 function collectItems(prefix){
@@ -707,6 +731,7 @@ function applyState(s){
   set('colorHero',s.colorHero);       set('hexHero',s.colorHero);
   set('heroTitle',s.heroTitle); set('heroSub',s.heroSub);
   set('heroCta',s.heroCta);    set('heroImg',s.heroImg);  set('heroType',s.heroType||'overlay');  set('animStyle',s.animStyle||'slide');  set('layout',s.layout||'classic');
+  setHeroAnim(s.heroAnimType||'auto');
   set('ctPhone',s.ctPhone); set('ctWa',s.ctWa); set('ctEmail',s.ctEmail);
   set('ctAddr',s.ctAddr);   set('ctHorario',s.ctHorario);
   set('ctaLink',s.ctaLink); set('formDest',s.formDest); set('formDestVal',s.formDestVal);
@@ -994,8 +1019,17 @@ img{max-width:100%;display:block;object-fit:cover}
 // ═══════════════════════════════════════════════
 // HERO ANIMATIONS — contextual by industry type
 // ═══════════════════════════════════════════════
-function _heroAnim(TYPE,p){
+function _heroAnim(TYPE,p,override){
   const id='ha'+Math.random().toString(36).slice(2,8);
+  const ov=override||'auto';
+  if(ov==='none')    return '';
+  if(ov==='neural')  return _animNeuralNet(id,p);
+  if(ov==='bubbles') return _animBubbles(id,p);
+  if(ov==='waves')   return _animWaves(id,p);
+  if(ov==='geo')     return _animGeoLines(id,p);
+  if(ov==='speed')   return _animSpeedLines(id,p);
+  if(ov==='shapes')  return _animFloatShapes(id,p);
+  // auto — decidir por tipo de industria
   if(TYPE==='medico'||TYPE==='inmobiliaria') return _animBubbles(id,p);
   if(TYPE==='viajes')     return _animWaves(id,p);
   if(TYPE==='abogado')    return _animGeoLines(id,p);
@@ -1140,7 +1174,7 @@ ${animCSS}
 <section id="hero">
   <div class="hero-glow"></div>
   <div class="hero-grid"></div>
-  ${_heroAnim(TYPE,p)}
+  ${_heroAnim(TYPE,p,s.heroAnimType)}
   <div class="hero-content">
     ${s.bizBadge?`<div class="hero-badge">${s.bizBadge}</div>`:''}
     <h1>${(s.heroTitle||s.bizTagline||'').replace(/(\S+\s*\S*)$/,'<em>$1</em>')}</h1>
@@ -1281,7 +1315,7 @@ ${animCSS}
 <section id="hero">
   <div class="hero-mesh"></div>
   <div class="hero-grid-lines"></div>
-  ${_heroAnim(TYPE,p)}
+  ${_heroAnim(TYPE,p,s.heroAnimType)}
   <div class="hero-content">
     <div class="hero-chip"><span class="hero-chip-dot"></span>${s.bizBadge||'Solución innovadora'}</div>
     <h1>${s.heroTitle||s.bizTagline||'Tu negocio al siguiente nivel'}</h1>
@@ -1436,7 +1470,7 @@ ${animCSS}
       </div>
     </div>
   </div>
-  <div class="hero-right"><div class="hero-right-bg"></div>${_heroAnim(TYPE,p)}</div>
+  <div class="hero-right"><div class="hero-right-bg"></div>${_heroAnim(TYPE,p,s.heroAnimType)}</div>
 </section>
 <div class="stats-bar"><div class="container"><div class="stats-inner">${statItems}</div></div></div>
 <div class="marquee-wrap"><div class="marquee-track">${marqItems}${marqItems}</div></div>
@@ -1560,7 +1594,7 @@ ${animCSS}
 <section id="hero">
   <div class="hero-img"></div>
   <div class="hero-overlay"></div>
-  ${_heroAnim(TYPE,p)}
+  ${_heroAnim(TYPE,p,s.heroAnimType)}
   <div class="hero-content">
     <span class="hero-cat">${s.bizBadge||s.bizName||'Profesionales'}</span>
     <h1>${s.heroTitle||s.bizTagline||'Tu negocio al siguiente nivel'}</h1>
@@ -1685,7 +1719,7 @@ ${animCSS}
 <div class="draft-notice">📋 Borrador — El Nav y Footer se configuran en el Paso 2 →</div>
 <section id="hero">
   <div class="hero-dots"></div>
-  ${_heroAnim(TYPE,p)}
+  ${_heroAnim(TYPE,p,s.heroAnimType)}
   <div class="container"><div class="hero-content">
     <div class="hero-line"></div>
     ${s.bizBadge?`<div class="hero-pill">${s.bizBadge}</div>`:''}
@@ -1834,7 +1868,7 @@ ${animCSS}
     </div>
   </div>
   <div class="vib-hero-right">
-    ${_heroAnim(TYPE,p)}
+    ${_heroAnim(TYPE,p,s.heroAnimType)}
     <div class="vib-img-wrap">
       <div class="vib-img-bg"></div>
       <div class="vib-badge1"><span>500+</span>Clientes</div>
@@ -1963,7 +1997,7 @@ ${animCSS}
 <section id="hero">
   <div class="corp-hero-img"></div>
   <div class="corp-hero-grad"></div>
-  ${_heroAnim(TYPE,p)}
+  ${_heroAnim(TYPE,p,s.heroAnimType)}
   <div class="container"><div class="hero-content">
     <div class="corp-badge">${s.bizBadge||'Empresa de confianza'}</div>
     <h1>${(s.heroTitle||s.bizTagline||'').replace(/(\S+\s*\S*)$/,'<span>$1</span>')}</h1>
