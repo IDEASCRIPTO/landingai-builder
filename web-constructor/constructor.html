@@ -1570,6 +1570,7 @@ ${_sharedBottom(v)}
 function _tplMinimal(v){
   const {s,p,pd,bg,heroC,animStyle,TYPE,waLink}=v;
   const animCSS=_animCSS(animStyle);
+  const marqItems=_marqItems(TYPE);
 
   const servItems=(s.servs||[]).map((sv,i)=>`
     <div class="min-serv" data-r style="--delay:${i*.07}s">
