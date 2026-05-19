@@ -248,6 +248,23 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
       </div>
     </div>
 
+    <!-- PLANTILLA -->
+    <div class="sec">
+      <div class="sec-ttl">🖼️ Plantilla Visual</div>
+      <div class="fl">
+        <label>Elige la estructura de la landing</label>
+        <select id="layout" onchange="render();save()" style="font-size:.95rem;padding:10px 12px;border-radius:8px;border:2px solid var(--border);background:#fff;cursor:pointer;font-weight:600">
+          <option value="classic">🏠 Classic — Hero fullscreen, cards grid</option>
+          <option value="dark">🌑 Dark — Glassmorphism oscuro premium</option>
+          <option value="split">⬛ Split — Hero partido 55/45</option>
+          <option value="magazine">📰 Magazine — Editorial tipografía bold</option>
+          <option value="minimal">🤍 Minimal — Luxury limpio, peso 300</option>
+          <option value="vibrant">🎨 Vibrant — Gradientes y color intenso</option>
+          <option value="corporate">🏢 Corporate — Enterprise formal oscuro</option>
+        </select>
+      </div>
+    </div>
+
     <!-- DISEÑO -->
     <div class="sec">
       <div class="sec-ttl">🎨 Diseño</div>
@@ -297,17 +314,6 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
           <option value="reveal">Reveal — cortina cinematográfica</option>
           <option value="float">Float — flotación suave con blur</option>
           <option value="flip">Flip — giro 3D en perspectiva</option>
-        </select>
-      </div>
-      <div class="fl"><label>Plantilla visual</label>
-        <select id="layout" onchange="render();save()">
-          <option value="classic">Classic — Hero fullscreen, cards grid</option>
-          <option value="dark">Dark — Glassmorphism oscuro premium</option>
-          <option value="split">Split — Hero partido 55/45</option>
-          <option value="magazine">Magazine — Editorial tipografía bold</option>
-          <option value="minimal">Minimal — Luxury limpio, peso 300</option>
-          <option value="vibrant">Vibrant — Gradientes y color intenso</option>
-          <option value="corporate">Corporate — Enterprise formal oscuro</option>
         </select>
       </div>
     </div>
