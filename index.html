@@ -101,6 +101,12 @@ input[type=text]:focus,input[type=url]:focus,input[type=number]:focus,select:foc
   border-color:var(--p);box-shadow:0 0 0 3px var(--pl)}
 textarea{min-height:80px}
 select{appearance:none;cursor:pointer}
+.char-bar{display:flex;justify-content:space-between;align-items:center;margin-top:.28rem;font-size:.67rem}
+.char-bar-hint{color:var(--td)}
+.char-ct{font-weight:600;transition:color .2s;color:var(--td)}
+.char-ct.ok{color:var(--p)}
+.char-ct.warn{color:#f59e0b}
+.char-ct.over{color:#ef4444}
 .row2{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
 .row3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.75rem}
 @media(max-width:540px){.row2,.row3{grid-template-columns:1fr}}
@@ -817,10 +823,12 @@ function ytBannerSvg(){ return '<svg class="yt-icon" viewBox="0 0 24 24" fill="#
       <input type="text" id="s1_nombre" placeholder="Ej: Crema Hidratante Orgánica" autocomplete="off"/>
 
       <label class="lbl">Descripción *</label>
-      <textarea id="s1_desc" placeholder="Describe el producto, qué hace, qué lo hace especial..."></textarea>
+      <textarea id="s1_desc" placeholder="Describe el producto, qué hace, qué lo hace especial..." oninput="chCt(this,'cc_desc',80,500)"></textarea>
+      <div class="char-bar"><span class="char-bar-hint">Contexto para la IA · Hero subtítulo saldrá en 70–140 chars</span><span id="cc_desc" class="char-ct">0</span></div>
 
       <label class="lbl">Beneficios principales</label>
-      <textarea id="s1_bens" placeholder="Uno por línea:&#10;- Hidrata en 30 segundos&#10;- Sin parabenos&#10;- Apto para piel sensible"></textarea>
+      <textarea id="s1_bens" placeholder="Uno por línea:&#10;- Hidrata en 30 segundos&#10;- Sin parabenos&#10;- Apto para piel sensible" oninput="chCt(this,'cc_bens',60,600)"></textarea>
+      <div class="char-bar"><span class="char-bar-hint">3–6 beneficios · cada descripción saldrá en 80–150 chars</span><span id="cc_bens" class="char-ct">0</span></div>
 
       <div class="row2">
         <div>
@@ -910,7 +918,8 @@ function ytBannerSvg(){ return '<svg class="yt-icon" viewBox="0 0 24 24" fill="#
 
     <div class="card">
       <div class="sec-title">📝 Instrucciones adicionales</div>
-      <textarea id="s1_instr" placeholder="Instrucciones extra para la IA: estilo de escritura, datos específicos, restricciones..."></textarea>
+      <textarea id="s1_instr" placeholder="Instrucciones extra para la IA: estilo de escritura, datos específicos, restricciones..." oninput="chCt(this,'cc_instr',0,600)"></textarea>
+      <div class="char-bar"><span class="char-bar-hint">Opcional · sé específico pero conciso</span><span id="cc_instr" class="char-ct">0</span></div>
     </div>
 
     <div class="card">
@@ -2802,6 +2811,13 @@ function goStep(step){
   if(step === 2 && !st.copy) return;
   if(step === 3 && !st.html) return;
   nav(step);
+}
+
+function chCt(el,id,min,max){
+  var n=el.value.length,h=document.getElementById(id);
+  if(!h)return;
+  h.textContent=n+' chars';
+  h.className='char-ct '+(n===0?'':n<min?'warn':n<=max?'ok':'over');
 }
 
 function updateStepBar(){
