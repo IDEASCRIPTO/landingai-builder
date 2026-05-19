@@ -707,6 +707,7 @@ select#s1_pais{background:var(--s2);border:1px solid var(--bd2);border-radius:va
       <span id="sbUserPlan" class="plan-badge plan-free">Free</span>
       <button class="sb-icon-btn" title="Mi cuenta" onclick="openSettings()">⚙️</button>
       <button class="sb-icon-btn" title="Cerrar sesión" onclick="handleLogout()">↪</button>
+      <button onclick="loadLandingHTML()" style="background:transparent;border:1px solid #334155;color:#94a3b8;border-radius:7px;padding:5px 11px;font-size:.72rem;font-weight:600;cursor:pointer;white-space:nowrap;transition:.15s;font-family:inherit" onmouseover="this.style.borderColor='#1D9E75';this.style.color='#1D9E75'" onmouseout="this.style.borderColor='#334155';this.style.color='#94a3b8'" title="Cargar landing existente para actualizar pixel">📂 Cargar HTML</button>
       <a href="dashboard.html" style="background:transparent;border:1px solid #334155;color:#94a3b8;border-radius:7px;padding:5px 11px;font-size:.72rem;font-weight:600;text-decoration:none;white-space:nowrap;transition:.15s" onmouseover="this.style.borderColor='#1D9E75';this.style.color='#1D9E75'" onmouseout="this.style.borderColor='#334155';this.style.color='#94a3b8'">← Dashboard</a>
     </div>
   </div>
@@ -2671,6 +2672,56 @@ function previewResult(){
 function closePreview(){
   document.getElementById('previewModal').classList.remove('show');
   document.getElementById('previewFrame').srcdoc = '';
+}
+
+function _patchHTML(html){
+  let out = html;
+  const changes = [];
+  // Parche 1: external_id en fbq('init')
+  if(out.includes('fbq(') && !out.includes('_fbeid')){
+    const before = out;
+    out = out.replace(
+      /fbq\('init','(\d+)'\)/g,
+      "var _eid=(function(){var k='_fbeid',v=localStorage.getItem(k);if(!v){v=Math.random().toString(36).slice(2,10)+Date.now().toString(36);localStorage.setItem(k,v);}return v;})();fbq('init','$1',{external_id:_eid})"
+    );
+    if(out !== before) changes.push('External ID en pixel (+15.76%)');
+  }
+  // Parche 2: email + teléfono hash en Lead
+  if(out.includes('fbq(') && !out.includes('_h256')){
+    const h256fn = "async function _h256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}";
+    const submitHandler = "document.addEventListener('submit',async function(e){if(typeof _mp==='undefined'||!_mp||typeof fbq==='undefined')return;var f=e.target,ei=f.querySelector('input[type=email],[name*=email],[name*=correo]'),pi=f.querySelector('input[type=tel],[name*=phone],[name*=tel],[name*=whatsapp]'),ud={external_id:typeof _eid!=='undefined'?_eid:''};if(ei&&ei.value.trim())ud.em=await _h256(ei.value.trim().toLowerCase());if(pi&&pi.value.trim())ud.ph=await _h256(pi.value.replace(/\\D/g,''));if(ud.em||ud.ph){fbq('init',_mp,ud);fbq('trackSingle',_mp,'Lead',{});}if(typeof ttq!=='undefined'){var _tid={};if(ud.em)_tid.email=ud.em;if(ud.ph)_tid.phone_number=ud.ph;if(Object.keys(_tid).length)ttq.identify(_tid);}if(typeof gtag==='function'&&typeof _ga!=='undefined'&&ud.em)gtag('config',_ga,{user_id:ud.em});});";
+    const iifeClose = '})();\n</script>';
+    if(out.includes(iifeClose)){
+      out = out.replace(iifeClose, h256fn + '\n  ' + submitHandler + '\n' + iifeClose);
+      changes.push('Email + teléfono hash en Lead (+2.73%)');
+    }
+  }
+  return { html: out, changes };
+}
+
+function loadLandingHTML(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.html';
+  input.onchange = async function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const text = await file.text();
+    const result = _patchHTML(text);
+    if(result.changes.length > 0){
+      alert('✅ Se aplicaron ' + result.changes.length + ' mejora(s):\n• ' + result.changes.join('\n• ') + '\n\nDescargando landing actualizada...');
+      const b = new Blob([result.html], {type:'text/html;charset=utf-8'});
+      const u = URL.createObjectURL(b);
+      const a = document.createElement('a');
+      a.href = u; a.download = file.name.replace('.html','-actualizada.html');
+      a.click(); URL.revokeObjectURL(u);
+    } else if(result.html.includes('fbq(')){
+      alert('✓ Esta landing ya tiene todos los parches aplicados. No se necesitan cambios.');
+    } else {
+      alert('Este archivo no contiene código de Meta Pixel. No hay parches que aplicar.');
+    }
+  };
+  input.click();
 }
 
 /* ── OVERLAY ─────────────────────────────────── */
