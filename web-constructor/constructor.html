@@ -992,6 +992,48 @@ img{max-width:100%;display:block;object-fit:cover}
 }
 
 // ═══════════════════════════════════════════════
+// HERO ANIMATIONS — contextual by industry type
+// ═══════════════════════════════════════════════
+function _heroAnim(TYPE,p){
+  const id='ha'+Math.random().toString(36).slice(2,8);
+  if(TYPE==='medico'||TYPE==='inmobiliaria') return _animBubbles(id,p);
+  if(TYPE==='viajes')     return _animWaves(id,p);
+  if(TYPE==='abogado')    return _animGeoLines(id,p);
+  if(TYPE==='automotriz') return _animSpeedLines(id,p);
+  if(TYPE==='producto')   return _animFloatShapes(id,p);
+  return _animNeuralNet(id,p);
+}
+function _animNeuralNet(id,p){
+  const js=`(function(){if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;const c=document.getElementById('${id}');if(!c)return;const cx=c.getContext('2d');let N=[];function rsz(){c.width=c.offsetWidth;c.height=c.offsetHeight;N=[];const n=Math.min(Math.floor(c.width*c.height/10000),55);for(let i=0;i<n;i++)N.push({x:Math.random()*c.width,y:Math.random()*c.height,vx:(Math.random()-.5)*.55,vy:(Math.random()-.5)*.55});}function dr(){cx.clearRect(0,0,c.width,c.height);N.forEach(n=>{n.x+=n.vx;n.y+=n.vy;if(n.x<0||n.x>c.width)n.vx*=-1;if(n.y<0||n.y>c.height)n.vy*=-1;});for(let i=0;i<N.length;i++)for(let j=i+1;j<N.length;j++){const dx=N[i].x-N[j].x,dy=N[i].y-N[j].y,d=Math.sqrt(dx*dx+dy*dy);if(d<140){const a=Math.floor((1-d/140)*90).toString(16).padStart(2,'0');cx.beginPath();cx.moveTo(N[i].x,N[i].y);cx.lineTo(N[j].x,N[j].y);cx.strokeStyle='PRIMARY'+a;cx.lineWidth=.8;cx.stroke();}}N.forEach(n=>{cx.beginPath();cx.arc(n.x,n.y,2.4,0,Math.PI*2);cx.fillStyle='PRIMARYcc';cx.fill();});requestAnimationFrame(dr);}rsz();dr();window.addEventListener('resize',rsz,{passive:true});})();`.replace(/PRIMARY/g,p);
+  return `<canvas id="${id}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:.4" aria-hidden="true"></canvas><script>${js}<\/script>`;
+}
+function _animBubbles(id,p){
+  const bs=Array.from({length:10},(_,i)=>{
+    const s=(16+Math.random()*50).toFixed(0),dl=(Math.random()*8).toFixed(1),dr=(4+Math.random()*7).toFixed(1),lf=(5+Math.random()*85).toFixed(1);
+    return `<div style="position:absolute;left:${lf}%;bottom:-${s}px;width:${s}px;height:${s}px;border-radius:50%;background:${p}16;border:1px solid ${p}35;animation:bub${id} ${dr}s ${dl}s ease-in-out infinite alternate;pointer-events:none"></div>`;
+  }).join('');
+  return `<style>@keyframes bub${id}{from{transform:translateY(0) scale(1)}to{transform:translateY(-80px) scale(1.08)}}</style><div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1" aria-hidden="true">${bs}</div>`;
+}
+function _animWaves(id,p){
+  return `<div style="position:absolute;bottom:0;left:0;right:0;pointer-events:none;z-index:2;line-height:0" aria-hidden="true"><svg viewBox="0 0 1440 110" preserveAspectRatio="none" style="width:100%;height:70px;display:block"><defs><style>@keyframes wva${id}{0%,100%{d:path('M0,55 C360,95 1080,15 1440,55 L1440,110 L0,110 Z')}50%{d:path('M0,35 C360,15 1080,95 1440,35 L1440,110 L0,110 Z')}}@keyframes wvb${id}{0%,100%{d:path('M0,75 C480,35 960,95 1440,65 L1440,110 L0,110 Z')}50%{d:path('M0,45 C480,85 960,25 1440,55 L1440,110 L0,110 Z')}}</style></defs><path d="M0,55 C360,95 1080,15 1440,55 L1440,110 L0,110 Z" fill="${p}" opacity=".15" style="animation:wva${id} 7s ease-in-out infinite"/><path d="M0,75 C480,35 960,95 1440,65 L1440,110 L0,110 Z" fill="${p}" opacity=".09" style="animation:wvb${id} 9s ease-in-out infinite 1s"/></svg></div>`;
+}
+function _animGeoLines(id,p){
+  const lines=[...Array.from({length:7},(_,i)=>`<line x1="${110*i}" y1="0" x2="${800-110*i}" y2="600" stroke="${p}" stroke-width=".9" stroke-dasharray="900" stroke-dashoffset="900" style="animation:gl${id} ${3+i*.45}s ${i*.3}s linear infinite"/>`),...Array.from({length:5},(_,i)=>`<line x1="0" y1="${120*i}" x2="800" y2="${600-120*i}" stroke="${p}" stroke-width=".7" stroke-dasharray="700" stroke-dashoffset="700" style="animation:gl${id} ${4+i*.35}s ${i*.45}s linear infinite"/>`)].join('');
+  return `<svg style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:.2" aria-hidden="true" viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice"><defs><style>@keyframes gl${id}{0%{stroke-dashoffset:900}100%{stroke-dashoffset:0}}</style></defs>${lines}</svg>`;
+}
+function _animSpeedLines(id,p){
+  const js=`(function(){if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;const c=document.getElementById('${id}');if(!c)return;const cx=c.getContext('2d');let P=[];function rsz(){c.width=c.offsetWidth;c.height=c.offsetHeight;P=Array.from({length:45},()=>({x:Math.random()*c.width,y:Math.random()*c.height,len:40+Math.random()*130,spd:4+Math.random()*9,op:.15+Math.random()*.45}));}function dr(){cx.clearRect(0,0,c.width,c.height);P.forEach(q=>{q.x-=q.spd;if(q.x+q.len<0){q.x=c.width+q.len;q.y=Math.random()*c.height;}cx.beginPath();cx.moveTo(q.x,q.y);cx.lineTo(q.x+q.len,q.y);const clr='PRIMARY';cx.strokeStyle=clr+(Math.floor(q.op*255).toString(16).padStart(2,'0'));cx.lineWidth=.9;cx.stroke();});requestAnimationFrame(dr);}rsz();dr();window.addEventListener('resize',rsz,{passive:true});})();`.replace(/PRIMARY/g,p);
+  return `<canvas id="${id}" style="position:absolute;inset:0;width:100%;height:100%;pointer-events:none;z-index:1;opacity:.38" aria-hidden="true"></canvas><script>${js}<\/script>`;
+}
+function _animFloatShapes(id,p){
+  const sh=Array.from({length:9},(_,i)=>{
+    const s=(10+Math.random()*36).toFixed(0),dl=(Math.random()*7).toFixed(1),dr=(5+Math.random()*8).toFixed(1),lf=(4+Math.random()*88).toFixed(1),tp=(4+Math.random()*82).toFixed(1),br=Math.random()>.5?'50%':'5px';
+    return `<div style="position:absolute;left:${lf}%;top:${tp}%;width:${s}px;height:${s}px;border-radius:${br};background:${p}1a;border:1px solid ${p}38;animation:fs${id} ${dr}s ${dl}s ease-in-out infinite alternate;pointer-events:none"></div>`;
+  }).join('');
+  return `<style>@keyframes fs${id}{from{transform:translateY(0) rotate(0deg)}to{transform:translateY(-22px) rotate(18deg)}}</style><div style="position:absolute;inset:0;overflow:hidden;pointer-events:none;z-index:1" aria-hidden="true">${sh}</div>`;
+}
+
+// ═══════════════════════════════════════════════
 // TEMPLATE 1: CLASSIC — Agency Premium Dark
 // ═══════════════════════════════════════════════
 function _tplClassic(v){
@@ -1098,6 +1140,7 @@ ${animCSS}
 <section id="hero">
   <div class="hero-glow"></div>
   <div class="hero-grid"></div>
+  ${_heroAnim(TYPE,p)}
   <div class="hero-content">
     ${s.bizBadge?`<div class="hero-badge">${s.bizBadge}</div>`:''}
     <h1>${(s.heroTitle||s.bizTagline||'').replace(/(\S+\s*\S*)$/,'<em>$1</em>')}</h1>
@@ -1238,6 +1281,7 @@ ${animCSS}
 <section id="hero">
   <div class="hero-mesh"></div>
   <div class="hero-grid-lines"></div>
+  ${_heroAnim(TYPE,p)}
   <div class="hero-content">
     <div class="hero-chip"><span class="hero-chip-dot"></span>${s.bizBadge||'Solución innovadora'}</div>
     <h1>${s.heroTitle||s.bizTagline||'Tu negocio al siguiente nivel'}</h1>
@@ -1392,7 +1436,7 @@ ${animCSS}
       </div>
     </div>
   </div>
-  <div class="hero-right"><div class="hero-right-bg"></div></div>
+  <div class="hero-right"><div class="hero-right-bg"></div>${_heroAnim(TYPE,p)}</div>
 </section>
 <div class="stats-bar"><div class="container"><div class="stats-inner">${statItems}</div></div></div>
 <div class="marquee-wrap"><div class="marquee-track">${marqItems}${marqItems}</div></div>
@@ -1516,6 +1560,7 @@ ${animCSS}
 <section id="hero">
   <div class="hero-img"></div>
   <div class="hero-overlay"></div>
+  ${_heroAnim(TYPE,p)}
   <div class="hero-content">
     <span class="hero-cat">${s.bizBadge||s.bizName||'Profesionales'}</span>
     <h1>${s.heroTitle||s.bizTagline||'Tu negocio al siguiente nivel'}</h1>
@@ -1640,6 +1685,7 @@ ${animCSS}
 <div class="draft-notice">📋 Borrador — El Nav y Footer se configuran en el Paso 2 →</div>
 <section id="hero">
   <div class="hero-dots"></div>
+  ${_heroAnim(TYPE,p)}
   <div class="container"><div class="hero-content">
     <div class="hero-line"></div>
     ${s.bizBadge?`<div class="hero-pill">${s.bizBadge}</div>`:''}
@@ -1732,7 +1778,7 @@ body{background:#fafafa;color:#111}
 .btn-vib:hover{transform:translateY(-3px);box-shadow:0 16px 44px color-mix(in srgb,${p} 50%,transparent)}
 .btn-vib-out{background:transparent;color:${p};padding:15px 32px;border-radius:50px;font-weight:700;font-size:.95rem;border:2px solid color-mix(in srgb,${p} 30%,transparent);transition:.2s}
 .btn-vib-out:hover{background:color-mix(in srgb,${p} 6%,transparent);border-color:${p};transform:translateY(-2px)}
-.vib-hero-right{padding:40px;display:flex;align-items:center;justify-content:center;animation:heroInR .9s cubic-bezier(.22,1,.36,1) .1s backwards}
+.vib-hero-right{position:relative;overflow:hidden;padding:40px;display:flex;align-items:center;justify-content:center;animation:heroInR .9s cubic-bezier(.22,1,.36,1) .1s backwards}
 .vib-img-wrap{position:relative;width:100%;max-width:460px}
 .vib-img{width:100%;aspect-ratio:4/5;object-fit:cover;border-radius:24px;box-shadow:0 40px 80px rgba(0,0,0,.15);animation:float 7s ease-in-out infinite}
 .vib-img-bg{width:100%;aspect-ratio:4/5;border-radius:24px;background-image:url(${heroImgUrl});background-size:cover;background-position:center;box-shadow:0 40px 80px rgba(0,0,0,.15);animation:float 7s ease-in-out infinite}
@@ -1788,6 +1834,7 @@ ${animCSS}
     </div>
   </div>
   <div class="vib-hero-right">
+    ${_heroAnim(TYPE,p)}
     <div class="vib-img-wrap">
       <div class="vib-img-bg"></div>
       <div class="vib-badge1"><span>500+</span>Clientes</div>
@@ -1916,6 +1963,7 @@ ${animCSS}
 <section id="hero">
   <div class="corp-hero-img"></div>
   <div class="corp-hero-grad"></div>
+  ${_heroAnim(TYPE,p)}
   <div class="container"><div class="hero-content">
     <div class="corp-badge">${s.bizBadge||'Empresa de confianza'}</div>
     <h1>${(s.heroTitle||s.bizTagline||'').replace(/(\S+\s*\S*)$/,'<span>$1</span>')}</h1>
