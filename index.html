@@ -50,10 +50,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
   border-bottom:1px solid var(--bd);padding:0 1rem;
 }
 .sb-inner{
-  max-width:1280px;margin:0 auto;display:flex;align-items:center;
-  padding:.9rem 0;overflow-x:auto;scrollbar-width:none;
+  max-width:1280px;margin:0 auto;display:flex;align-items:center;gap:.5rem;
+  padding:.9rem 0;
 }
-.sb-inner::-webkit-scrollbar{display:none}
 .sb-step{
   display:flex;align-items:center;gap:.5rem;
   font-size:.78rem;font-weight:600;color:var(--td);
@@ -71,9 +70,9 @@ body{font-family:'Inter',system-ui,sans-serif;background:var(--bg);color:var(--t
 }
 .sb-step.active .sb-num{background:var(--p);color:#fff;border-color:var(--p);box-shadow:0 0 12px rgba(29,158,117,.4)}
 .sb-step.done .sb-num{background:var(--pl);color:var(--p);border-color:var(--p)}
-.sb-div{flex:1;min-width:20px;max-width:60px;height:2px;background:var(--bd2);margin:0 .4rem;border-radius:2px}
+.sb-div{width:28px;flex-shrink:0;height:2px;background:var(--bd2);border-radius:2px}
 .sb-div.done{background:var(--p)}
-.sb-logo{font-size:.9rem;font-weight:800;margin-right:auto;padding-right:1rem;
+.sb-logo{font-size:.9rem;font-weight:800;flex-shrink:0;padding-right:1.2rem;
   background:linear-gradient(135deg,#1D9E75,#4fd1c5);-webkit-background-clip:text;background-clip:text;-webkit-text-fill-color:transparent}
 
 /* ─── MAIN / STEPS ─────────────────────────── */
