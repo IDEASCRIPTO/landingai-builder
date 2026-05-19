@@ -273,7 +273,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       </div>
       <div class="card-footer">
         <div class="card-meta"><b>10</b> secciones incluidas</div>
-        <a class="btn-card" href="constructor.html?t=viajes">Crear página →</a>
+        <a class="btn-card" href="constructor.html?v=4&t=viajes">Crear página →</a>
       </div>
     </div>
   </div>
@@ -335,7 +335,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       </div>
       <div class="card-footer">
         <div class="card-meta"><b>10</b> secciones incluidas</div>
-        <a class="btn-card" href="constructor.html?t=medico">Crear página →</a>
+        <a class="btn-card" href="constructor.html?v=4&t=medico">Crear página →</a>
       </div>
     </div>
   </div>
@@ -397,7 +397,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       </div>
       <div class="card-footer">
         <div class="card-meta"><b>10</b> secciones incluidas</div>
-        <a class="btn-card" href="constructor.html?t=abogado">Crear página →</a>
+        <a class="btn-card" href="constructor.html?v=4&t=abogado">Crear página →</a>
       </div>
     </div>
   </div>
@@ -459,7 +459,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       </div>
       <div class="card-footer">
         <div class="card-meta"><b>10</b> secciones incluidas</div>
-        <a class="btn-card" href="constructor.html?t=inmobiliaria">Crear página →</a>
+        <a class="btn-card" href="constructor.html?v=4&t=inmobiliaria">Crear página →</a>
       </div>
     </div>
   </div>
@@ -521,7 +521,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       </div>
       <div class="card-footer">
         <div class="card-meta"><b>10</b> secciones incluidas</div>
-        <a class="btn-card" href="constructor.html?t=automotriz">Crear página →</a>
+        <a class="btn-card" href="constructor.html?v=4&t=automotriz">Crear página →</a>
       </div>
     </div>
   </div>
@@ -583,7 +583,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       </div>
       <div class="card-footer">
         <div class="card-meta"><b>10</b> secciones incluidas</div>
-        <a class="btn-card" href="constructor.html?t=producto">Crear página →</a>
+        <a class="btn-card" href="constructor.html?v=4&t=producto">Crear página →</a>
       </div>
     </div>
   </div>
@@ -645,7 +645,7 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-h
       </div>
       <div class="card-footer">
         <div class="card-meta"><b>10</b> secciones incluidas</div>
-        <a class="btn-card" href="constructor.html?t=servicio">Crear página →</a>
+        <a class="btn-card" href="constructor.html?v=4&t=servicio">Crear página →</a>
       </div>
     </div>
   </div>
@@ -678,7 +678,7 @@ function crearConAgente(){
   if(url) localStorage.setItem('wc-pending-agent-url', url);
   else localStorage.removeItem('wc-pending-agent-url');
 
-  window.location.href = 'constructor.html?t=' + tipo;
+  window.location.href = 'constructor.html?v=4&t=' + tipo;
 }
 
 // Compatibilidad con flujo antiguo (links directos a plantillas con URL)
@@ -686,7 +686,7 @@ function crearConIA(){
   const desc = document.getElementById('aiCreateDesc')?.value.trim() || '';
   const tipo = document.getElementById('aiCreateType')?.value || 'servicio';
   if(desc) localStorage.setItem('wc-pending-desc', desc);
-  window.location.href = 'constructor.html?t=' + tipo;
+  window.location.href = 'constructor.html?v=4&t=' + tipo;
 }
 
 function filter(q){
