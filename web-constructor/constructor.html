@@ -143,6 +143,7 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
   </div>
   <div class="hdr-right">
     <span class="save-ind" id="saveInd">✓ Guardado</span>
+    <button class="btn-sm" onclick="loadLandingFile()" title="Cargar landing guardada para editar">📂 Cargar</button>
     <button class="btn-sm" onclick="resetState()">↺ Reiniciar</button>
     <button class="btn-dl" onclick="downloadPage()">⬇ Borrador</button>
     <a class="btn-next" id="btnNext" href="#">Siguiente paso →</a>
@@ -2072,12 +2073,41 @@ function render(){
   document.getElementById('pf').srcdoc = genHTML();
 }
 function downloadPage(){
-  const h=genHTML(), b=new Blob([h],{type:'text/html;charset=utf-8'}), u=URL.createObjectURL(b);
+  collectState();
+  const configTag = '<!-- landing-config: ' + JSON.stringify(state) + ' -->\n';
+  const h = genHTML().replace('</head>', configTag + '</head>');
+  const b=new Blob([h],{type:'text/html;charset=utf-8'}), u=URL.createObjectURL(b);
   const a=document.createElement('a');
   a.href=u;
   const name=(document.getElementById('bizName').value||'pagina').toLowerCase().replace(/\s+/g,'-').replace(/[^a-z0-9-]/g,'');
   a.download=name+'.html';
   a.click(); URL.revokeObjectURL(u);
+}
+
+function loadLandingFile(){
+  const input = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.html';
+  input.onchange = async function(e){
+    const file = e.target.files[0];
+    if(!file) return;
+    const text = await file.text();
+    const match = text.match(/<!--\s*landing-config:\s*(\{[\s\S]*?\})\s*-->/);
+    if(match){
+      try{
+        const cfg = JSON.parse(match[1]);
+        applyState(cfg);
+        render(); save();
+        const ind = document.getElementById('saveInd');
+        if(ind){ ind.textContent = '✓ Landing cargada'; setTimeout(()=>{ ind.textContent='✓ Guardado'; },2500); }
+      }catch(err){
+        alert('Error al leer la configuración de la landing. El archivo puede estar dañado.');
+      }
+    } else {
+      alert('Esta landing no tiene configuración guardada.\n\nSolo las landings descargadas con esta versión del constructor pueden reimportarse.\n\nPara landings antiguas, edítalas directamente en el código o descarga de nuevo desde el constructor.');
+    }
+  };
+  input.click();
 }
 
 // ═══════════════════════════════════════════════
