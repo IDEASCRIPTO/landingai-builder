@@ -2690,7 +2690,7 @@ function _patchHTML(html){
   if(out.includes('fbq(') && !out.includes('_h256')){
     const h256fn = "async function _h256(s){const b=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s));return Array.from(new Uint8Array(b)).map(x=>x.toString(16).padStart(2,'0')).join('');}";
     const submitHandler = "document.addEventListener('submit',async function(e){if(typeof _mp==='undefined'||!_mp||typeof fbq==='undefined')return;var f=e.target,ei=f.querySelector('input[type=email],[name*=email],[name*=correo]'),pi=f.querySelector('input[type=tel],[name*=phone],[name*=tel],[name*=whatsapp]'),ud={external_id:typeof _eid!=='undefined'?_eid:''};if(ei&&ei.value.trim())ud.em=await _h256(ei.value.trim().toLowerCase());if(pi&&pi.value.trim())ud.ph=await _h256(pi.value.replace(/\\D/g,''));if(ud.em||ud.ph){fbq('init',_mp,ud);fbq('trackSingle',_mp,'Lead',{});}if(typeof ttq!=='undefined'){var _tid={};if(ud.em)_tid.email=ud.em;if(ud.ph)_tid.phone_number=ud.ph;if(Object.keys(_tid).length)ttq.identify(_tid);}if(typeof gtag==='function'&&typeof _ga!=='undefined'&&ud.em)gtag('config',_ga,{user_id:ud.em});});";
-    const iifeClose = '})();\n</script>';
+    const iifeClose = '})();\n</' + 'script>';
     if(out.includes(iifeClose)){
       out = out.replace(iifeClose, h256fn + '\n  ' + submitHandler + '\n' + iifeClose);
       changes.push('Email + teléfono hash en Lead (+2.73%)');
