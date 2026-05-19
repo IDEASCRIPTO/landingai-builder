@@ -106,6 +106,9 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
 .pv-dev-btns{margin-left:auto;display:flex;gap:4px}
 .pv-dev-btn{background:none;border:1px solid #64748b;color:#334155;border-radius:6px;padding:3px 9px;font-size:.68rem;font-weight:600;cursor:pointer;transition:.15s}
 .pv-dev-btn.active{border-color:#0f7d5a;color:#0f7d5a;background:rgba(15,125,90,.1)}
+.pv-dev-btn.edit-active{border-color:#6366f1;color:#6366f1;background:rgba(99,102,241,.12)}
+.edit-mode-bar{background:linear-gradient(90deg,#6366f1,#8b5cf6);color:#fff;font-size:.72rem;font-weight:700;padding:6px 16px;text-align:center;letter-spacing:.3px;display:none;cursor:pointer}
+.edit-mode-bar.show{display:block}
 .pv-wrap{flex:1;display:flex;justify-content:center;align-items:flex-start;overflow:auto;background:linear-gradient(135deg,#e2e8f0,#cbd5e1);padding:24px 16px}
 .pv-wrap iframe{width:100%;max-width:960px;min-height:600px;border:none;background:#fff;border-radius:12px;box-shadow:0 8px 32px rgba(0,0,0,.18)}
 .pv-wrap.dev-tablet{padding:16px}.pv-wrap.dev-tablet iframe{max-width:768px;border-radius:10px}
@@ -381,8 +384,10 @@ body{font-family:'Inter',sans-serif;background:#0f172a;color:#e2e8f0;height:100v
         <button class="pv-dev-btn active" id="dev-desktop" onclick="setDevice('desktop')">🖥 Desktop</button>
         <button class="pv-dev-btn" id="dev-tablet" onclick="setDevice('tablet')">⬛ Tablet</button>
         <button class="pv-dev-btn" id="dev-mobile" onclick="setDevice('mobile')">📱 Móvil</button>
+        <button class="pv-dev-btn" id="editModeBtn" onclick="toggleEditMode()" title="Edición inline — click cualquier texto en el preview">✏️ Editar</button>
       </div>
     </div>
+    <div class="edit-mode-bar" id="editModeBar" onclick="toggleEditMode()">✏️ Modo edición activo — Click en cualquier texto del preview para editarlo · Click aquí para salir</div>
     <div class="pv-wrap" id="pvWrap">
       <iframe id="pf"></iframe>
     </div>
@@ -1988,6 +1993,7 @@ function genHTML(){
   }
 }
 function render(){
+  _editModeOff();
   document.getElementById('pf').srcdoc = genHTML();
 }
 function downloadPage(){
@@ -2006,6 +2012,150 @@ function setDevice(d){
   ['desktop','tablet','mobile'].forEach(x=>document.getElementById('dev-'+x).classList.toggle('active',x===d));
   document.getElementById('pvWrap').className='pv-wrap'+(d!=='desktop'?' dev-'+d:'');
 }
+
+// ═══════════════════════════════════════════════
+// EDICIÓN INLINE
+// ═══════════════════════════════════════════════
+var _editModeActive = false;
+
+const EDIT_MODE_SCRIPT = `(function(){
+  var _box=null,_el=null;
+
+  function autoMap(){
+    var q=document.querySelector.bind(document), qa=document.querySelectorAll.bind(document);
+    // Hero
+    var h1=q('#hero h1'); if(h1) h1.dataset.ef='heroTitle';
+    var sub=q('#hero .hero-content>p, #hero .hero-desc, #hero p.hero-desc');
+    if(!sub) sub=q('#hero p:not(.hero-badge):not(.hero-eyebrow):not(.hero-label)');
+    if(sub) sub.dataset.ef='heroSub';
+    // CTA en hero — solo el primero, excluir WhatsApp
+    var cta=q('#hero a.btn-primary,#hero a.btn-glow,#hero a.btn-mag,#hero a.btn-min,#hero a.btn-vib,#hero a.btn-corp');
+    if(cta) cta.dataset.ef='heroCta';
+    // Services
+    qa('.card-body h3,.bento-card h3,.feat-body h3,.mag-serv h3,.min-serv-body h3,.vib-card h3,.corp-feat h3').forEach(function(e,i){e.dataset.ef='servs.'+i+'.title';});
+    qa('.card-body p,.bento-card p,.feat-body p,.mag-serv p,.min-serv-body p,.vib-card p,.corp-feat p').forEach(function(e,i){e.dataset.ef='servs.'+i+'.desc';});
+    // Steps
+    qa('.step h4,.dark-step-body h4,.split-step h4,.mag-step h4,.min-step-body strong,.vib-step h4,.corp-step-body h4').forEach(function(e,i){e.dataset.ef='pasos.'+i+'.title';});
+    qa('.step p,.dark-step-body p,.split-step>div>p,.mag-step p,.min-step-body p,.vib-step p,.corp-step-body p').forEach(function(e,i){e.dataset.ef='pasos.'+i+'.desc';});
+    // Testimonials — solo el texto principal
+    qa('.testi-text,.dark-testi-text,.split-testi>p,.mag-testi>p,.min-testi blockquote,.vib-testi>p,.corp-testi>p').forEach(function(e,i){e.dataset.ef='testis.'+i+'.text';});
+  }
+
+  function makeBox(el){
+    hideBox();_el=el;
+    var field=el.dataset.ef, isBlock=el.tagName==='P'||el.tagName==='BLOCKQUOTE'||el.tagName==='STRONG'||(el.textContent.length>80);
+    var rect=el.getBoundingClientRect();
+    var left=Math.max(8,Math.min(rect.left,window.innerWidth-300));
+    var top=Math.max(8,rect.top+window.scrollY-6);
+    _box=document.createElement('div');
+    _box.style.cssText='position:absolute;left:'+left+'px;top:'+top+'px;z-index:99999;background:#fff;border-radius:14px;box-shadow:0 8px 48px rgba(0,0,0,.22),0 0 0 2.5px #6366f1;padding:10px;min-width:'+Math.max(280,Math.min(rect.width+24,500))+'px;max-width:min(520px,calc(100vw - 20px))';
+    var tag=isBlock?'textarea':'input';
+    var inp=document.createElement(tag);
+    var rawVal=el.textContent.trim().replace(/^\\u201c|\\u201d$/g,'').replace(/^"|"$/g,'');
+    inp.value=rawVal;
+    inp.style.cssText='width:100%;border:none;outline:none;font-family:inherit;font-size:.95rem;line-height:1.55;padding:10px 12px;border-radius:10px;background:#f8fafc;color:#0f172a;font-weight:600;'+(isBlock?'min-height:90px;resize:vertical;':'height:42px');
+    var footer=document.createElement('div');
+    footer.style.cssText='display:flex;align-items:center;gap:6px;padding:8px 2px 2px;font-size:.75rem;color:#94a3b8';
+    footer.innerHTML='<span style="flex:1">✏️ '+field+'</span>';
+    var ok=document.createElement('button');
+    ok.textContent='✓ Guardar';
+    ok.style.cssText='background:#6366f1;color:#fff;border:none;border-radius:8px;padding:7px 18px;font-size:.82rem;font-weight:700;cursor:pointer';
+    var can=document.createElement('button');
+    can.textContent='✕';
+    can.style.cssText='background:#f1f5f9;color:#374151;border:none;border-radius:8px;padding:7px 12px;font-size:.82rem;cursor:pointer';
+    function save(){var v=inp.value.trim();if(!v)return;el.textContent=v;window.parent.postMessage({type:'ef-edit',field:field,value:v},'*');hideBox();}
+    ok.onclick=save; can.onclick=hideBox;
+    inp.onkeydown=function(e){if(e.key==='Enter'&&!e.shiftKey&&!isBlock){e.preventDefault();save();}if(e.key==='Escape')hideBox();};
+    footer.appendChild(can); footer.appendChild(ok);
+    _box.appendChild(inp); _box.appendChild(footer);
+    document.body.appendChild(_box);
+    setTimeout(function(){inp.focus();inp.select();},30);
+  }
+
+  function hideBox(){if(_box){_box.remove();_box=null;}_el=null;}
+
+  // CSS
+  var st=document.createElement('style');
+  st.textContent='[data-ef]{cursor:pointer!important;transition:outline .12s}[data-ef]:hover:not(:focus){outline:2.5px dashed #6366f1!important;outline-offset:4px;border-radius:3px}[data-ef].ef-editing{outline:2.5px solid #6366f1!important;outline-offset:4px;border-radius:3px}';
+  document.head.appendChild(st);
+
+  // Click handler (capture phase so it works inside links etc)
+  document.addEventListener('click',function(e){
+    var t=e.target.closest('[data-ef]');
+    if(t){e.preventDefault();e.stopPropagation();makeBox(t);return;}
+    if(_box&&!_box.contains(e.target))hideBox();
+  },true);
+
+  autoMap();
+  var n=document.querySelectorAll('[data-ef]').length;
+  window.parent.postMessage({type:'ef-ready',count:n},'*');
+})();`;
+
+function _editModeOff(){
+  _editModeActive = false;
+  const btn = document.getElementById('editModeBtn');
+  const bar = document.getElementById('editModeBar');
+  if(btn){ btn.classList.remove('edit-active'); btn.textContent='✏️ Editar'; }
+  if(bar) bar.classList.remove('show');
+}
+
+function toggleEditMode(){
+  _editModeActive = !_editModeActive;
+  const btn = document.getElementById('editModeBtn');
+  const bar = document.getElementById('editModeBar');
+  if(_editModeActive){
+    btn.classList.add('edit-active');
+    btn.textContent='⏳ Activando...';
+    if(bar) bar.classList.add('show');
+    // Inyectar script en el iframe
+    const pf = document.getElementById('pf');
+    const inject = () => {
+      try{
+        const s = pf.contentDocument.createElement('script');
+        s.textContent = EDIT_MODE_SCRIPT;
+        pf.contentDocument.head.appendChild(s);
+      } catch(e){ console.warn('Edit mode inject failed:', e); }
+    };
+    // Si el iframe ya cargó, inyectar ahora; si no, esperar onload
+    if(pf.contentDocument && pf.contentDocument.readyState === 'complete') inject();
+    else pf.addEventListener('load', inject, {once:true});
+  } else {
+    render(); // Re-render limpio sale del modo edición
+  }
+}
+
+// Receptor de mensajes del iframe (edición inline)
+window.addEventListener('message', function(e){
+  if(!e.data || typeof e.data !== 'object') return;
+  if(e.data.type === 'ef-ready'){
+    const btn = document.getElementById('editModeBtn');
+    if(btn) btn.textContent='✏️ Editando ('+e.data.count+')';
+    return;
+  }
+  if(e.data.type !== 'ef-edit') return;
+  const field = e.data.field, value = e.data.value;
+  const parts = field.split('.');
+  if(parts.length === 1){
+    if(state) state[field] = value;
+    const inp = document.getElementById(field);
+    if(inp) inp.value = value;
+  } else if(parts.length === 3){
+    const arrName=parts[0], idx=parseInt(parts[1]), key=parts[2];
+    if(state && state[arrName] && state[arrName][idx]) state[arrName][idx][key] = value;
+    // Actualizar input en el panel
+    const listIds={servs:'servList',pasos:'pasoList',testis:'testiList'};
+    const itemCls={servs:'serv-item',pasos:'paso-item',testis:'testi-item'};
+    const fldCls={title:'f-title',desc:'f-desc',text:'f-text',name:'f-name',cargo:'f-cargo'};
+    const list = document.getElementById(listIds[arrName]);
+    if(list){
+      const cards = list.querySelectorAll('.'+itemCls[arrName]);
+      const inp = cards[idx]?.querySelector('.'+fldCls[key]);
+      if(inp) inp.value = value;
+    }
+  }
+  save();
+});
+
 function toggleCfg(){
   const cfg=document.getElementById('cfg'), btn=document.getElementById('cfgToggle');
   const col=cfg.classList.toggle('collapsed');
