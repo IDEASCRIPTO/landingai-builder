@@ -601,7 +601,7 @@ if ($accion_actual === 'generar_web_v2') {
     curl_setopt_array($ch1, [
         CURLOPT_POST=>true, CURLOPT_POSTFIELDS=>json_encode($data),
         CURLOPT_HTTPHEADER=>['Content-Type: application/json'],
-        CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>120,
+        CURLOPT_RETURNTRANSFER=>true, CURLOPT_TIMEOUT=>180,
         CURLOPT_CONNECTTIMEOUT=>10, CURLOPT_SSL_VERIFYPEER=>false,
     ]);
     $n8nRaw = curl_exec($ch1); $n8nErr = curl_error($ch1); curl_close($ch1);
