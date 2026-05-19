@@ -91,18 +91,23 @@ function callAiDirectWithSystem(string $provider, string $apiKey, string $system
 }
 
 /* ── AI DIRECTO: llama a la API del proveedor con PHP curl (evita bug n8n HTTP body) ── */
-function callAiDirect(string $provider, string $apiKey, string $prompt): array {
+function callAiDirect(string $provider, string $apiKey, string $prompt, string $systemPrompt = ''): array {
     if ($provider === 'openai') {
         $url  = 'https://api.openai.com/v1/chat/completions';
-        $body = json_encode(['model'=>'gpt-4o-mini','max_tokens'=>4000,'messages'=>[['role'=>'user','content'=>$prompt]]]);
+        $msgs = $systemPrompt ? [['role'=>'system','content'=>$systemPrompt],['role'=>'user','content'=>$prompt]] : [['role'=>'user','content'=>$prompt]];
+        $body = json_encode(['model'=>'gpt-4o-mini','max_tokens'=>4000,'messages'=>$msgs]);
         $hdrs = ['Content-Type: application/json','Authorization: Bearer '.$apiKey];
     } elseif ($provider === 'gemini') {
         $url  = 'https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key='.$apiKey;
-        $body = json_encode(['contents'=>[['parts'=>[['text'=>$prompt]]]]]);
+        $payload = ['contents'=>[['parts'=>[['text'=>$prompt]]]]];
+        if ($systemPrompt) $payload['system_instruction'] = ['parts'=>[['text'=>$systemPrompt]]];
+        $body = json_encode($payload);
         $hdrs = ['Content-Type: application/json'];
     } else {
         $url  = 'https://api.anthropic.com/v1/messages';
-        $body = json_encode(['model'=>'claude-sonnet-4-6','max_tokens'=>4000,'messages'=>[['role'=>'user','content'=>$prompt]]]);
+        $payload = ['model'=>'claude-sonnet-4-6','max_tokens'=>4000,'messages'=>[['role'=>'user','content'=>$prompt]]];
+        if ($systemPrompt) $payload['system'] = $systemPrompt;
+        $body = json_encode($payload);
         $hdrs = ['Content-Type: application/json','x-api-key: '.$apiKey,'anthropic-version: 2023-06-01'];
     }
     $ch = curl_init($url);
@@ -684,7 +689,25 @@ if (in_array($accion_actual, $COPY_ACTIONS)) {
     }
 
     // Paso 2: llamar AI directamente con PHP curl
-    $aiResp = callAiDirect($aiProvider, $apiKey, $prompt);
+    $copyRules = 'Eres un experto en copywriting de alta conversión para landing pages en español.' . "\n\n" .
+        'REGLAS DE LONGITUD OBLIGATORIAS para el copy que generes:' . "\n" .
+        '• Hero título: 40–70 caracteres' . "\n" .
+        '• Hero subtítulo: 70–140 caracteres' . "\n" .
+        '• Hero CTA (botón): 10–30 caracteres' . "\n" .
+        '• Sección Problema: 300–600 caracteres totales; bullets ≤ 80 chars c/u' . "\n" .
+        '• Sección Solución: 400–800 caracteres totales' . "\n" .
+        '• Cada Beneficio: título 30–50 chars, descripción 80–150 chars' . "\n" .
+        '• Cada Testimonio: 150–300 caracteres' . "\n" .
+        '• Cada paso (Cómo funciona): 50–120 caracteres' . "\n" .
+        '• Oferta/Precio: 200–500 caracteres totales' . "\n" .
+        '• CTA final refuerzo: 50–120 caracteres' . "\n" .
+        '• Cada FAQ respuesta: 150–400 caracteres' . "\n" .
+        '• Total landing: apunta a 3,500–8,000 caracteres' . "\n\n" .
+        'EXCEPCIÓN: si el usuario solicita más de 6 beneficios, más de 5 FAQs o más de 5 testimonios, ' .
+        'escala el total proporcionalmente manteniendo la longitud por elemento. ' .
+        'Nunca excedas el doble del máximo por sección individual.' . "\n\n" .
+        'Escribe copy directo, emocional y orientado a conversión. Elimina relleno y palabras vacías.';
+    $aiResp = callAiDirect($aiProvider, $apiKey, $prompt, $copyRules);
 
     // Paso 3: parsear respuesta (misma lógica que nodo n8n "Parsear Respuesta Claude")
     $parsed = parseAiCopyResponse($aiResp);
