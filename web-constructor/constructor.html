@@ -992,10 +992,8 @@ img{max-width:100%;display:block;object-fit:cover}
 // TEMPLATE 1: CLASSIC
 // ═══════════════════════════════════════════════
 function _tplClassic(v){
-  const {s,p,pd,bg,heroC,animStyle,TYPE,heroImgUrl,waLink}=v;
+  const {s,p,pd,bg,heroC,animStyle,TYPE,heroImgUrl,waLink,marqItems,statItems}=v;
   const animCSS=_animCSS(animStyle);
-  const statItems=_statsItems(p,TYPE);
-  const marqItems=_marqItems(TYPE);
   const heroType=s.heroType||'overlay';
   let heroBgCss,heroBgDiv='',heroExtraCss='';
   if(heroType==='color') heroBgCss=`linear-gradient(145deg,${heroC},${heroC}cc)`;
@@ -1113,10 +1111,8 @@ ${_sharedBottom(v)}
 // TEMPLATE 2: DARK — Glassmorphism Premium
 // ═══════════════════════════════════════════════
 function _tplDark(v){
-  const {s,p,pd,bg,heroC,animStyle,TYPE,heroImgUrl,waLink}=v;
+  const {s,p,pd,bg,heroC,animStyle,TYPE,heroImgUrl,waLink,marqItems,statItems}=v;
   const animCSS=_animCSS(animStyle);
-  const marqItems=_marqItems(TYPE);
-  const statItems=_statsItems(p,TYPE);
 
   const servs=s.servs||[];
   const bentoItems=servs.map((sv,i)=>{
@@ -1281,10 +1277,8 @@ ${_sharedBottom(v)}
 // TEMPLATE 3: SPLIT — Hero partido moderno
 // ═══════════════════════════════════════════════
 function _tplSplit(v){
-  const {s,p,pd,bg,heroC,animStyle,TYPE,heroImgUrl,waLink}=v;
+  const {s,p,pd,bg,heroC,animStyle,TYPE,heroImgUrl,waLink,marqItems,statItems}=v;
   const animCSS=_animCSS(animStyle);
-  const marqItems=_marqItems(TYPE);
-  const statItems=_statsItems(p,TYPE);
 
   const featItems=(s.servs||[]).map((sv,i)=>`
     <div class="feat-row" data-r style="--delay:${i*.08}s">
@@ -1435,9 +1429,8 @@ ${_sharedBottom(v)}
 // TEMPLATE 4: MAGAZINE — Editorial bold
 // ═══════════════════════════════════════════════
 function _tplMagazine(v){
-  const {s,p,pd,bg,heroC,animStyle,TYPE,waLink}=v;
+  const {s,p,pd,bg,heroC,animStyle,TYPE,waLink,marqItems,statItems}=v;
   const animCSS=_animCSS(animStyle);
-  const marqItems=_marqItems(TYPE);
 
   const servItems=(s.servs||[]).map((sv,i)=>`
     <div class="mag-serv" data-r style="--delay:${i*.08}s" data-num="${String(i+1).padStart(2,'0')}">
@@ -1568,9 +1561,8 @@ ${_sharedBottom(v)}
 // TEMPLATE 5: MINIMAL — Luxury clean
 // ═══════════════════════════════════════════════
 function _tplMinimal(v){
-  const {s,p,pd,bg,heroC,animStyle,TYPE,waLink}=v;
+  const {s,p,pd,bg,heroC,animStyle,TYPE,waLink,marqItems,statItems}=v;
   const animCSS=_animCSS(animStyle);
-  const marqItems=_marqItems(TYPE);
 
   const servItems=(s.servs||[]).map((sv,i)=>`
     <div class="min-serv" data-r style="--delay:${i*.07}s">
@@ -1661,7 +1653,7 @@ ${animCSS}
     </div>
   </div></div>
 </section>
-<div class="stats-bar"><div class="container"><div class="stats-inner">${_statsItems(p,TYPE)}</div></div></div>
+<div class="stats-bar"><div class="container"><div class="stats-inner">${statItems}</div></div></div>
 <div class="marquee-wrap"><div class="marquee-track">${marqItems}${marqItems}</div></div>
 <section class="section" id="servicios"><div class="container">
   <div class="section-header" data-r style="text-align:left;margin-bottom:48px"><span class="section-tag">Servicios</span><h2>Qué podemos hacer<br>por tu negocio</h2></div>
@@ -1694,10 +1686,8 @@ ${_sharedBottom(v)}
 // TEMPLATE 6: VIBRANT — Gradientes y color
 // ═══════════════════════════════════════════════
 function _tplVibrant(v){
-  const {s,p,pd,bg,heroC,animStyle,TYPE,waLink}=v;
+  const {s,p,pd,bg,heroC,animStyle,TYPE,waLink,marqItems,statItems}=v;
   const animCSS=_animCSS(animStyle);
-  const marqItems=_marqItems(TYPE);
-  const statItems=_statsItems(p,TYPE);
   const accents=['#6366f1','#ec4899','#f59e0b','#10b981','#3b82f6','#8b5cf6'];
 
   const servItems=(s.servs||[]).map((sv,i)=>`
@@ -1832,10 +1822,8 @@ ${_sharedBottom(v)}
 // TEMPLATE 7: CORPORATE — Enterprise formal
 // ═══════════════════════════════════════════════
 function _tplCorporate(v){
-  const {s,p,pd,bg,heroC,animStyle,TYPE,heroImgUrl,waLink}=v;
+  const {s,p,pd,bg,heroC,animStyle,TYPE,heroImgUrl,waLink,marqItems,statItems}=v;
   const animCSS=_animCSS(animStyle);
-  const marqItems=_marqItems(TYPE);
-  const statItems=_statsItems(p,TYPE);
 
   const featItems=(s.servs||[]).map((sv,i)=>`
     <div class="corp-feat" data-r style="--delay:${i*.07}s">
@@ -1998,7 +1986,9 @@ function genHTML(){
   const heroImgUrl = s.heroImg || ('https://images.unsplash.com/photo-' + (_hids[TYPE]||_hids.servicio) + '?auto=format&fit=crop&w=1920&q=80');
   const animStyle = s.animStyle||'slide';
   const waLink = s.ctWa ? `https://wa.me/${s.ctWa.replace(/\D/g,'')}` : '#';
-  const v = {s, p, pd, bg, heroC, animStyle, TYPE, heroImgUrl, waLink};
+  const marqItems = _marqItems(TYPE);
+  const statItems = _statsItems(p, TYPE);
+  const v = {s, p, pd, bg, heroC, animStyle, TYPE, heroImgUrl, waLink, marqItems, statItems};
   switch(layout){
     case 'dark':      return _tplDark(v);
     case 'split':     return _tplSplit(v);
