@@ -1275,11 +1275,11 @@ function genHTML(){
                 <div class="of-info">
                   ${p.ofertaBadge?`<span class="of-badge">${p.ofertaBadge}</span>`:''}
                   <span class="of-label">${p.label}</span>
-                  <div class="of-prices">
-                    ${p.precioAntes?`<span class="of-antes">$${p.precioAntes}</span>`:''}
-                    <span class="of-precio">$${p.price}</span>
-                  </div>
                   ${p.savings?`<span class="qs">${p.savings}</span>`:''}
+                </div>
+                <div class="of-price-col">
+                  ${p.precioAntes?`<span class="of-antes">$${p.precioAntes}</span>`:''}
+                  <span class="of-precio">$${p.price}</span>
                 </div>
               </label>
             </div>`).join('');
@@ -1368,12 +1368,12 @@ updateSummary();` : `document.querySelectorAll('input[name="pack"]').forEach(fun
 .qof input:checked+label{border-color:${btnColor};background:${hexAlpha(btnColor,.04)}}.qof label:hover{border-color:${btnColor}}
 .of-img{width:72px;height:72px;object-fit:cover;border-radius:10px;flex-shrink:0}
 .of-img-ph{width:72px;height:72px;border-radius:10px;background:#f3f4f6;display:flex;align-items:center;justify-content:center;font-size:1.8rem;flex-shrink:0}
-.of-info{flex:1;display:flex;flex-direction:column;gap:3px}
+.of-info{flex:1;display:flex;flex-direction:column;gap:3px;min-width:0}
 .of-badge{display:inline-block;background:${badgeColor};color:#fff;font-size:.65rem;font-weight:800;padding:2px 8px;border-radius:20px;align-self:flex-start;letter-spacing:.5px}
 .of-label{font-size:.95rem;font-weight:700;color:${textColor}}
-.of-prices{display:flex;align-items:baseline;gap:8px}
-.of-antes{font-size:.85rem;color:#9ca3af;text-decoration:line-through}
-.of-precio{font-size:1.4rem;font-weight:900;color:${btnColor}}` : `
+.of-price-col{display:flex;flex-direction:column;align-items:flex-end;flex-shrink:0;gap:1px;margin-left:auto;padding-left:10px}
+.of-antes{font-size:.8rem;color:#9ca3af;text-decoration:line-through;white-space:nowrap}
+.of-precio{font-size:1.4rem;font-weight:900;color:${btnColor};white-space:nowrap}` : `
 .qo-wrap{display:grid;grid-template-columns:${cols};gap:10px;margin-bottom:20px}
 .qo{position:relative}.qo input{position:absolute;opacity:0;width:0;height:0}
 .qo label{display:flex;flex-direction:column;align-items:center;justify-content:center;border:2px solid #e5e7eb;border-radius:14px;padding:10px 8px 14px;cursor:pointer;text-align:center;min-height:82px;transition:.15s;overflow:hidden;gap:4px}
